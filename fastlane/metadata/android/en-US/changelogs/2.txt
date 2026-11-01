@@ -1,0 +1,1 @@
+Fixes: the "Unfavorite" button label no longer gets cut off on the contact card; the call screen shows minutes counted from when the call connected.
