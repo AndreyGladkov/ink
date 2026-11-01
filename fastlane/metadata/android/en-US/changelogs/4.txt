@@ -1,0 +1,1 @@
+New app icon: a handset on an e-ink screen, so Ink Phone is no longer confused with the system dialer.
