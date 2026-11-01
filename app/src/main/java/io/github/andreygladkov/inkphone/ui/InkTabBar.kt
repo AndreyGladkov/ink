@@ -1,0 +1,96 @@
+package io.github.andreygladkov.inkphone.ui
+
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.util.TypedValue
+import android.widget.LinearLayout
+import io.github.andreygladkov.inkphone.Tab
+import io.github.andreygladkov.inkphone.eink.InkStyle
+import io.github.andreygladkov.inkphone.eink.StemFit
+import kotlin.math.floor
+import kotlin.math.roundToInt
+
+class InkTabBar(
+    context: Context,
+    private val showLabels: Boolean,
+    private val onSelect: (Tab) -> Unit,
+) : LinearLayout(context) {
+    private val inkStyle = InkStyle.of(context)
+    private val line = Paint().apply {
+        isAntiAlias = false
+        color = inkStyle.foreground
+    }
+    private val linePx = (LINE_DP * resources.displayMetrics.density).roundToInt().coerceAtLeast(1)
+    private val buttons = Tab.entries.associateWith { tab ->
+        InkButton(context).apply {
+            icon = tab.icon
+            if (showLabels) {
+                setText(tab.title)
+                maxLines = 1
+                val padding = (LABEL_PADDING_DP * resources.displayMetrics.density).roundToInt()
+                setPadding(padding, paddingTop, padding, paddingBottom)
+            } else {
+                contentDescription = context.getString(tab.title)
+            }
+            isBordered = false
+            setOnClickListener { select(tab, afterRedraw = true) }
+        }
+    }
+
+    private var fittedForWidth = -1
+
+    var selected: Tab? = null
+        private set
+
+    init {
+        orientation = HORIZONTAL
+        setWillNotDraw(false)
+        setPadding(0, linePx, 0, 0)
+        buttons.values.forEach { addView(it, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f)) }
+    }
+
+    fun setBadge(tab: Tab, count: Int) {
+        buttons.getValue(tab).badge = count.takeIf { it > 0 }?.toString()
+    }
+
+    fun select(tab: Tab, afterRedraw: Boolean = false) {
+        if (tab == selected) return
+        selected = tab
+        buttons.forEach { (t, button) -> button.isSelected = t == tab }
+        // The animation callback runs before this frame's traversal and the post after it, so the new
+        // selection reaches the panel before the tab's content is built.
+        if (afterRedraw) postOnAnimation { post { if (selected == tab) onSelect(tab) } } else onSelect(tab)
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        if (showLabels) fitLabels(MeasureSpec.getSize(widthMeasureSpec) / buttons.size)
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
+
+    private fun fitLabels(tabWidthPx: Int) {
+        if (tabWidthPx <= 0 || tabWidthPx == fittedForWidth) return
+        fittedForWidth = tabWidthPx
+        val probe = Paint(buttons.values.first().paint).apply {
+            textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, inkStyle.textSizeSp, resources.displayMetrics)
+            typeface = StemFit.typeface(textSize, inkStyle.weight)
+        }
+        val scale = buttons.values.minOf { button ->
+            (tabWidthPx - button.paddingLeft - button.paddingRight) / probe.measureText(button.text.toString())
+        }.coerceAtMost(MAX_LABEL_SCALE)
+        val step = floor(scale * SCALE_STEPS) / SCALE_STEPS
+        buttons.values.forEach { it.textScale = step }
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        canvas.drawRect(0f, 0f, width.toFloat(), linePx.toFloat(), line)
+    }
+
+    companion object {
+        const val PREF_LABELS = "tab_labels"
+        private const val LINE_DP = 2f
+        private const val LABEL_PADDING_DP = 4f
+        private const val MAX_LABEL_SCALE = 0.75f
+        private const val SCALE_STEPS = 20f
+    }
+}
