@@ -60,5 +60,13 @@ object CallPresenter {
     }
 
     fun elapsedMinutes(call: CallSnapshot, nowMillis: Long): Long? =
-        call.connectedAtMillis?.takeIf { it > 0 && call.phase == CallPhase.ACTIVE }?.let { (nowMillis - it) / 60_000 }
+        activeSince(call)?.let { (nowMillis - it) / MINUTE_MS }
+
+    fun millisUntilNextMinute(call: CallSnapshot, nowMillis: Long): Long? =
+        activeSince(call)?.let { MINUTE_MS - (nowMillis - it).coerceAtLeast(0) % MINUTE_MS }
+
+    private fun activeSince(call: CallSnapshot): Long? =
+        call.connectedAtMillis?.takeIf { it > 0 && call.phase == CallPhase.ACTIVE }
+
+    private const val MINUTE_MS = 60_000L
 }

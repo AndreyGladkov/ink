@@ -37,11 +37,10 @@ class CallActivity : Activity() {
     private var shown: CallScreenModel? = null
 
     private val listener: () -> Unit = { render() }
-    private val tick = object : Runnable {
-        override fun run() {
-            renderStatus(CallManager.model())
-            main.postDelayed(this, MINUTE_MS)
-        }
+    private val tick = Runnable {
+        val model = CallManager.model()
+        renderStatus(model)
+        scheduleTick(model)
     }
     private val finishAfterEnd = Runnable {
         CallManager.clearEnded()
@@ -96,7 +95,6 @@ class CallActivity : Activity() {
         answerIfAsked()
         CallManager.addListener(listener)
         render()
-        main.postDelayed(tick, MINUTE_MS)
     }
 
     override fun onStop() {
@@ -114,9 +112,16 @@ class CallActivity : Activity() {
     private fun render() {
         val model = CallManager.model()
         renderStatus(model)
+        scheduleTick(model)
         if (shown != model) renderControls(model)
         shown = model
         updateWindow(model)
+    }
+
+    private fun scheduleTick(model: CallScreenModel) {
+        main.removeCallbacks(tick)
+        val call = (model as? CallScreenModel.InCall)?.primary ?: return
+        CallPresenter.millisUntilNextMinute(call, System.currentTimeMillis())?.let { main.postDelayed(tick, it) }
     }
 
     private fun renderStatus(model: CallScreenModel) {
@@ -300,7 +305,6 @@ class CallActivity : Activity() {
         private const val ICON_DP = 24f
         private const val TITLE_SCALE = 1.6f
         private const val SMALL_SCALE = 0.9f
-        private const val MINUTE_MS = 60_000L
         private const val ENDED_SHOWN_MS = 1500L
         private const val MAX_CALL_MS = 4 * 60 * 60 * 1000L
 

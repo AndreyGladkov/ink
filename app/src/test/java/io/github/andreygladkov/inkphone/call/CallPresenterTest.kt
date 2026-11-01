@@ -54,6 +54,17 @@ class CallPresenterTest {
         assertEquals(CallScreenModel.Idle, CallPresenter.present(emptyList(), audio, null))
     }
 
+    @Test fun nextMinuteIsCountedFromConnectionNotFromScreenStart() {
+        val connectedAt = 1_000_000L
+        val active = call("1", CallPhase.ACTIVE, connectedAt = connectedAt)
+        assertEquals(55_000L, CallPresenter.millisUntilNextMinute(active, connectedAt + 5_000))
+        assertEquals(60_000L, CallPresenter.millisUntilNextMinute(active, connectedAt + 60_000))
+        assertEquals(1L, CallPresenter.millisUntilNextMinute(active, connectedAt + 2 * 60_000 - 1))
+        assertEquals(60_000L, CallPresenter.millisUntilNextMinute(active, connectedAt - 3_000))
+        assertNull(CallPresenter.millisUntilNextMinute(call("1", CallPhase.HOLDING, connectedAt = connectedAt), connectedAt + 5_000))
+        assertNull(CallPresenter.millisUntilNextMinute(call("1", CallPhase.DIALING), connectedAt + 5_000))
+    }
+
     @Test fun elapsedMinutesOnlyForActiveCalls() {
         assertEquals(3L, CallPresenter.elapsedMinutes(call("1", CallPhase.ACTIVE, connectedAt = 1_000L), 1_000L + 3 * 60_000 + 59_000))
         assertNull(CallPresenter.elapsedMinutes(call("1", CallPhase.HOLDING, connectedAt = 1_000L), 500_000L))
