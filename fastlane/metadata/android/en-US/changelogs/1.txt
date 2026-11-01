@@ -1,0 +1,1 @@
+First release: keypad with T9, own call screen, recents, contacts with editing, favorites and speed dial, vCard import and export, Hisense A9 panel refresh.

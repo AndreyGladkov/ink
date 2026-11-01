@@ -1,0 +1,14 @@
+Ink Phone is a phone app and contacts book for Android phones with e-ink screens, built for the Hisense A9.
+
+Every pixel is pure black or white: text is drawn without antialiasing with stems snapped to whole pixels, icons and emoji are two-tone, and there are no animations. Lists turn by pages instead of scrolling.
+
+<ul>
+<li>Keypad with T9 search over Russian and English names, speed dial on keys 2–9.</li>
+<li>Own call screen with large buttons, mute, speaker, Bluetooth, hold, call waiting and SIM choice.</li>
+<li>Recents grouped by number and day, missed calls filter and badge.</li>
+<li>Contacts with letter index and search, favorites, editing in Google or phone accounts.</li>
+<li>vCard import and export with duplicate handling.</li>
+<li>Optional full panel refresh on the Hisense A9 through A9PatchingService.</li>
+</ul>
+
+No internet permission.
