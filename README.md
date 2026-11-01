@@ -4,6 +4,14 @@ Phone app and contacts for Android phones with e-ink screens, built for the Hise
 
 Every pixel is pure black or white: text is drawn without antialiasing with stems snapped to whole pixels, icons and emoji are two-tone, and there are no animations or ripples. Lists turn by pages instead of scrolling.
 
+<p>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/9.png" width="160">
+</p>
+
 [Русская версия ниже](#ink-phone-по-русски)
 
 ## Features
@@ -40,6 +48,14 @@ Bundled components: Noto Emoji font (SIL Open Font License 1.1), ez-vcard and Ma
 Звонилка и телефонная книга для Android-телефонов с e-ink экраном, сделанная под Hisense A9.
 
 Каждый пиксель чисто чёрный или белый: текст рисуется без сглаживания со штрихами, подогнанными под пиксели, иконки и эмодзи двухцветные, анимаций и ряби при нажатии нет. Списки листаются страницами, а не прокруткой.
+
+<p>
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/1.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/2.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/4.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/7.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/9.png" width="160">
+</p>
 
 - Набор номера с поиском T9 по русским и английским именам и номерам, тоны DTMF, долгое нажатие: 0 — «+», 1 — голосовая почта, 2–9 — быстрый набор.
 - Свой экран звонка как у звонилки по умолчанию: принять и отклонить, без звука, громкая связь, Bluetooth, удержание, клавиатура, второй входящий, переключение и объединение, выбор SIM. Длительность разговора показывается в минутах, чтобы панель не перерисовывалась каждую секунду.
