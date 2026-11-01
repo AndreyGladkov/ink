@@ -28,6 +28,7 @@ import io.github.andreygladkov.inkphone.hasPermission
 import io.github.andreygladkov.inkphone.inkPrefs
 import io.github.andreygladkov.inkphone.ui.DottedDrawable
 import io.github.andreygladkov.inkphone.ui.InkButton
+import io.github.andreygladkov.inkphone.ui.InkButtonRow
 import io.github.andreygladkov.inkphone.ui.InkChoiceRow
 import io.github.andreygladkov.inkphone.ui.InkTextView
 import io.github.andreygladkov.inkphone.ui.InkWindow
@@ -152,8 +153,7 @@ class ContactCardActivity : Activity() {
         }
     }
 
-    private fun actions(details: ContactDetails) = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
+    private fun actions(details: ContactDetails) = InkButtonRow(this, dp(ROW_GAP_DP), ACTION_TEXT_SCALE).apply {
         setPadding(0, dp(ROW_GAP_DP), 0, 0)
         val buttons = if (details.id >= 0) {
             listOf(
@@ -173,9 +173,7 @@ class ContactCardActivity : Activity() {
                 finish()
             })
         }
-        buttons.forEachIndexed { index, button ->
-            addView(button, weighted().apply { if (index > 0) marginStart = dp(ROW_GAP_DP) })
-        }
+        buttons.forEach { addButton(it) }
     }
 
     private fun share(contactId: Long) {
@@ -199,14 +197,10 @@ class ContactCardActivity : Activity() {
 
     private fun action(text: Int, icon: Int, onClick: () -> Unit) = InkButton(this).apply {
         setText(text)
-        textScale = ACTION_TEXT_SCALE
         this.icon = icon
         iconSizeDp = CALL_ICON_DP
-        maxLines = 1
         setOnClickListener { onClick() }
     }
-
-    private fun weighted() = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
 
     private fun write(change: (ContactWriter) -> Unit) {
         if (!hasPermission(Manifest.permission.WRITE_CONTACTS)) {

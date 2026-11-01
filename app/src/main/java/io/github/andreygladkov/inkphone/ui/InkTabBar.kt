@@ -3,12 +3,9 @@ package io.github.andreygladkov.inkphone.ui
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.util.TypedValue
 import android.widget.LinearLayout
 import io.github.andreygladkov.inkphone.Tab
 import io.github.andreygladkov.inkphone.eink.InkStyle
-import io.github.andreygladkov.inkphone.eink.StemFit
-import kotlin.math.floor
 import kotlin.math.roundToInt
 
 class InkTabBar(
@@ -71,15 +68,8 @@ class InkTabBar(
     private fun fitLabels(tabWidthPx: Int) {
         if (tabWidthPx <= 0 || tabWidthPx == fittedForWidth) return
         fittedForWidth = tabWidthPx
-        val probe = Paint(buttons.values.first().paint).apply {
-            textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, inkStyle.textSizeSp, resources.displayMetrics)
-            typeface = StemFit.typeface(textSize, inkStyle.weight)
-        }
-        val scale = buttons.values.minOf { button ->
-            (tabWidthPx - button.paddingLeft - button.paddingRight) / probe.measureText(button.text.toString())
-        }.coerceAtMost(MAX_LABEL_SCALE)
-        val step = floor(scale * SCALE_STEPS) / SCALE_STEPS
-        buttons.values.forEach { it.textScale = step }
+        val scale = fittedLabelScale(buttons.values, tabWidthPx, MAX_LABEL_SCALE)
+        buttons.values.forEach { it.textScale = scale }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -91,6 +81,5 @@ class InkTabBar(
         private const val LINE_DP = 2f
         private const val LABEL_PADDING_DP = 4f
         private const val MAX_LABEL_SCALE = 0.75f
-        private const val SCALE_STEPS = 20f
     }
 }

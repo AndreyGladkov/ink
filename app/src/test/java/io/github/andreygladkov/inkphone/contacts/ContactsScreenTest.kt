@@ -18,6 +18,7 @@ import io.github.andreygladkov.inkphone.MainActivity
 import io.github.andreygladkov.inkphone.Tab
 import io.github.andreygladkov.inkphone.assertPureBlackAndWhite
 import io.github.andreygladkov.inkphone.contentRoot
+import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.find
 import io.github.andreygladkov.inkphone.idleUntil
 import io.github.andreygladkov.inkphone.inkPrefs
@@ -234,6 +235,25 @@ class ContactsScreenTest {
         assertEquals(1, root.find<InkButton>().count { it.text.toString() == "Сделать основным" })
         assertTrue(root.find<InkButton>().any { it.text.toString() == "9" })
         assertPureBlackAndWhite(render(root, height = 2400))
+    }
+
+    @Test fun cardActionLabelsFitOnOneLineAtEveryTextSize() {
+        FakeContactsProvider.addContact(200, "Анна Ахматова", phones = listOf("+77011112233"), starred = true)
+        grantContacts()
+        InkStyle.TEXT_SIZES_SP.forEach { size ->
+            context.inkPrefs().edit { putFloat(InkStyle.PREF_TEXT_SIZE_SP, size) }
+            val activity = Robolectric.buildActivity(ContactCardActivity::class.java, ContactCardActivity.intent(context, 200)).setup().get()
+            val root = contentRoot(activity)
+            idleUntil { root.find<InkButton>().any { it.text.toString() == "Из избранного" } }
+            render(root)
+            val actions = root.find<InkButton>().filter { it.text.toString() in setOf("Из избранного", "Изменить", "Поделиться") }
+            assertEquals(3, actions.size)
+            actions.forEach { button ->
+                val label = button.text.toString()
+                assertEquals(label.length, button.layout.getLineEnd(0), "\"$label\" is cut at ${size}sp")
+                assertTrue(button.layout.getLineWidth(0) <= button.width - button.totalPaddingLeft - button.totalPaddingRight, "\"$label\" overflows at ${size}sp")
+            }
+        }
     }
 
     @Test fun unknownNumberCardOffersToAddContact() {
