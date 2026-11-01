@@ -1,0 +1,1 @@
+No changes in the app. Rebuilt after the source history was updated, so that F-Droid can reproduce the release.
