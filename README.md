@@ -27,6 +27,17 @@ Every pixel is pure black or white: text is drawn without antialiasing with stem
 
 Ink Phone has no internet permission. See [PRIVACY.md](PRIVACY.md).
 
+## Installation
+
+Requires Android 11 or newer.
+
+- **GitHub:** download `InkPhone-<version>-release.apk` from [Releases](https://github.com/AndreyGladkov/ink-phone/releases).
+- **[Obtainium](https://github.com/ImranR98/Obtainium):** add `https://github.com/AndreyGladkov/ink-phone` as an app; Obtainium installs the APK from the latest release and updates it when a new one is published.
+
+Both ship the same APK signed with the same key. Signing certificate SHA-256: `33:81:C5:38:72:91:A6:0A:CF:E1:BD:E2:E3:B1:1C:30:3D:52:81:3A:A1:AF:58:E1:B2:B5:36:4E:40:3A:2A:8B`.
+
+After installing, make Ink Phone the default phone app in Settings → Calls, otherwise the system dialer keeps handling calls.
+
 ## Building
 
 ```
@@ -66,3 +77,14 @@ Bundled components: Noto Emoji font (SIL Open Font License 1.1), ez-vcard and Ma
 - Полная перерисовка экрана Hisense A9 после звонка и каждые N страниц через [A9PatchingService](https://github.com/AndreyGladkov/A9PatchingService) с включённым «Allow Control via Broadcasts».
 
 У Ink Phone нет доступа в интернет, подробнее в [PRIVACY.md](PRIVACY.md).
+
+## Установка
+
+Нужен Android 11 или новее.
+
+- **GitHub:** скачайте `InkPhone-<версия>-release.apk` со страницы [Releases](https://github.com/AndreyGladkov/ink-phone/releases).
+- **[Obtainium](https://github.com/ImranR98/Obtainium):** добавьте приложение по адресу `https://github.com/AndreyGladkov/ink-phone`; Obtainium поставит APK из последнего релиза и будет обновлять его при выходе новых.
+
+В обоих случаях это один и тот же APK, подписанный одним ключом. SHA-256 сертификата подписи: `33:81:C5:38:72:91:A6:0A:CF:E1:BD:E2:E3:B1:1C:30:3D:52:81:3A:A1:AF:58:E1:B2:B5:36:4E:40:3A:2A:8B`.
+
+После установки сделайте Ink Phone звонилкой по умолчанию в «Настройки → Звонки», иначе звонки продолжит обрабатывать системное приложение.
