@@ -20,6 +20,7 @@ import io.github.andreygladkov.inkphone.contacts.AccountRef
 import io.github.andreygladkov.inkphone.contacts.ContactListOptions
 import io.github.andreygladkov.inkphone.contacts.NameOrder
 import io.github.andreygladkov.inkphone.dialer.DialerScreen
+import io.github.andreygladkov.inkphone.dialer.KeypadLetters
 import io.github.andreygladkov.inkphone.eink.A9Panel
 import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.haptics.HapticChannel
@@ -94,6 +95,14 @@ class SettingsActivity : Activity() {
             DialerScreen.NUMBER_SCALES.map { it to (style.textSizeSp * it).roundToInt().toString() },
             DialerScreen.numberScale(prefs),
         ) { scale -> DialerScreen.saveNumberScale(prefs, scale) })
+        body.addView(InkChoiceRow(this, getString(R.string.settings_keypad_letters),
+            listOf(
+                KeypadLetters.AUTO to getString(R.string.keypad_letters_auto),
+                KeypadLetters.LATIN to getString(R.string.keypad_letters_latin),
+                KeypadLetters.LATIN_CYRILLIC to getString(R.string.keypad_letters_latin_cyrillic),
+            ),
+            KeypadLetters.from(prefs),
+        ) { letters -> prefs.edit { putString(KeypadLetters.PREF, letters.name) } })
         body.addView(InkChoiceRow(this, getString(R.string.settings_weight),
             listOf(400 to getString(R.string.weight_regular), 500 to getString(R.string.weight_medium), 600 to getString(R.string.weight_semibold)),
             style.weight,

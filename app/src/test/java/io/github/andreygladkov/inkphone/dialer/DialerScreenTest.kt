@@ -105,6 +105,35 @@ class DialerScreenTest {
         assertEquals("+77015550000", number(root))
     }
 
+    @Test fun russianSystemShowsCyrillicOnKeys() {
+        val root = contentRoot(Robolectric.buildActivity(MainActivity::class.java).setup().get())
+        assertEquals("2\nABC АБВГ", key(root, '2').text.toString())
+    }
+
+    @Test fun latinChoiceHidesCyrillicOnKeys() {
+        context.inkPrefs().edit { putString(KeypadLetters.PREF, KeypadLetters.LATIN.name) }
+        val root = contentRoot(Robolectric.buildActivity(MainActivity::class.java).setup().get())
+        idleUntil { key(root, '2').text.toString() == "2\nABC" }
+        assertPureBlackAndWhite(render(root))
+    }
+
+    @Test @Config(qualifiers = "en-w366dp-h732dp-360dpi")
+    fun englishSystemWithLatinContactsHidesCyrillicOnKeys() {
+        FakeContactsProvider.reset()
+        FakeContactsProvider.addContact(1, "Anna Smith", phones = listOf("+1 555 0100"))
+        Shadow.extract<ShadowRoleManager>(context.getSystemService(RoleManager::class.java)).addHeldRole(RoleManager.ROLE_DIALER)
+        val root = contentRoot(Robolectric.buildActivity(MainActivity::class.java).setup().get())
+        press(root, '2')
+        idleUntil { suggestions(root).isNotEmpty() }
+        assertEquals("2\nABC", key(root, '2').text.toString())
+    }
+
+    @Test @Config(qualifiers = "en-w366dp-h732dp-360dpi")
+    fun englishSystemWithCyrillicContactShowsCyrillicOnKeys() {
+        val root = contentRoot(Robolectric.buildActivity(MainActivity::class.java).setup().get())
+        idleUntil { key(root, '2').text.toString() == "2\nABC АБВГ" }
+    }
+
     @Test fun keypadKeysHaveNoBorders() {
         val root = contentRoot(Robolectric.buildActivity(MainActivity::class.java).setup().get())
         assertTrue("0123456789*#".all { !key(root, it).isBordered })

@@ -92,6 +92,10 @@
     <string name="duration_seconds">%1$d s</string>
     <string name="duration_minutes">%1$d min</string>
     <string name="settings_dialer_number_size">Number size on keypad</string>
+    <string name="settings_keypad_letters">Letters on keypad</string>
+    <string name="keypad_letters_auto">Auto</string>
+    <string name="keypad_letters_latin" translatable="false">ABC</string>
+    <string name="keypad_letters_latin_cyrillic" translatable="false">ABC АБВ</string>
     <string name="contact_new">New contact</string>
     <string name="contact_edit">Edit contact</string>
     <string name="contact_given_name">First name</string>

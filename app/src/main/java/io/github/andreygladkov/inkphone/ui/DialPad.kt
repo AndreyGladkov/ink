@@ -12,6 +12,15 @@ import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.haptics.HapticChannel
 
 class DialPad(context: Context, private val listener: Listener) : LinearLayout(context) {
+    private val keys = mutableMapOf<Char, InkButton>()
+
+    var showsCyrillic = true
+        set(value) {
+            if (field == value) return
+            field = value
+            keys.forEach { (key, button) -> button.text = label(key) }
+        }
+
     interface Listener {
         fun onKeyDown(key: Char) {}
         fun onKeyUp(key: Char) {}
@@ -44,6 +53,7 @@ class DialPad(context: Context, private val listener: Listener) : LinearLayout(c
             false
         }
         setOnLongClickListener { listener.onKeyLongPress(key) }
+        keys[key] = this
     }
 
     private fun label(key: Char): CharSequence {
@@ -51,7 +61,7 @@ class DialPad(context: Context, private val listener: Listener) : LinearLayout(c
             '0' -> "+"
             else -> T9.lettersFor(key).let { all ->
                 val latin = all.filter { it in 'a'..'z' }.uppercase()
-                val cyrillic = all.filter { it !in 'a'..'z' && it != 'ё' }.uppercase()
+                val cyrillic = if (showsCyrillic) all.filter { it !in 'a'..'z' && it != 'ё' }.uppercase() else ""
                 listOf(latin, cyrillic).filter { it.isNotEmpty() }.joinToString(" ")
             }
         }
