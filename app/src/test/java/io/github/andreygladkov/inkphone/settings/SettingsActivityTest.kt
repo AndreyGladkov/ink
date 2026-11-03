@@ -51,7 +51,7 @@ class SettingsActivityTest {
     @Test fun defaultsAreSelected() {
         val root = contentRoot(launch())
         assertTrue(option(row(root, "Размер текста"), "18").isSelected)
-        assertTrue(option(row(root, "Размер номера в наборе"), "24").isSelected)
+        assertTrue(option(row(root, "Размер номера в наборе"), "27").isSelected)
         assertTrue(option(row(root, "Скругление кнопок"), "8").isSelected)
         assertTrue(option(row(root, "Клавиши набора"), "3").isSelected)
     }

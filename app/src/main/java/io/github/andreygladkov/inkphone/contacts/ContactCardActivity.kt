@@ -8,8 +8,8 @@ import android.graphics.Paint
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.SpannableStringBuilder
 import android.provider.ContactsContract.CommonDataKinds.Phone
+import android.text.SpannableStringBuilder
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
@@ -23,6 +23,7 @@ import io.github.andreygladkov.inkphone.calllog.CallLogGrouping
 import io.github.andreygladkov.inkphone.calllog.CallLogRepository
 import io.github.andreygladkov.inkphone.calllog.CallType
 import io.github.andreygladkov.inkphone.canReadContacts
+import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.favorites.SpeedDial
 import io.github.andreygladkov.inkphone.hasPermission
 import io.github.andreygladkov.inkphone.inkPrefs
@@ -123,7 +124,7 @@ class ContactCardActivity : Activity() {
             return
         }
         body.addView(text(details.name).apply {
-            textScale = NAME_SCALE
+            textScale = InkStyle.TITLE_SCALE
             isBold = true
         })
         body.addView(actions(details))
@@ -134,7 +135,6 @@ class ContactCardActivity : Activity() {
                 body.addView(phoneRow(phone, canMakeDefault = details.phones.size > 1 && !phone.isDefault && phone.dataId >= 0))
             }
         }
-        if (details.id >= 0 && details.phones.isNotEmpty()) addSpeedDial(details)
         if (details.emails.isNotEmpty()) {
             body.addSection(getString(R.string.card_emails))
             details.emails.forEach { body.addView(text(it)) }
@@ -147,13 +147,14 @@ class ContactCardActivity : Activity() {
                 body.addView(text(SpannableStringBuilder(labels.summary(entry)).append(duration(entry))).apply { isBold = entry.type == CallType.MISSED })
             }
         }
+        if (details.id >= 0 && details.phones.isNotEmpty()) addSpeedDial(details)
         if (details.accounts.isNotEmpty()) {
             body.addSection(getString(R.string.card_accounts))
             details.accounts.forEach { body.addView(text(accountLabels.label(it))) }
         }
     }
 
-    private fun actions(details: ContactDetails) = InkButtonRow(this, dp(ROW_GAP_DP), ACTION_TEXT_SCALE).apply {
+    private fun actions(details: ContactDetails) = InkButtonRow(this, dp(ROW_GAP_DP), InkStyle.SECONDARY_SCALE).apply {
         setPadding(0, dp(ROW_GAP_DP), 0, 0)
         val buttons = if (details.id >= 0) {
             listOf(
@@ -192,6 +193,7 @@ class ContactCardActivity : Activity() {
         val options = listOf<Char?>(null) + SpeedDial.KEYS
         body.addView(InkChoiceRow(this, getString(R.string.speed_dial),
             options.map { it to (it?.toString() ?: getString(R.string.speed_dial_none)) }, speedDial.keyFor(numbers),
+            decorate = { isBordered = false },
         ) { key -> speedDial.assign(key, number, numbers) })
     }
 
@@ -199,6 +201,7 @@ class ContactCardActivity : Activity() {
         setText(text)
         this.icon = icon
         iconSizeDp = CALL_ICON_DP
+        isBordered = false
         setOnClickListener { onClick() }
     }
 
@@ -223,10 +226,10 @@ class ContactCardActivity : Activity() {
         addView(LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             addView(text(phone.number).apply { isBold = true })
-            if (details.isNotEmpty()) addView(text(details).apply { textScale = SECONDARY_SCALE })
+            if (details.isNotEmpty()) addView(text(details).apply { textScale = InkStyle.SECONDARY_SCALE })
             if (canMakeDefault) addView(InkButton(context).apply {
                 setText(R.string.make_default_number)
-                textScale = SECONDARY_SCALE
+                textScale = InkStyle.SECONDARY_SCALE
                 isBordered = false
                 gravity = Gravity.START or Gravity.CENTER_VERTICAL
                 minHeight = 0
@@ -237,7 +240,7 @@ class ContactCardActivity : Activity() {
         }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         addView(InkButton(context).apply {
             setText(R.string.call)
-            textScale = SECONDARY_SCALE
+            textScale = InkStyle.SECONDARY_SCALE
             icon = R.drawable.ic_call
             iconPosition = InkButton.IconPosition.START
             iconSizeDp = CALL_ICON_DP
@@ -284,10 +287,7 @@ class ContactCardActivity : Activity() {
         private const val REQUEST_WRITE = 62
         private const val REQUEST_READ = 63
         private const val HISTORY_SIZE = 10
-        private const val NAME_SCALE = 1.2f
         private const val CALL_ICON_DP = 20f
-        private const val SECONDARY_SCALE = 0.8f
-        private const val ACTION_TEXT_SCALE = 0.7f
         private const val PADDING_DP = 16f
         private const val ROW_GAP_DP = 6f
         private val loader = Executors.newSingleThreadExecutor()

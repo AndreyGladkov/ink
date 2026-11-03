@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import io.github.andreygladkov.inkphone.BuildConfig
 import io.github.andreygladkov.inkphone.R
+import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.ui.InkButton
 import io.github.andreygladkov.inkphone.ui.InkTextView
 import io.github.andreygladkov.inkphone.ui.InkWindow
@@ -47,7 +48,7 @@ class AboutActivity : Activity() {
     private fun showAbout(body: LinearLayout) {
         body.addView(InkTextView(this).apply {
             setText(R.string.app_name)
-            textScale = TITLE_SCALE
+            textScale = InkStyle.TITLE_SCALE
             isBold = true
         })
         body.addView(InkTextView(this).apply { text = getString(R.string.about_version, BuildConfig.VERSION_NAME) })
@@ -67,7 +68,7 @@ class AboutActivity : Activity() {
         val text = runCatching { assets.open("licenses/$asset").bufferedReader().use { it.readText() } }.getOrDefault("")
         body.addView(InkTextView(this).apply {
             this.text = text
-            textScale = LICENSE_SCALE
+            textScale = InkStyle.SECONDARY_SCALE
         })
     }
 
@@ -75,7 +76,7 @@ class AboutActivity : Activity() {
 
     private fun button(label: String, onClick: () -> Unit) = InkButton(this).apply {
         text = label
-        textScale = SMALL_SCALE
+        textScale = InkStyle.SECONDARY_SCALE
         gravity = Gravity.START or Gravity.CENTER_VERTICAL
         setOnClickListener { onClick() }
         layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
@@ -93,9 +94,6 @@ class AboutActivity : Activity() {
         const val SOURCE_URL = "https://github.com/AndreyGladkov/ink-phone"
         const val PADDING_DP = 16f
         const val GAP_DP = 8f
-        const val TITLE_SCALE = 1.2f
-        const val SMALL_SCALE = 0.9f
-        const val LICENSE_SCALE = 0.7f
 
         fun licenseIntent(context: Context, asset: String): Intent =
             Intent(context, AboutActivity::class.java).putExtra(EXTRA_LICENSE, asset)

@@ -15,6 +15,7 @@ import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.canReadContacts
 import io.github.andreygladkov.inkphone.contacts.AccountLabels
 import io.github.andreygladkov.inkphone.contacts.AccountRef
+import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.ui.InkButton
 import io.github.andreygladkov.inkphone.ui.InkTextView
 import io.github.andreygladkov.inkphone.ui.InkWindow
@@ -37,7 +38,7 @@ class ExportActivity : Activity() {
         val padding = dp(PADDING_DP)
         scopes = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         status = InkTextView(this).apply {
-            textScale = SMALL_SCALE
+            textScale = InkStyle.SECONDARY_SCALE
             gravity = Gravity.CENTER
         }
         val body = LinearLayout(this).apply {
@@ -45,7 +46,7 @@ class ExportActivity : Activity() {
             setPadding(padding, 0, padding, padding)
             addView(InkTextView(context).apply {
                 setText(R.string.export_contacts)
-                textScale = TITLE_SCALE
+                textScale = InkStyle.TITLE_SCALE
                 isBold = true
             })
             addSection(getString(R.string.export_what))
@@ -111,7 +112,7 @@ class ExportActivity : Activity() {
 
     private fun scopeButton(label: String, onClick: InkButton.() -> Unit) = InkButton(this).apply {
         text = label
-        textScale = SMALL_SCALE
+        textScale = InkStyle.SECONDARY_SCALE
         maxLines = 1
         gravity = Gravity.START or Gravity.CENTER_VERTICAL
         setOnClickListener { onClick() }
@@ -185,8 +186,6 @@ class ExportActivity : Activity() {
         const val GAP_DP = 8f
         const val REQUEST_READ = 91
         const val ICON_DP = 24f
-        const val TITLE_SCALE = 1.2f
-        const val SMALL_SCALE = 0.9f
         val loader = Executors.newSingleThreadExecutor()
     }
 }

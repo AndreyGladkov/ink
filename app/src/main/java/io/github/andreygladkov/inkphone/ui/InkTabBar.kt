@@ -18,10 +18,12 @@ class InkTabBar(
         isAntiAlias = false
         color = inkStyle.foreground
     }
-    private val linePx = (LINE_DP * resources.displayMetrics.density).roundToInt().coerceAtLeast(1)
+    private val linePx = (InkStyle.LINE_DP * resources.displayMetrics.density).roundToInt().coerceAtLeast(1)
     private val buttons = Tab.entries.associateWith { tab ->
         InkButton(context).apply {
+            paddingDp = TAB_PADDING_DP
             icon = tab.icon
+            iconSizeDp = TAB_ICON_DP
             if (showLabels) {
                 setText(tab.title)
                 maxLines = 1
@@ -68,7 +70,7 @@ class InkTabBar(
     private fun fitLabels(tabWidthPx: Int) {
         if (tabWidthPx <= 0 || tabWidthPx == fittedForWidth) return
         fittedForWidth = tabWidthPx
-        val scale = fittedLabelScale(buttons.values, tabWidthPx, MAX_LABEL_SCALE)
+        val scale = fittedLabelScale(buttons.values, tabWidthPx, InkStyle.SECONDARY_SCALE)
         buttons.values.forEach { it.textScale = scale }
     }
 
@@ -78,8 +80,8 @@ class InkTabBar(
 
     companion object {
         const val PREF_LABELS = "tab_labels"
-        private const val LINE_DP = 2f
         private const val LABEL_PADDING_DP = 4f
-        private const val MAX_LABEL_SCALE = 0.75f
+        private const val TAB_PADDING_DP = 8f
+        private const val TAB_ICON_DP = 24f
     }
 }

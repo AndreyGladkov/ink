@@ -8,7 +8,10 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.ContactsContract
 import android.text.Editable
+import android.text.SpannableString
+import android.text.Spanned
 import android.text.TextWatcher
+import android.text.style.RelativeSizeSpan
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
@@ -24,6 +27,7 @@ import io.github.andreygladkov.inkphone.ui.InkPagedList
 import io.github.andreygladkov.inkphone.ui.InkTextView
 import io.github.andreygladkov.inkphone.ui.LetterIndexView
 import io.github.andreygladkov.inkphone.ui.PermissionGate
+import io.github.andreygladkov.inkphone.ui.iconButton
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
 
@@ -35,17 +39,17 @@ class ContactsScreen(private val activity: Activity) : LinearLayout(activity), T
     private val density = resources.displayMetrics.density
 
     private val search = InkEditText(activity).apply {
-        setHint(R.string.search_hint)
+        hint = SpannableString(context.getString(R.string.search_hint)).apply {
+            setSpan(RelativeSizeSpan(InkStyle.SECONDARY_SCALE), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        setPadding((InkButton.PADDING_DP * resources.displayMetrics.density).roundToInt(), 0, 0, 0)
         addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
             override fun afterTextChanged(s: Editable?) = applyQuery()
         })
     }
-    private val clear = InkButton(activity).apply {
-        icon = R.drawable.ic_close
-        contentDescription = context.getString(R.string.clear_search)
-        isBordered = false
+    private val clear = iconButton(activity, R.drawable.ic_close, activity.getString(R.string.clear_search)).apply {
         visibility = INVISIBLE
         setOnClickListener { search.text = null }
     }
@@ -83,13 +87,12 @@ class ContactsScreen(private val activity: Activity) : LinearLayout(activity), T
         orientation = VERTICAL
         addView(searchBar(), LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
         addView(View(activity).apply { setBackgroundColor(style.foreground) },
-            LayoutParams(LayoutParams.MATCH_PARENT, (LINE_DP * density).roundToInt().coerceAtLeast(1)))
+            LayoutParams(LayoutParams.MATCH_PARENT, (InkStyle.LINE_DP * density).roundToInt().coerceAtLeast(1)))
+        list.setAside(index, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT).apply {
+            topMargin = (INDEX_GAP_DP * density).roundToInt()
+        })
         addView(FrameLayout(activity).apply {
-            addView(LinearLayout(activity).apply {
-                orientation = HORIZONTAL
-                addView(list, LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
-                addView(index, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
-            })
+            addView(list)
             addView(state)
         }, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
         list.onPageShown = { first -> index.current = shown.getOrNull(first)?.letter }
@@ -172,25 +175,12 @@ class ContactsScreen(private val activity: Activity) : LinearLayout(activity), T
     private fun searchBar() = LinearLayout(activity).apply {
         orientation = HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
-        addView(InkButton(activity).apply {
-            icon = R.drawable.ic_search
-            isBordered = false
-            isClickable = false
-            isFocusable = false
-            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
-        })
         addView(search, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
         addView(clear)
-        addView(InkButton(activity).apply {
-            icon = R.drawable.ic_add
-            contentDescription = context.getString(R.string.contact_new)
-            isBordered = false
+        addView(iconButton(activity, R.drawable.ic_add, activity.getString(R.string.contact_new)).apply {
             setOnClickListener { activity.startActivity(ContactEditActivity.intentForNew(activity)) }
         })
-        addView(InkButton(activity).apply {
-            icon = R.drawable.ic_settings
-            contentDescription = context.getString(R.string.settings)
-            isBordered = false
+        addView(iconButton(activity, R.drawable.ic_settings, activity.getString(R.string.settings)).apply {
             setOnClickListener { activity.startActivity(Intent(activity, SettingsActivity::class.java)) }
         })
     }
@@ -212,7 +202,7 @@ class ContactsScreen(private val activity: Activity) : LinearLayout(activity), T
     companion object {
         const val REQUEST_CONTACTS = 1
         private const val PADDING_DP = 24f
-        private const val LINE_DP = 2f
+        private const val INDEX_GAP_DP = 8f
         private const val RELOAD_DEBOUNCE_MS = 500L
         private val loader = Executors.newSingleThreadExecutor()
     }

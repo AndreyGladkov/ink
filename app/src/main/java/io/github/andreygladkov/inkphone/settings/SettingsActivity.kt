@@ -50,7 +50,7 @@ class SettingsActivity : Activity() {
         }
         body.addView(InkTextView(this).apply {
             setText(R.string.settings)
-            textScale = TITLE_SCALE
+            textScale = InkStyle.TITLE_SCALE
             isBold = true
         })
         addDisplay(body)
@@ -91,9 +91,9 @@ class SettingsActivity : Activity() {
             InkStyle.TEXT_SIZES_SP.map { it to it.roundToInt().toString() }, style.textSizeSp,
         ) { size -> restyle { putFloat(InkStyle.PREF_TEXT_SIZE_SP, size) } })
         body.addView(InkChoiceRow(this, getString(R.string.settings_dialer_number_size),
-            DialerScreen.NUMBER_SIZES_SP.map { it to it.roundToInt().toString() },
-            prefs.getFloat(DialerScreen.PREF_NUMBER_SIZE_SP, DialerScreen.DEFAULT_NUMBER_SIZE_SP),
-        ) { size -> prefs.edit { putFloat(DialerScreen.PREF_NUMBER_SIZE_SP, size) } })
+            DialerScreen.NUMBER_SCALES.map { it to (style.textSizeSp * it).roundToInt().toString() },
+            DialerScreen.numberScale(prefs),
+        ) { scale -> DialerScreen.saveNumberScale(prefs, scale) })
         body.addView(InkChoiceRow(this, getString(R.string.settings_weight),
             listOf(400 to getString(R.string.weight_regular), 500 to getString(R.string.weight_medium), 600 to getString(R.string.weight_semibold)),
             style.weight,
@@ -162,7 +162,7 @@ class SettingsActivity : Activity() {
         accounts.forEach { account ->
             body.addView(InkButton(this).apply {
                 text = labels.label(account)
-                textScale = HINT_SCALE
+                textScale = InkStyle.SECONDARY_SCALE
                 maxLines = 1
                 gravity = Gravity.START or Gravity.CENTER_VERTICAL
                 iconPosition = InkButton.IconPosition.START
@@ -199,7 +199,7 @@ class SettingsActivity : Activity() {
         body.addSection(getString(R.string.settings_a9))
         body.addView(InkTextView(this).apply {
             setText(R.string.a9_hint)
-            textScale = HINT_SCALE
+            textScale = InkStyle.SECONDARY_SCALE
             setPadding(0, gap(), 0, 0)
         })
         body.addView(InkChoiceRow(this, getString(R.string.a9_clear_after_call),
@@ -257,9 +257,7 @@ class SettingsActivity : Activity() {
 
     private companion object {
         const val PADDING_DP = 16f
-        const val TITLE_SCALE = 1.2f
         const val ICON_DP = 20f
         const val GAP_DP = 8f
-        const val HINT_SCALE = 0.9f
     }
 }

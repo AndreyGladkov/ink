@@ -4,10 +4,13 @@ import android.Manifest
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.graphics.Color
 import android.os.Looper
 import android.os.SystemClock
 import android.os.VibratorManager
 import android.provider.ContactsContract
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
 import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
@@ -39,6 +42,7 @@ import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.math.roundToInt
 
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -80,6 +84,53 @@ class ContactsScreenTest {
         assertEquals("Анна Ахматова", rows(list).first())
         assertTrue("Без Номера" !in allRows(list))
         assertEquals(names.size, allRows(list).size)
+    }
+
+    @Test fun searchBarHasCompactIconsAndSmallerHint() {
+        grantContacts()
+        val root = contentRoot(launch())
+        awaitList(root)
+        val density = context.resources.displayMetrics.density
+        val search = root.find<InkEditText>().single { it.isShown }
+        val bar = search.parent as View
+        val icons = bar.find<InkButton>().filter { it.isShown }
+        assertEquals(listOf("Новый контакт", "Настройки"), icons.map { it.contentDescription.toString() })
+        icons.forEach { assertTrue(it.width >= 56 * density && it.height >= 56 * density, "${it.contentDescription}: ${it.width}x${it.height}") }
+        val hint = search.hint as Spanned
+        assertEquals(InkStyle.SECONDARY_SCALE, hint.getSpans(0, hint.length, RelativeSizeSpan::class.java).single().sizeChange)
+        assertPureBlackAndWhite(render(root))
+    }
+
+    @Test fun pagerSpansFullWidthBelowIndex() {
+        grantContacts()
+        val root = contentRoot(launch())
+        val list = awaitList(root)
+        render(root)
+        val label = root.find<TextView>().single { it.isShown && it.text.toString() == "1 / ${list.pageCount}" }
+        val index = root.find<LetterIndexView>().single()
+        val labelOnScreen = IntArray(2).also { label.getLocationInWindow(it) }
+        val indexOnScreen = IntArray(2).also { index.getLocationInWindow(it) }
+        assertEquals(root.width / 2f, labelOnScreen[0] + label.width / 2f, 1f)
+        assertTrue(indexOnScreen[1] + index.height <= labelOnScreen[1])
+    }
+
+    @Test fun dividersStopAsFarFromIndexAsFromScreenEdge() {
+        grantContacts()
+        val root = contentRoot(launch())
+        awaitList(root)
+        val bitmap = render(root)
+        val index = root.find<LetterIndexView>().single()
+        val indexLeft = IntArray(2).also { index.getLocationInWindow(it) }[0]
+        val inset = (InkButton.PADDING_DP * context.resources.displayMetrics.density).roundToInt()
+        val dot = context.resources.displayMetrics.density.roundToInt()
+        val period = dot * 3
+        val dotted = (0 until bitmap.height).first { y ->
+            (0 until inset).all { bitmap.getPixel(it, y) == Color.WHITE } &&
+                (0..4).all { bitmap.getPixel(inset + it * period, y) == Color.BLACK && bitmap.getPixel(inset + it * period + dot, y) == Color.WHITE }
+        }
+        val inked = (0 until indexLeft).filter { bitmap.getPixel(it, dotted) == Color.BLACK }
+        assertEquals(inset, inked.first())
+        assertTrue(indexLeft - (inked.last() + 1) in inset..inset + period, "right gap ${indexLeft - inked.last() - 1}")
     }
 
     @Test fun indexJumpsToLetterPage() {

@@ -18,6 +18,7 @@ import io.github.andreygladkov.inkphone.Tab
 import io.github.andreygladkov.inkphone.assertPureBlackAndWhite
 import io.github.andreygladkov.inkphone.contacts.FakeContactsProvider
 import io.github.andreygladkov.inkphone.contentRoot
+import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.find
 import io.github.andreygladkov.inkphone.idleUntil
 import io.github.andreygladkov.inkphone.inkPrefs
@@ -102,6 +103,42 @@ class DialerScreenTest {
         val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:+77015550000"))
         val root = contentRoot(Robolectric.buildActivity(MainActivity::class.java, intent).setup().get())
         assertEquals("+77015550000", number(root))
+    }
+
+    @Test fun keypadKeysHaveNoBorders() {
+        val root = contentRoot(Robolectric.buildActivity(MainActivity::class.java).setup().get())
+        assertTrue("0123456789*#".all { !key(root, it).isBordered })
+    }
+
+    @Test fun numberRowHasNoSettingsButton() {
+        val root = contentRoot(Robolectric.buildActivity(MainActivity::class.java).setup().get())
+        assertTrue(root.find<InkButton>().none { it.isShown && it.contentDescription == "Настройки" })
+    }
+
+    @Test fun dialedNumberStaysLargerThanKeyDigitsAtEveryTextSize() {
+        InkStyle.TEXT_SIZES_SP.forEach { size ->
+            context.inkPrefs().edit { putFloat(InkStyle.PREF_TEXT_SIZE_SP, size) }
+            val root = contentRoot(Robolectric.buildActivity(MainActivity::class.java).setup().get())
+            val digit = key(root, '5').textSize * InkStyle.TITLE_SCALE
+            val dialed = root.find<InkTextView>().first { it.isSingleLine() }.textSize
+            assertTrue(dialed > digit, "text size $size: number $dialed, key digit $digit")
+        }
+    }
+
+    @Test fun numberScaleDefaultsToDisplayScale() {
+        assertEquals(InkStyle.DISPLAY_SCALE, DialerScreen.numberScale(context.inkPrefs()))
+    }
+
+    @Test fun legacyNumberSizeMapsToNearestScaleUntilSaved() {
+        val prefs = context.inkPrefs()
+        prefs.edit {
+            putFloat(InkStyle.PREF_TEXT_SIZE_SP, 18f)
+            putFloat("dialer_number_size_sp", 32f)
+        }
+        assertEquals(1.75f, DialerScreen.numberScale(prefs))
+        DialerScreen.saveNumberScale(prefs, 2f)
+        assertEquals(2f, DialerScreen.numberScale(prefs))
+        assertTrue(!prefs.contains("dialer_number_size_sp"))
     }
 
     private fun key(root: View, key: Char) = root.find<InkButton>().single { it.contentDescription == key.toString() }

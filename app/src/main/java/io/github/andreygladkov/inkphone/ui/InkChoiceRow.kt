@@ -2,6 +2,7 @@ package io.github.andreygladkov.inkphone.ui
 
 import android.content.Context
 import android.widget.LinearLayout
+import io.github.andreygladkov.inkphone.eink.InkStyle
 import kotlin.math.roundToInt
 
 class InkChoiceRow<T>(
@@ -26,7 +27,7 @@ class InkChoiceRow<T>(
         buttons = options.mapIndexed { index, (value, label) ->
             val button = InkButton(context).apply {
                 text = label
-                textScale = OPTION_TEXT_SCALE
+                textScale = InkStyle.SECONDARY_SCALE
                 maxLines = 1
                 setPadding(gap, paddingTop, gap, paddingBottom)
                 isSelected = value == selected
@@ -48,6 +49,5 @@ class InkChoiceRow<T>(
 
     private companion object {
         const val GAP_DP = 4f
-        const val OPTION_TEXT_SCALE = 0.9f
     }
 }

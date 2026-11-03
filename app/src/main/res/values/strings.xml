@@ -88,7 +88,6 @@
     <string name="card_history">Calls</string>
     <string name="default_dialer_rationale">Make Ink Phone the default phone app to handle calls on the e-ink call screen.</string>
     <string name="make_default">Make default</string>
-    <string name="dialer_hint">Enter a number</string>
     <string name="delete">Delete</string>
     <string name="duration_seconds">%1$d s</string>
     <string name="duration_minutes">%1$d min</string>
@@ -170,4 +169,5 @@
     <string name="contact_save_failed">Could not save the changes</string>
     <string name="contact_delete_failed">Could not delete the contact</string>
     <string name="import_interrupted">Import stopped by an error. Added: %1$d, merged: %2$d</string>
+    <string name="selected">Selected</string>
 </resources>

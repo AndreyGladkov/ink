@@ -16,6 +16,7 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.eink.A9Panel
+import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.hasPermission
 import io.github.andreygladkov.inkphone.ui.DialPad
 import io.github.andreygladkov.inkphone.ui.InkButton
@@ -53,13 +54,13 @@ class CallActivity : Activity() {
         setShowWhenLocked(true)
         setTurnScreenOn(true)
         val padding = dp(PADDING_DP)
-        status = InkTextView(this).apply { textScale = SMALL_SCALE }
+        status = InkTextView(this).apply { textScale = InkStyle.SECONDARY_SCALE }
         title = InkTextView(this).apply {
-            textScale = TITLE_SCALE
+            textScale = InkStyle.DISPLAY_SCALE
             isBold = true
         }
         subtitle = InkTextView(this)
-        info = InkTextView(this).apply { textScale = SMALL_SCALE }
+        info = InkTextView(this).apply { textScale = InkStyle.SECONDARY_SCALE }
         controls = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -267,7 +268,7 @@ class CallActivity : Activity() {
 
     private fun toggle(text: Int, icon: Int, on: Boolean, onClick: () -> Unit) = InkButton(this).apply {
         setText(text)
-        textScale = SMALL_SCALE
+        textScale = InkStyle.SECONDARY_SCALE
         this.icon = icon
         iconPosition = InkButton.IconPosition.START
         iconSizeDp = ICON_DP
@@ -303,8 +304,6 @@ class CallActivity : Activity() {
         private const val TALL_DP = 96f
         private const val KEYPAD_HEIGHT_DP = 300f
         private const val ICON_DP = 24f
-        private const val TITLE_SCALE = 1.6f
-        private const val SMALL_SCALE = 0.9f
         private const val ENDED_SHOWN_MS = 1500L
         private const val MAX_CALL_MS = 4 * 60 * 60 * 1000L
 

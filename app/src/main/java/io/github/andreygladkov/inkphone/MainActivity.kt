@@ -12,6 +12,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.CallLog
 import android.view.View
+import android.view.WindowInsets
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -43,7 +44,12 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         content = FrameLayout(this)
-        tabBar = InkTabBar(this, inkPrefs().getBoolean(InkTabBar.PREF_LABELS, true), ::showTab)
+        tabBar = InkTabBar(this, inkPrefs().getBoolean(InkTabBar.PREF_LABELS, true), ::showTab).apply {
+            setOnApplyWindowInsetsListener { bar, insets ->
+                bar.visibility = if (insets.isVisible(WindowInsets.Type.ime())) View.GONE else View.VISIBLE
+                insets
+            }
+        }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             addView(content, LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f))
@@ -116,7 +122,7 @@ class MainActivity : Activity() {
         InkStyle.of(this),
         inkPrefs().getBoolean(InkTabBar.PREF_LABELS, true),
         inkPrefs().getBoolean(InkPagedList.PREF_SCROLL, false),
-        inkPrefs().getFloat(DialerScreen.PREF_NUMBER_SIZE_SP, DialerScreen.DEFAULT_NUMBER_SIZE_SP),
+        DialerScreen.numberScale(inkPrefs()),
     )
 
     private fun tabFor(intent: Intent?): Tab {
