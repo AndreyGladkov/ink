@@ -12,7 +12,7 @@ Every pixel is pure black or white: text is drawn without antialiasing with stem
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/9.png" width="160">
 </p>
 
-[Русская версия ниже](#ink-phone-по-русски)
+[Русская версия ниже](#ink-phone-1)
 
 ## Features
 
@@ -37,6 +37,11 @@ Requires Android 11 or newer.
 Both ship the same APK signed with the same key. Signing certificate SHA-256: `33:81:C5:38:72:91:A6:0A:CF:E1:BD:E2:E3:B1:1C:30:3D:52:81:3A:A1:AF:58:E1:B2:B5:36:4E:40:3A:2A:8B`.
 
 After installing, make Ink Phone the default phone app in Settings → Calls, otherwise the system dialer keeps handling calls.
+
+On Android 15 and newer an APK installed outside an app store may not get the default phone app role: the system shows “App was denied access to be default Phone app” with only a Close button. Two ways around it:
+
+- On the phone: Settings → Apps → Ink Phone → ⋮ → Allow restricted settings, then make Ink Phone the default phone app again.
+- From a computer with [adb](https://developer.android.com/tools/adb): `adb shell cmd role add-role-holder android.app.role.DIALER io.github.andreygladkov.inkphone`. Tested on the Mudita Kompakt.
 
 ## Building
 
@@ -88,3 +93,8 @@ Bundled components: Noto Emoji font (SIL Open Font License 1.1), ez-vcard and Ma
 В обоих случаях это один и тот же APK, подписанный одним ключом. SHA-256 сертификата подписи: `33:81:C5:38:72:91:A6:0A:CF:E1:BD:E2:E3:B1:1C:30:3D:52:81:3A:A1:AF:58:E1:B2:B5:36:4E:40:3A:2A:8B`.
 
 После установки сделайте Ink Phone звонилкой по умолчанию в «Настройки → Звонки», иначе звонки продолжит обрабатывать системное приложение.
+
+На Android 15 и новее APK, установленный не из магазина приложений, может не получить роль звонилки по умолчанию: система показывает «App was denied access to be default Phone app» с единственной кнопкой «Закрыть». Обойти это можно двумя способами:
+
+- На телефоне: «Настройки → Приложения → Ink Phone → ⋮ → Разрешить настройки с ограниченным доступом», затем снова сделайте Ink Phone звонилкой по умолчанию.
+- С компьютера через [adb](https://developer.android.com/tools/adb): `adb shell cmd role add-role-holder android.app.role.DIALER io.github.andreygladkov.inkphone`. Проверено на Mudita Kompakt.

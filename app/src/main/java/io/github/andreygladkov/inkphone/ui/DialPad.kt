@@ -10,6 +10,7 @@ import android.widget.LinearLayout
 import io.github.andreygladkov.inkphone.dialer.T9
 import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.haptics.HapticChannel
+import kotlin.math.roundToInt
 
 class DialPad(context: Context, private val listener: Listener) : LinearLayout(context) {
     private val keys = mutableMapOf<Char, InkButton>()
@@ -29,18 +30,20 @@ class DialPad(context: Context, private val listener: Listener) : LinearLayout(c
 
     init {
         orientation = VERTICAL
-        ROWS.forEach { row ->
+        val gap = (GAP_DP * resources.displayMetrics.density).roundToInt()
+        ROWS.forEachIndexed { rowIndex, row ->
             addView(LinearLayout(context).apply {
                 orientation = HORIZONTAL
-                row.forEach { key -> addView(key(key), LayoutParams(0, LayoutParams.MATCH_PARENT, 1f)) }
-            }, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
+                row.forEachIndexed { index, key ->
+                    addView(key(key), LayoutParams(0, LayoutParams.MATCH_PARENT, 1f).apply { if (index > 0) marginStart = gap })
+                }
+            }, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f).apply { if (rowIndex > 0) topMargin = gap })
         }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun key(key: Char) = InkButton(context).apply {
         hapticChannel = HapticChannel.KEYS
-        isBordered = false
         text = label(key)
         contentDescription = key.toString()
         setPadding(0, 0, 0, 0)
@@ -75,6 +78,7 @@ class DialPad(context: Context, private val listener: Listener) : LinearLayout(c
     }
 
     private companion object {
+        const val GAP_DP = 6f
         const val LETTERS_SCALE = 0.6f
         val ROWS = listOf("123", "456", "789", "*0#")
     }

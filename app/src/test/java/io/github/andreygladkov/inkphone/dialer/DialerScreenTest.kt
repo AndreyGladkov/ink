@@ -134,9 +134,9 @@ class DialerScreenTest {
         idleUntil { key(root, '2').text.toString() == "2\nABC АБВГ" }
     }
 
-    @Test fun keypadKeysHaveNoBorders() {
+    @Test fun keypadKeysHaveBorders() {
         val root = contentRoot(Robolectric.buildActivity(MainActivity::class.java).setup().get())
-        assertTrue("0123456789*#".all { !key(root, it).isBordered })
+        assertTrue("0123456789*#".all { key(root, it).isBordered })
     }
 
     @Test fun numberRowHasNoSettingsButton() {
