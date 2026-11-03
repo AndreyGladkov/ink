@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.os.Handler
@@ -59,6 +60,7 @@ class DialerScreen(private val activity: Activity) : LinearLayout(activity), Tab
         }
     }
     private val suggestions = LinearLayout(activity).apply { orientation = VERTICAL }
+    private val dialPad = DialPad(activity, keypadListener())
     private val banner = LinearLayout(activity).apply {
         orientation = VERTICAL
         gravity = Gravity.CENTER
@@ -93,7 +95,7 @@ class DialerScreen(private val activity: Activity) : LinearLayout(activity), Tab
             addView(numberView, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
             addView(backspace)
         }, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply { bottomMargin = dp(GAP_DP) })
-        addView(DialPad(activity, keypadListener()), LayoutParams(LayoutParams.MATCH_PARENT, dp(KEYPAD_HEIGHT_DP)))
+        addView(dialPad, LayoutParams(LayoutParams.MATCH_PARENT, dp(KEYPAD_HEIGHT_DP)))
         addView(InkButton(activity).apply {
             setText(R.string.call)
             icon = R.drawable.ic_call
@@ -101,6 +103,7 @@ class DialerScreen(private val activity: Activity) : LinearLayout(activity), Tab
             iconSizeDp = CALL_ICON_DP
             setOnClickListener { if (number.isNotEmpty()) CallLauncher.call(activity, number.toString()) }
         }, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply { topMargin = gap })
+        updateKeypadLetters()
         render()
     }
 
@@ -128,6 +131,7 @@ class DialerScreen(private val activity: Activity) : LinearLayout(activity), Tab
         val isDefault = CallLauncher.isDefaultDialer(activity)
         banner.visibility = if (isDefault) GONE else VISIBLE
         suggestions.visibility = if (isDefault) VISIBLE else GONE
+        updateKeypadLetters()
         if (activity.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) return
         val options = ContactListOptions.from(activity.inkPrefs()).copy(onlyWithPhone = true)
         val repository = ContactsRepository(activity.contentResolver)
@@ -135,9 +139,15 @@ class DialerScreen(private val activity: Activity) : LinearLayout(activity), Tab
             val loaded = ContactList.build(repository.loadSummaries(), options)
             main.post {
                 contacts = loaded
+                updateKeypadLetters()
                 renderSuggestions()
             }
         }
+    }
+
+    private fun updateKeypadLetters() {
+        val systemLocales = Resources.getSystem().configuration.locales.let { list -> (0 until list.size()).map(list::get) }
+        dialPad.showsCyrillic = KeypadLetters.from(activity.inkPrefs()).showsCyrillic(systemLocales, contacts.map { it.displayName })
     }
 
     private fun keypadListener() = object : DialPad.Listener {
