@@ -54,7 +54,7 @@ Bundled components: Noto Emoji font (SIL Open Font License 1.1), ez-vcard and Ma
 
 ---
 
-## Ink Phone по-русски
+## Ink Phone
 
 Звонилка и телефонная книга для Android-телефонов с e-ink экраном, сделанная под Hisense A9.
 
