@@ -12,7 +12,7 @@ Every pixel is pure black or white: text is drawn without antialiasing with stem
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/9.png" width="160">
 </p>
 
-[Русская версия ниже](#ink-phone-по-русски)
+[Русская версия ниже](#ink-phone-1)
 
 ## Features
 
