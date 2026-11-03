@@ -1,0 +1,1 @@
+Calmer screens on e-ink: borderless keypad, fewer lines and icons, one set of text sizes across the app. The tab bar hides while the keyboard is open, and the dialed number size follows the text size.
