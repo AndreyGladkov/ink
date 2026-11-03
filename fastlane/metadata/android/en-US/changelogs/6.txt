@@ -1,0 +1,1 @@
+Keypad keys have borders again. Cyrillic letters on the keys are shown when Russian is one of the system languages or a contact has a Cyrillic name; Settings → Display → Letters on keypad switches them on or off. README explains how to make Ink Phone the default phone app on Android 15 and newer.
