@@ -2,7 +2,7 @@ package io.github.andreygladkov.inkphone.dialer
 
 import android.Manifest
 import android.app.Activity
-import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.ToneGenerator
@@ -13,6 +13,8 @@ import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.Space
+import androidx.core.content.edit
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.TabScreen
 import io.github.andreygladkov.inkphone.call.CallLauncher
@@ -23,13 +25,13 @@ import io.github.andreygladkov.inkphone.contacts.ContactsRepository
 import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.favorites.SpeedDial
 import io.github.andreygladkov.inkphone.inkPrefs
-import io.github.andreygladkov.inkphone.settings.SettingsActivity
 import io.github.andreygladkov.inkphone.ui.DialPad
 import io.github.andreygladkov.inkphone.ui.DottedDrawable
 import io.github.andreygladkov.inkphone.ui.InkButton
 import io.github.andreygladkov.inkphone.ui.InkTextView
 import io.github.andreygladkov.inkphone.ui.twoLines
 import java.util.concurrent.Executors
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 class DialerScreen(private val activity: Activity) : LinearLayout(activity), TabScreen {
@@ -40,7 +42,7 @@ class DialerScreen(private val activity: Activity) : LinearLayout(activity), Tab
     private var tones: ToneGenerator? = null
 
     private val numberView = InkTextView(activity).apply {
-        textScale = activity.inkPrefs().getFloat(PREF_NUMBER_SIZE_SP, DEFAULT_NUMBER_SIZE_SP) / style.textSizeSp
+        textScale = numberScale(activity.inkPrefs())
         isBold = true
         gravity = Gravity.CENTER
         isSingleLine = true
@@ -64,7 +66,7 @@ class DialerScreen(private val activity: Activity) : LinearLayout(activity), Tab
         setPadding(padding, padding, padding, padding)
         addView(InkTextView(activity).apply {
             setText(R.string.default_dialer_rationale)
-            textScale = SMALL_SCALE
+            textScale = InkStyle.SECONDARY_SCALE
             gravity = Gravity.CENTER
         })
         addView(InkButton(activity).apply {
@@ -79,20 +81,15 @@ class DialerScreen(private val activity: Activity) : LinearLayout(activity), Tab
     init {
         orientation = VERTICAL
         val gap = dp(GAP_DP)
-        setPadding(gap, gap, gap, gap)
+        setPadding(gap, gap, gap, gap * 2)
         addView(banner, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
         addView(suggestions, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
         addView(View(activity).apply { setBackgroundColor(InkStyle.of(activity).foreground) },
-            LayoutParams(LayoutParams.MATCH_PARENT, dp(LINE_DP).coerceAtLeast(1)))
+            LayoutParams(LayoutParams.MATCH_PARENT, dp(InkStyle.LINE_DP).coerceAtLeast(1)))
         addView(LinearLayout(activity).apply {
             orientation = HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            addView(InkButton(activity).apply {
-                icon = R.drawable.ic_settings
-                contentDescription = context.getString(R.string.settings)
-                isBordered = false
-                setOnClickListener { activity.startActivity(Intent(activity, SettingsActivity::class.java)) }
-            })
+            addView(Space(activity), LayoutParams(backspace.minWidth, 0))
             addView(numberView, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
             addView(backspace)
         }, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply { bottomMargin = dp(GAP_DP) })
@@ -182,7 +179,7 @@ class DialerScreen(private val activity: Activity) : LinearLayout(activity), Tab
             suggestions.removeAllViews()
             suggestions.addView(InkTextView(activity).apply {
                 text = context.getString(R.string.speed_dial_not_set, key.toString())
-                textScale = SMALL_SCALE
+                textScale = InkStyle.SECONDARY_SCALE
                 gravity = Gravity.CENTER
             }, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         }
@@ -195,7 +192,6 @@ class DialerScreen(private val activity: Activity) : LinearLayout(activity), Tab
 
     private fun render() {
         numberView.text = number.ifEmpty { "" }
-        numberView.hint = context.getString(R.string.dialer_hint)
         backspace.visibility = if (number.isEmpty()) INVISIBLE else VISIBLE
         renderSuggestions()
     }
@@ -225,7 +221,6 @@ class DialerScreen(private val activity: Activity) : LinearLayout(activity), Tab
 
     private fun suggestionRow(suggestion: Suggestion) = InkButton(activity).apply {
         text = twoLines(suggestion.entry.displayName, suggestion.number)
-        textScale = SMALL_SCALE
         isBordered = false
         gravity = Gravity.START or Gravity.CENTER_VERTICAL
         minHeight = 0
@@ -244,14 +239,26 @@ class DialerScreen(private val activity: Activity) : LinearLayout(activity), Tab
     private fun dp(value: Float) = (value * density).roundToInt()
 
     companion object {
-        const val PREF_NUMBER_SIZE_SP = "dialer_number_size_sp"
-        const val DEFAULT_NUMBER_SIZE_SP = 24f
-        val NUMBER_SIZES_SP = listOf(20f, 24f, 28f, 32f)
+        const val PREF_NUMBER_SCALE = "dialer_number_scale"
+        const val DEFAULT_NUMBER_SCALE = InkStyle.DISPLAY_SCALE
+        val NUMBER_SCALES = listOf(DEFAULT_NUMBER_SCALE, 1.75f, 2f)
+        private const val LEGACY_PREF_NUMBER_SIZE_SP = "dialer_number_size_sp"
+
+        fun numberScale(prefs: SharedPreferences): Float {
+            if (prefs.contains(PREF_NUMBER_SCALE)) return prefs.getFloat(PREF_NUMBER_SCALE, DEFAULT_NUMBER_SCALE)
+            if (!prefs.contains(LEGACY_PREF_NUMBER_SIZE_SP)) return DEFAULT_NUMBER_SCALE
+            val legacy = prefs.getFloat(LEGACY_PREF_NUMBER_SIZE_SP, 0f) / InkStyle.from(prefs).textSizeSp
+            return NUMBER_SCALES.minBy { abs(it - legacy) }
+        }
+
+        fun saveNumberScale(prefs: SharedPreferences, scale: Float) = prefs.edit {
+            putFloat(PREF_NUMBER_SCALE, scale)
+            remove(LEGACY_PREF_NUMBER_SIZE_SP)
+        }
+
         private const val GAP_DP = 8f
-        private const val LINE_DP = 2f
         private const val KEYPAD_HEIGHT_DP = 240f
         private const val CALL_ICON_DP = 24f
-        private const val SMALL_SCALE = 0.9f
         private const val SUGGESTION_PADDING_DP = 8f
         private const val MAX_SUGGESTIONS = 4
         private const val TONE_VOLUME = 80

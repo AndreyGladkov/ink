@@ -85,7 +85,6 @@
     <string name="card_history">Звонки</string>
     <string name="default_dialer_rationale">Сделайте Ink Phone звонилкой по умолчанию, чтобы звонки шли через e-ink экран вызова.</string>
     <string name="make_default">Сделать по умолчанию</string>
-    <string name="dialer_hint">Введите номер</string>
     <string name="delete">Стереть</string>
     <string name="duration_seconds">%1$d с</string>
     <string name="duration_minutes">%1$d мин</string>
@@ -167,4 +166,5 @@
     <string name="contact_save_failed">Не удалось сохранить изменения</string>
     <string name="contact_delete_failed">Не удалось удалить контакт</string>
     <string name="import_interrupted">Импорт прерван ошибкой. Добавлено: %1$d, объединено: %2$d</string>
+    <string name="selected">Выбрано</string>
 </resources>

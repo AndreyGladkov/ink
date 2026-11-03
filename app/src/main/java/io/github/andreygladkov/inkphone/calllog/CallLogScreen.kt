@@ -16,10 +16,12 @@ import android.widget.LinearLayout
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.TabScreen
 import io.github.andreygladkov.inkphone.call.CallLauncher
+import io.github.andreygladkov.inkphone.call.callButton
 import io.github.andreygladkov.inkphone.contacts.ContactCardActivity
 import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.ui.InkButton
 import io.github.andreygladkov.inkphone.ui.InkPagedList
+import io.github.andreygladkov.inkphone.ui.InkSegments
 import io.github.andreygladkov.inkphone.ui.InkTextView
 import io.github.andreygladkov.inkphone.ui.PermissionGate
 import io.github.andreygladkov.inkphone.ui.twoLines
@@ -49,8 +51,6 @@ class CallLogScreen(private val activity: Activity, private val onMissedRead: ()
             topMargin = padding
         })
     }
-    private val filterAll: InkButton = filterButton(R.string.filter_all, missedOnly = false)
-    private val filterMissed: InkButton = filterButton(R.string.filter_missed, missedOnly = true)
     private var missedOnly = false
     private var entries: List<CallLogEntry> = emptyList()
     private var isLoaded = false
@@ -64,20 +64,16 @@ class CallLogScreen(private val activity: Activity, private val onMissedRead: ()
 
     init {
         orientation = VERTICAL
-        val gap = dp(GAP_DP)
-        addView(LinearLayout(activity).apply {
-            orientation = HORIZONTAL
-            setPadding(gap, gap, gap, gap)
-            addView(filterAll, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
-            addView(filterMissed, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = gap })
+        addView(InkSegments(activity, listOf(R.string.filter_all, R.string.filter_missed)) { index ->
+            missedOnly = index == 1
+            show()
         })
         addView(View(activity).apply { setBackgroundColor(InkStyle.of(activity).foreground) },
-            LayoutParams(LayoutParams.MATCH_PARENT, dp(LINE_DP).coerceAtLeast(1)))
+            LayoutParams(LayoutParams.MATCH_PARENT, dp(InkStyle.LINE_DP).coerceAtLeast(1)))
         addView(FrameLayout(activity).apply {
             addView(list)
             addView(state)
         }, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
-        filterAll.isSelected = true
     }
 
     override fun onAttachedToWindow() {
@@ -168,30 +164,13 @@ class CallLogScreen(private val activity: Activity, private val onMissedRead: ()
                 isBold = entry.type == CallType.MISSED
                 isBordered = false
                 gravity = Gravity.START or Gravity.CENTER_VERTICAL
+                setPadding(paddingLeft, dp(InkPagedList.ROW_PADDING_DP), paddingRight, dp(InkPagedList.ROW_PADDING_DP))
                 if (entry.number.isEmpty()) isClickable = false
                 else setOnClickListener { activity.startActivity(ContactCardActivity.intentForNumber(activity, entry.number)) }
             }, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
             if (entry.number.isNotEmpty()) {
-                addView(InkButton(activity).apply {
-                    setText(R.string.call)
-                    textScale = CALL_TEXT_SCALE
-                    icon = R.drawable.ic_call
-                    iconPosition = InkButton.IconPosition.START
-                    iconSizeDp = CALL_ICON_DP
-                    setOnClickListener { CallLauncher.call(activity, entry.number) }
-                }, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(GAP_DP) })
+                addView(callButton(activity, entry.number), LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(GAP_DP) })
             }
-        }
-    }
-
-    private fun filterButton(title: Int, missedOnly: Boolean): InkButton = InkButton(activity).apply {
-        setText(title)
-        textScale = FILTER_TEXT_SCALE
-        setOnClickListener {
-            this@CallLogScreen.missedOnly = missedOnly
-            filterAll.isSelected = !missedOnly
-            filterMissed.isSelected = missedOnly
-            show()
         }
     }
 
@@ -201,10 +180,6 @@ class CallLogScreen(private val activity: Activity, private val onMissedRead: ()
         const val REQUEST_CALL_LOG = 2
         private const val PADDING_DP = 24f
         private const val GAP_DP = 8f
-        private const val LINE_DP = 2f
-        private const val CALL_ICON_DP = 20f
-        private const val CALL_TEXT_SCALE = 0.8f
-        private const val FILTER_TEXT_SCALE = 0.9f
         private const val RELOAD_DEBOUNCE_MS = 500L
         private val loader = Executors.newSingleThreadExecutor()
     }

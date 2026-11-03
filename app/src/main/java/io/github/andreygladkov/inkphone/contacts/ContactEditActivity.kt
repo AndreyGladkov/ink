@@ -16,6 +16,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.core.content.edit
 import io.github.andreygladkov.inkphone.R
+import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.hasPermission
 import io.github.andreygladkov.inkphone.inkPrefs
 import io.github.andreygladkov.inkphone.ui.InkButton
@@ -105,7 +106,7 @@ class ContactEditActivity : Activity() {
         body.removeAllViews()
         body.addView(InkTextView(this).apply {
             setText(if (contact == null) R.string.contact_new else R.string.contact_edit)
-            textScale = TITLE_SCALE
+            textScale = InkStyle.TITLE_SCALE
             isBold = true
         })
         if (contact == null) {
@@ -116,7 +117,7 @@ class ContactEditActivity : Activity() {
             accounts.forEach { option ->
                 body.addView(InkButton(this).apply {
                     text = labels.label(option)
-                    textScale = SMALL_SCALE
+                    textScale = InkStyle.SECONDARY_SCALE
                     gravity = Gravity.START or Gravity.CENTER_VERTICAL
                     isSelected = option == account
                     setOnClickListener {
@@ -194,7 +195,7 @@ class ContactEditActivity : Activity() {
                 gravity = Gravity.CENTER_VERTICAL
                 addView(InkButton(context).apply {
                     text = typeLabel(row.type)
-                    textScale = SMALL_SCALE
+                    textScale = InkStyle.SECONDARY_SCALE
                     setOnClickListener {
                         row.type = ContactDiff.nextPhoneType(row.type)
                         text = typeLabel(row.type)
@@ -219,7 +220,7 @@ class ContactEditActivity : Activity() {
 
     private fun removeButton(onClick: () -> Unit) = InkButton(this).apply {
         setText(R.string.remove)
-        textScale = SMALL_SCALE
+        textScale = InkStyle.SECONDARY_SCALE
         icon = R.drawable.ic_close
         iconPosition = InkButton.IconPosition.START
         iconSizeDp = ICON_DP
@@ -228,7 +229,7 @@ class ContactEditActivity : Activity() {
 
     private fun addButton(text: Int, onClick: () -> Unit) = InkButton(this).apply {
         setText(text)
-        textScale = SMALL_SCALE
+        textScale = InkStyle.SECONDARY_SCALE
         icon = R.drawable.ic_add
         iconPosition = InkButton.IconPosition.START
         iconSizeDp = ICON_DP
@@ -237,7 +238,7 @@ class ContactEditActivity : Activity() {
 
     private fun label(text: Int) = InkTextView(this).apply {
         setText(text)
-        textScale = SMALL_SCALE
+        textScale = InkStyle.SECONDARY_SCALE
     }
 
     private fun field(type: Int) = InkEditText(this).apply {
@@ -309,8 +310,6 @@ class ContactEditActivity : Activity() {
         private const val GAP_DP = 8f
         private const val SECTION_GAP_DP = 20f
         private const val ICON_DP = 20f
-        private const val TITLE_SCALE = 1.2f
-        private const val SMALL_SCALE = 0.9f
         private val loader = Executors.newSingleThreadExecutor()
 
         fun intentForNew(context: Context, number: String? = null): Intent =

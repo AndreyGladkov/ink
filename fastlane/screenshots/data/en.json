@@ -1,0 +1,372 @@
+{
+  "contacts": [
+    {
+      "starred": true,
+      "given": "Alice",
+      "family": "Bennett",
+      "phone": "+1 555-0101"
+    },
+    {
+      "starred": false,
+      "given": "Andrew",
+      "family": "Collins",
+      "phone": "+1 555-0102"
+    },
+    {
+      "starred": false,
+      "given": "Anna",
+      "family": "Hughes",
+      "phone": "+1 555-0103"
+    },
+    {
+      "starred": true,
+      "given": "Ben",
+      "family": "Carter",
+      "phone": "+1 555-0104"
+    },
+    {
+      "starred": false,
+      "given": "Chloe",
+      "family": "Morgan",
+      "phone": "+1 555-0105"
+    },
+    {
+      "starred": false,
+      "given": "Daniel",
+      "family": "Foster",
+      "phone": "+1 555-0106"
+    },
+    {
+      "starred": true,
+      "given": "Dad",
+      "family": "",
+      "phone": "+1 555-0107"
+    },
+    {
+      "starred": false,
+      "given": "Emma",
+      "family": "Wright",
+      "phone": "+1 555-0108"
+    },
+    {
+      "starred": false,
+      "given": "Ethan",
+      "family": "Brooks",
+      "phone": "+1 555-0109"
+    },
+    {
+      "starred": false,
+      "given": "Grace",
+      "family": "Turner",
+      "phone": "+1 555-0110"
+    },
+    {
+      "starred": false,
+      "given": "Henry",
+      "family": "Walsh",
+      "phone": "+1 555-0111"
+    },
+    {
+      "starred": false,
+      "given": "Isabel",
+      "family": "Reed",
+      "phone": "+1 555-0112"
+    },
+    {
+      "starred": false,
+      "given": "Jack",
+      "family": "Palmer",
+      "phone": "+1 555-0113"
+    },
+    {
+      "starred": false,
+      "given": "Julia",
+      "family": "Grant",
+      "phone": "+1 555-0114"
+    },
+    {
+      "starred": true,
+      "given": "Kate",
+      "family": "Spencer",
+      "phone": "+1 555-0115"
+    },
+    {
+      "starred": false,
+      "given": "Leo",
+      "family": "Marshall",
+      "phone": "+1 555-0116"
+    },
+    {
+      "starred": false,
+      "given": "Lucy",
+      "family": "Hayes",
+      "phone": "+1 555-0117"
+    },
+    {
+      "starred": true,
+      "given": "Mom",
+      "family": "",
+      "phone": "+1 555-0118"
+    },
+    {
+      "starred": false,
+      "given": "Nina",
+      "family": "Price",
+      "phone": "+1 555-0119"
+    },
+    {
+      "starred": false,
+      "given": "Oliver",
+      "family": "Shaw",
+      "phone": "+1 555-0120"
+    },
+    {
+      "starred": false,
+      "given": "Paul",
+      "family": "Dixon",
+      "phone": "+1 555-0121"
+    },
+    {
+      "starred": false,
+      "given": "Rachel",
+      "family": "Ford",
+      "phone": "+1 555-0122"
+    },
+    {
+      "starred": false,
+      "given": "Sam",
+      "family": "Lawson",
+      "phone": "+1 555-0123"
+    },
+    {
+      "starred": false,
+      "given": "Sophie",
+      "family": "Bell",
+      "phone": "+1 555-0124"
+    },
+    {
+      "starred": false,
+      "given": "Tom",
+      "family": "Harper",
+      "phone": "+1 555-0125"
+    },
+    {
+      "starred": false,
+      "given": "Victor",
+      "family": "Lane",
+      "phone": "+1 555-0126"
+    },
+    {
+      "starred": false,
+      "given": "William",
+      "family": "Ross",
+      "phone": "+1 555-0127"
+    },
+    {
+      "starred": false,
+      "given": "Zoe",
+      "family": "Mills",
+      "phone": "+1 555-0128"
+    },
+    {
+      "starred": false,
+      "given": "Dentist",
+      "family": "",
+      "phone": "+1 555-0129"
+    },
+    {
+      "starred": false,
+      "given": "Taxi",
+      "family": "",
+      "phone": "+1 555-0130"
+    }
+  ],
+  "calls": [
+    {
+      "number": "+1 555-0118",
+      "type": 3,
+      "days_ago": 0,
+      "time": "09:47",
+      "duration": 0,
+      "new": true,
+      "name": "Mom"
+    },
+    {
+      "number": "+1 555-0118",
+      "type": 3,
+      "days_ago": 0,
+      "time": "09:31",
+      "duration": 0,
+      "new": true,
+      "name": "Mom"
+    },
+    {
+      "number": "+1 555-0199",
+      "type": 5,
+      "days_ago": 0,
+      "time": "09:12",
+      "duration": 0,
+      "new": false
+    },
+    {
+      "number": "+1 555-0104",
+      "type": 2,
+      "days_ago": 0,
+      "time": "08:54",
+      "duration": 312,
+      "new": false,
+      "name": "Ben Carter"
+    },
+    {
+      "number": "+1 555-0104",
+      "type": 1,
+      "days_ago": 0,
+      "time": "08:23",
+      "duration": 95,
+      "new": false,
+      "name": "Ben Carter"
+    },
+    {
+      "number": "+1 555-0115",
+      "type": 1,
+      "days_ago": 0,
+      "time": "08:05",
+      "duration": 640,
+      "new": false,
+      "name": "Kate Spencer"
+    },
+    {
+      "number": "+1 555-0101",
+      "type": 2,
+      "days_ago": 1,
+      "time": "21:18",
+      "duration": 48,
+      "new": false,
+      "name": "Alice Bennett"
+    },
+    {
+      "number": "+1 555-0129",
+      "type": 2,
+      "days_ago": 1,
+      "time": "17:42",
+      "duration": 130,
+      "new": false,
+      "name": "Dentist"
+    },
+    {
+      "number": "+1 555-0107",
+      "type": 1,
+      "days_ago": 1,
+      "time": "14:09",
+      "duration": 1260,
+      "new": false,
+      "name": "Dad"
+    },
+    {
+      "number": "+1 555-0107",
+      "type": 2,
+      "days_ago": 1,
+      "time": "13:51",
+      "duration": 0,
+      "new": false,
+      "name": "Dad"
+    },
+    {
+      "number": "+1 555-0130",
+      "type": 2,
+      "days_ago": 1,
+      "time": "08:37",
+      "duration": 75,
+      "new": false,
+      "name": "Taxi"
+    },
+    {
+      "number": "+1 555-0112",
+      "type": 3,
+      "days_ago": 2,
+      "time": "19:26",
+      "duration": 0,
+      "new": false,
+      "name": "Isabel Reed"
+    },
+    {
+      "number": "+1 555-0121",
+      "type": 1,
+      "days_ago": 2,
+      "time": "12:14",
+      "duration": 410,
+      "new": false,
+      "name": "Paul Dixon"
+    },
+    {
+      "number": "+1 555-0102",
+      "type": 2,
+      "days_ago": 3,
+      "time": "18:03",
+      "duration": 220,
+      "new": false,
+      "name": "Andrew Collins"
+    },
+    {
+      "number": "+1 555-0118",
+      "type": 2,
+      "days_ago": 3,
+      "time": "11:45",
+      "duration": 1840,
+      "new": false,
+      "name": "Mom"
+    },
+    {
+      "number": "+1 555-0110",
+      "type": 1,
+      "days_ago": 4,
+      "time": "16:22",
+      "duration": 55,
+      "new": false,
+      "name": "Grace Turner"
+    },
+    {
+      "number": "+1 555-0125",
+      "type": 2,
+      "days_ago": 4,
+      "time": "10:08",
+      "duration": 180,
+      "new": false,
+      "name": "Tom Harper"
+    },
+    {
+      "number": "+1 555-0114",
+      "type": 3,
+      "days_ago": 5,
+      "time": "20:31",
+      "duration": 0,
+      "new": false,
+      "name": "Julia Grant"
+    },
+    {
+      "number": "+1 555-0105",
+      "type": 1,
+      "days_ago": 6,
+      "time": "15:57",
+      "duration": 300,
+      "new": false,
+      "name": "Chloe Morgan"
+    },
+    {
+      "number": "+1 555-0116",
+      "type": 2,
+      "days_ago": 7,
+      "time": "09:16",
+      "duration": 90,
+      "new": false,
+      "name": "Leo Marshall"
+    }
+  ],
+  "speed_dial": {
+    "2": "+1 555-0118",
+    "3": "+1 555-0104",
+    "4": "+1 555-0107",
+    "5": "+1 555-0115",
+    "6": "+1 555-0101"
+  }
+}

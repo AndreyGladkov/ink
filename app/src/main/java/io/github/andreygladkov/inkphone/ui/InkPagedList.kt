@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.InsetDrawable
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -14,8 +15,10 @@ import android.widget.ListView
 import android.widget.LinearLayout
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.eink.A9Panel
+import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.inkPrefs
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 class InkPagedList(context: Context) : LinearLayout(context) {
     interface Adapter {
@@ -26,14 +29,19 @@ class InkPagedList(context: Context) : LinearLayout(context) {
 
     var onPageShown: ((firstPosition: Int) -> Unit)? = null
 
+    private val dividerInsetPx = (InkButton.PADDING_DP * resources.displayMetrics.density).roundToInt()
     private val scrolls = context.inkPrefs().getBoolean(PREF_SCROLL, false)
     private val scrollList: ListView? = if (scrolls) scrollList(context) else null
 
     private val dividerPx = DottedDrawable(context).intrinsicHeight
+    private val body = LinearLayout(context).apply { orientation = HORIZONTAL }
     private val pageView = PageView(context)
     private val prev = pagerButton(R.drawable.ic_page_up, R.string.page_prev) { flip(page - 1) }
     private val next = pagerButton(R.drawable.ic_page_down, R.string.page_next) { flip(page + 1) }
-    private val label = InkTextView(context).apply { gravity = android.view.Gravity.CENTER }
+    private val label = InkTextView(context).apply {
+        gravity = android.view.Gravity.CENTER
+        textScale = InkStyle.SECONDARY_SCALE
+    }
     private val heights = HashMap<Long, Int>()
     private var heightsWidth = -1
     private var adapter: Adapter? = null
@@ -65,15 +73,16 @@ class InkPagedList(context: Context) : LinearLayout(context) {
 
     init {
         orientation = VERTICAL
-        if (scrollList != null) {
-            addView(scrollList, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
-        } else {
-            addPagedViews()
-        }
+        body.addView(scrollList ?: pageView, LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
+        addView(body, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
+        if (scrollList == null) addPager()
     }
 
-    private fun addPagedViews() {
-        addView(pageView, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
+    fun setAside(view: View, params: LayoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT)) {
+        body.addView(view, params)
+    }
+
+    private fun addPager() {
         addView(LinearLayout(context).apply {
             orientation = HORIZONTAL
             addView(prev, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
@@ -170,7 +179,7 @@ class InkPagedList(context: Context) : LinearLayout(context) {
     }
 
     private fun scrollList(context: Context) = ListView(context).apply {
-        divider = DottedDrawable(context)
+        divider = divider(context)
         dividerHeight = DottedDrawable(context).intrinsicHeight
         selector = ColorDrawable(Color.TRANSPARENT)
         isVerticalScrollBarEnabled = false
@@ -187,6 +196,8 @@ class InkPagedList(context: Context) : LinearLayout(context) {
             }
         })
     }
+
+    private fun divider(context: Context) = InsetDrawable(DottedDrawable(context), dividerInsetPx, 0, dividerInsetPx, 0)
 
     private class ScrollAdapter(private val items: Adapter) : BaseAdapter() {
         override fun getCount() = items.count
@@ -210,7 +221,7 @@ class InkPagedList(context: Context) : LinearLayout(context) {
         init {
             orientation = VERTICAL
             showDividers = SHOW_DIVIDER_MIDDLE
-            dividerDrawable = DottedDrawable(context)
+            dividerDrawable = divider(context)
         }
 
         override fun shouldDelayChildPressedState() = true
@@ -249,6 +260,7 @@ class InkPagedList(context: Context) : LinearLayout(context) {
 
     companion object {
         const val PREF_SCROLL = "lists_scroll"
+        const val ROW_PADDING_DP = 8f
         private const val BACKGROUND_CHUNK = 3
         private const val BACKGROUND_PAUSE_MS = 16L
     }

@@ -1,0 +1,372 @@
+{
+  "contacts": [
+    {
+      "starred": false,
+      "given": "Алексей",
+      "family": "Смирнов",
+      "phone": "+7 900 555-01-01"
+    },
+    {
+      "starred": true,
+      "given": "Анна",
+      "family": "Кузнецова",
+      "phone": "+7 900 555-01-02"
+    },
+    {
+      "starred": false,
+      "given": "Андрей",
+      "family": "Попов",
+      "phone": "+7 900 555-01-03"
+    },
+    {
+      "starred": false,
+      "given": "Борис",
+      "family": "Васильев",
+      "phone": "+7 900 555-01-04"
+    },
+    {
+      "starred": false,
+      "given": "Вера",
+      "family": "Петрова",
+      "phone": "+7 900 555-01-05"
+    },
+    {
+      "starred": false,
+      "given": "Виктор",
+      "family": "Соколов",
+      "phone": "+7 900 555-01-06"
+    },
+    {
+      "starred": false,
+      "given": "Галина",
+      "family": "Михайлова",
+      "phone": "+7 900 555-01-07"
+    },
+    {
+      "starred": true,
+      "given": "Дмитрий",
+      "family": "Новиков",
+      "phone": "+7 900 555-01-08"
+    },
+    {
+      "starred": false,
+      "given": "Екатерина",
+      "family": "Фёдорова",
+      "phone": "+7 900 555-01-09"
+    },
+    {
+      "starred": false,
+      "given": "Елена",
+      "family": "Морозова",
+      "phone": "+7 900 555-01-10"
+    },
+    {
+      "starred": false,
+      "given": "Жанна",
+      "family": "Волкова",
+      "phone": "+7 900 555-01-11"
+    },
+    {
+      "starred": false,
+      "given": "Иван",
+      "family": "Алексеев",
+      "phone": "+7 900 555-01-12"
+    },
+    {
+      "starred": false,
+      "given": "Ирина",
+      "family": "Лебедева",
+      "phone": "+7 900 555-01-13"
+    },
+    {
+      "starred": false,
+      "given": "Кирилл",
+      "family": "Семёнов",
+      "phone": "+7 900 555-01-14"
+    },
+    {
+      "starred": false,
+      "given": "Ксения",
+      "family": "Егорова",
+      "phone": "+7 900 555-01-15"
+    },
+    {
+      "starred": true,
+      "given": "Мама",
+      "family": "",
+      "phone": "+7 900 555-01-16"
+    },
+    {
+      "starred": false,
+      "given": "Марина",
+      "family": "Павлова",
+      "phone": "+7 900 555-01-17"
+    },
+    {
+      "starred": false,
+      "given": "Михаил",
+      "family": "Козлов",
+      "phone": "+7 900 555-01-18"
+    },
+    {
+      "starred": false,
+      "given": "Наталья",
+      "family": "Степанова",
+      "phone": "+7 900 555-01-19"
+    },
+    {
+      "starred": false,
+      "given": "Олег",
+      "family": "Николаев",
+      "phone": "+7 900 555-01-20"
+    },
+    {
+      "starred": true,
+      "given": "Ольга",
+      "family": "Орлова",
+      "phone": "+7 900 555-01-21"
+    },
+    {
+      "starred": true,
+      "given": "Папа",
+      "family": "",
+      "phone": "+7 900 555-01-22"
+    },
+    {
+      "starred": false,
+      "given": "Павел",
+      "family": "Андреев",
+      "phone": "+7 900 555-01-23"
+    },
+    {
+      "starred": false,
+      "given": "Светлана",
+      "family": "Макарова",
+      "phone": "+7 900 555-01-24"
+    },
+    {
+      "starred": false,
+      "given": "Сергей",
+      "family": "Никитин",
+      "phone": "+7 900 555-01-25"
+    },
+    {
+      "starred": false,
+      "given": "Татьяна",
+      "family": "Захарова",
+      "phone": "+7 900 555-01-26"
+    },
+    {
+      "starred": false,
+      "given": "Юлия",
+      "family": "Зайцева",
+      "phone": "+7 900 555-01-27"
+    },
+    {
+      "starred": false,
+      "given": "Яна",
+      "family": "Соловьёва",
+      "phone": "+7 900 555-01-28"
+    },
+    {
+      "starred": false,
+      "given": "Стоматолог",
+      "family": "",
+      "phone": "+7 900 555-01-29"
+    },
+    {
+      "starred": false,
+      "given": "Такси",
+      "family": "",
+      "phone": "+7 900 555-01-30"
+    }
+  ],
+  "calls": [
+    {
+      "number": "+7 900 555-01-16",
+      "type": 3,
+      "days_ago": 0,
+      "time": "09:47",
+      "duration": 0,
+      "new": true,
+      "name": "Мама"
+    },
+    {
+      "number": "+7 900 555-01-16",
+      "type": 3,
+      "days_ago": 0,
+      "time": "09:31",
+      "duration": 0,
+      "new": true,
+      "name": "Мама"
+    },
+    {
+      "number": "+7 900 555-01-99",
+      "type": 5,
+      "days_ago": 0,
+      "time": "09:12",
+      "duration": 0,
+      "new": false
+    },
+    {
+      "number": "+7 900 555-01-08",
+      "type": 2,
+      "days_ago": 0,
+      "time": "08:54",
+      "duration": 312,
+      "new": false,
+      "name": "Дмитрий Новиков"
+    },
+    {
+      "number": "+7 900 555-01-08",
+      "type": 1,
+      "days_ago": 0,
+      "time": "08:23",
+      "duration": 95,
+      "new": false,
+      "name": "Дмитрий Новиков"
+    },
+    {
+      "number": "+7 900 555-01-02",
+      "type": 1,
+      "days_ago": 0,
+      "time": "08:05",
+      "duration": 640,
+      "new": false,
+      "name": "Анна Кузнецова"
+    },
+    {
+      "number": "+7 900 555-01-21",
+      "type": 2,
+      "days_ago": 1,
+      "time": "21:18",
+      "duration": 48,
+      "new": false,
+      "name": "Ольга Орлова"
+    },
+    {
+      "number": "+7 900 555-01-29",
+      "type": 2,
+      "days_ago": 1,
+      "time": "17:42",
+      "duration": 130,
+      "new": false,
+      "name": "Стоматолог"
+    },
+    {
+      "number": "+7 900 555-01-22",
+      "type": 1,
+      "days_ago": 1,
+      "time": "14:09",
+      "duration": 1260,
+      "new": false,
+      "name": "Папа"
+    },
+    {
+      "number": "+7 900 555-01-22",
+      "type": 2,
+      "days_ago": 1,
+      "time": "13:51",
+      "duration": 0,
+      "new": false,
+      "name": "Папа"
+    },
+    {
+      "number": "+7 900 555-01-30",
+      "type": 2,
+      "days_ago": 1,
+      "time": "08:37",
+      "duration": 75,
+      "new": false,
+      "name": "Такси"
+    },
+    {
+      "number": "+7 900 555-01-12",
+      "type": 3,
+      "days_ago": 2,
+      "time": "19:26",
+      "duration": 0,
+      "new": false,
+      "name": "Иван Алексеев"
+    },
+    {
+      "number": "+7 900 555-01-01",
+      "type": 1,
+      "days_ago": 2,
+      "time": "12:14",
+      "duration": 410,
+      "new": false,
+      "name": "Алексей Смирнов"
+    },
+    {
+      "number": "+7 900 555-01-15",
+      "type": 2,
+      "days_ago": 3,
+      "time": "18:03",
+      "duration": 220,
+      "new": false,
+      "name": "Ксения Егорова"
+    },
+    {
+      "number": "+7 900 555-01-16",
+      "type": 2,
+      "days_ago": 3,
+      "time": "11:45",
+      "duration": 1840,
+      "new": false,
+      "name": "Мама"
+    },
+    {
+      "number": "+7 900 555-01-10",
+      "type": 1,
+      "days_ago": 4,
+      "time": "16:22",
+      "duration": 55,
+      "new": false,
+      "name": "Елена Морозова"
+    },
+    {
+      "number": "+7 900 555-01-25",
+      "type": 2,
+      "days_ago": 4,
+      "time": "10:08",
+      "duration": 180,
+      "new": false,
+      "name": "Сергей Никитин"
+    },
+    {
+      "number": "+7 900 555-01-14",
+      "type": 3,
+      "days_ago": 5,
+      "time": "20:31",
+      "duration": 0,
+      "new": false,
+      "name": "Кирилл Семёнов"
+    },
+    {
+      "number": "+7 900 555-01-05",
+      "type": 1,
+      "days_ago": 6,
+      "time": "15:57",
+      "duration": 300,
+      "new": false,
+      "name": "Вера Петрова"
+    },
+    {
+      "number": "+7 900 555-01-18",
+      "type": 2,
+      "days_ago": 7,
+      "time": "09:16",
+      "duration": 90,
+      "new": false,
+      "name": "Михаил Козлов"
+    }
+  ],
+  "speed_dial": {
+    "2": "+7 900 555-01-16",
+    "3": "+7 900 555-01-08",
+    "4": "+7 900 555-01-22",
+    "5": "+7 900 555-01-02",
+    "6": "+7 900 555-01-21"
+  }
+}

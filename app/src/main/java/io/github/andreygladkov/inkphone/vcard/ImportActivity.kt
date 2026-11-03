@@ -16,6 +16,7 @@ import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.contacts.AccountLabels
 import io.github.andreygladkov.inkphone.contacts.AccountRef
 import io.github.andreygladkov.inkphone.contacts.ContactWriter
+import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.inkPrefs
 import io.github.andreygladkov.inkphone.ui.InkButton
 import io.github.andreygladkov.inkphone.ui.InkChoiceRow
@@ -109,12 +110,12 @@ class ImportActivity : Activity() {
         body.removeAllViews()
         body.addView(InkTextView(this).apply {
             setText(R.string.import_title)
-            textScale = TITLE_SCALE
+            textScale = InkStyle.TITLE_SCALE
             isBold = true
         })
         body.addView(InkTextView(this).apply {
             text = getString(R.string.import_found, matched.size, matched.count { it.match != null })
-            textScale = SMALL_SCALE
+            textScale = InkStyle.SECONDARY_SCALE
         }, rowParams())
         body.addView(InkPagedList(this).apply {
             setAdapter(object : InkPagedList.Adapter {
@@ -128,7 +129,7 @@ class ImportActivity : Activity() {
         writable.forEach { option ->
             body.addView(InkButton(this).apply {
                 text = labels.label(option)
-                textScale = SMALL_SCALE
+                textScale = InkStyle.SECONDARY_SCALE
                 maxLines = 1
                 gravity = Gravity.START or Gravity.CENTER_VERTICAL
                 isSelected = option == account
@@ -234,8 +235,6 @@ class ImportActivity : Activity() {
         const val PADDING_DP = 16f
         const val GAP_DP = 8f
         const val ICON_DP = 20f
-        const val TITLE_SCALE = 1.2f
-        const val SMALL_SCALE = 0.9f
         val PERMISSIONS = arrayOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
         val loader = Executors.newSingleThreadExecutor()
     }

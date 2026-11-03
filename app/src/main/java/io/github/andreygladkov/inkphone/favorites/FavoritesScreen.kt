@@ -12,8 +12,8 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.TabScreen
-import io.github.andreygladkov.inkphone.call.CallLauncher
 import io.github.andreygladkov.inkphone.call.ContactLookup
+import io.github.andreygladkov.inkphone.call.callButton
 import io.github.andreygladkov.inkphone.contacts.ContactCardActivity
 import io.github.andreygladkov.inkphone.contacts.ContactList
 import io.github.andreygladkov.inkphone.contacts.ContactListOptions
@@ -23,6 +23,7 @@ import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.inkPrefs
 import io.github.andreygladkov.inkphone.ui.InkButton
 import io.github.andreygladkov.inkphone.ui.InkPagedList
+import io.github.andreygladkov.inkphone.ui.InkSegments
 import io.github.andreygladkov.inkphone.ui.InkTextView
 import io.github.andreygladkov.inkphone.ui.PermissionGate
 import io.github.andreygladkov.inkphone.ui.twoLines
@@ -51,8 +52,6 @@ class FavoritesScreen(private val activity: Activity) : LinearLayout(activity), 
             topMargin = padding
         })
     }
-    private val favoritesTab: InkButton = modeButton(R.string.favorites_tab_favorites, speedDial = false)
-    private val speedDialTab: InkButton = modeButton(R.string.favorites_tab_speed_dial, speedDial = true)
     private var showSpeedDial = false
     private var shownRows: List<Row>? = null
     private val reload = Runnable { load() }
@@ -65,20 +64,16 @@ class FavoritesScreen(private val activity: Activity) : LinearLayout(activity), 
 
     init {
         orientation = VERTICAL
-        val gap = dp(GAP_DP)
-        addView(LinearLayout(activity).apply {
-            orientation = HORIZONTAL
-            setPadding(gap, gap, gap, gap)
-            addView(favoritesTab, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
-            addView(speedDialTab, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = gap })
+        addView(InkSegments(activity, listOf(R.string.favorites_tab_favorites, R.string.favorites_tab_speed_dial)) { index ->
+            showSpeedDial = index == 1
+            load()
         })
         addView(View(activity).apply { setBackgroundColor(InkStyle.of(activity).foreground) },
-            LayoutParams(LayoutParams.MATCH_PARENT, dp(LINE_DP).coerceAtLeast(1)))
+            LayoutParams(LayoutParams.MATCH_PARENT, dp(InkStyle.LINE_DP).coerceAtLeast(1)))
         addView(FrameLayout(activity).apply {
             addView(list)
             addView(state)
         }, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
-        favoritesTab.isSelected = true
     }
 
     override fun onAttachedToWindow() {
@@ -155,6 +150,7 @@ class FavoritesScreen(private val activity: Activity) : LinearLayout(activity), 
             text = if (row.subtitle.isEmpty()) row.title else twoLines(row.title, row.subtitle)
             isBordered = false
             gravity = Gravity.START or Gravity.CENTER_VERTICAL
+            setPadding(paddingLeft, dp(InkPagedList.ROW_PADDING_DP), paddingRight, dp(InkPagedList.ROW_PADDING_DP))
             setOnClickListener {
                 when {
                     row.contactId != null -> activity.startActivity(ContactCardActivity.intent(activity, row.contactId))
@@ -163,25 +159,7 @@ class FavoritesScreen(private val activity: Activity) : LinearLayout(activity), 
             }
         }, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
         if (row.number != null) {
-            addView(InkButton(activity).apply {
-                setText(R.string.call)
-                textScale = CALL_TEXT_SCALE
-                icon = R.drawable.ic_call
-                iconPosition = InkButton.IconPosition.START
-                iconSizeDp = CALL_ICON_DP
-                setOnClickListener { CallLauncher.call(activity, row.number) }
-            }, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(GAP_DP) })
-        }
-    }
-
-    private fun modeButton(title: Int, speedDial: Boolean): InkButton = InkButton(activity).apply {
-        setText(title)
-        textScale = MODE_TEXT_SCALE
-        setOnClickListener {
-            showSpeedDial = speedDial
-            favoritesTab.isSelected = !speedDial
-            speedDialTab.isSelected = speedDial
-            load()
+            addView(callButton(activity, row.number), LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(GAP_DP) })
         }
     }
 
@@ -190,10 +168,6 @@ class FavoritesScreen(private val activity: Activity) : LinearLayout(activity), 
     private companion object {
         const val PADDING_DP = 24f
         const val GAP_DP = 8f
-        const val LINE_DP = 2f
-        const val CALL_ICON_DP = 20f
-        const val CALL_TEXT_SCALE = 0.8f
-        const val MODE_TEXT_SCALE = 0.9f
         const val RELOAD_DEBOUNCE_MS = 500L
         val loader = Executors.newSingleThreadExecutor()
     }

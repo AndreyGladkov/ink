@@ -69,7 +69,7 @@ class ContactPickActivity : Activity() {
                 })
                 addView(InkTextView(context).apply {
                     setText(R.string.export_selected)
-                    textScale = TITLE_SCALE
+                    textScale = InkStyle.TITLE_SCALE
                     isBold = true
                 })
             })
@@ -86,7 +86,7 @@ class ContactPickActivity : Activity() {
                 addView(search, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             })
             addView(View(context).apply { setBackgroundColor(InkStyle.of(context).foreground) },
-                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(LINE_DP).coerceAtLeast(1)))
+                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(InkStyle.LINE_DP).coerceAtLeast(1)))
             addView(list, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
             addView(done, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 setMargins(gap, gap, gap, gap)
@@ -154,9 +154,7 @@ class ContactPickActivity : Activity() {
         const val EXTRA_SELECTED = "selected"
         private const val GAP_DP = 8f
         private const val REQUEST_READ = 91
-        private const val LINE_DP = 2f
         private const val CHECK_DP = 28f
-        private const val TITLE_SCALE = 1.2f
         private val loader = Executors.newSingleThreadExecutor()
 
         fun intent(context: Context, selected: Set<Long>): Intent =

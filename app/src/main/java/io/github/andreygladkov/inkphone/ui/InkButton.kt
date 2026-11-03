@@ -25,6 +25,11 @@ open class InkButton @JvmOverloads constructor(
             field = value
             invalidate()
         }
+    var isFillRounded: Boolean = false
+        set(value) {
+            field = value
+            invalidate()
+        }
 
     @DrawableRes
     var icon: Int = 0
@@ -63,8 +68,15 @@ open class InkButton @JvmOverloads constructor(
     private val haptics by lazy { Haptics.of(context) }
     private val density = resources.displayMetrics.density
     private val fill = Paint().apply { isAntiAlias = false }
-    private val borderPx = (BORDER_DP * density).roundToInt().coerceAtLeast(1)
-    private val paddingPx = (PADDING_DP * density).roundToInt()
+    private val borderPx = (InkStyle.LINE_DP * density).roundToInt().coerceAtLeast(1)
+    var paddingDp: Float = PADDING_DP
+        set(value) {
+            field = value
+            setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
+            updateIconPadding()
+            invalidate()
+        }
+    private val paddingPx get() = (paddingDp * density).roundToInt()
     private val iconGapPx = (ICON_GAP_DP * density).roundToInt()
     private val iconSizePx get() = (iconSizeDp * density).roundToInt()
     private val radiusPx get() = ((cornerRadiusDp ?: style.cornerRadiusDp) * density).roundToInt().toFloat()
@@ -98,7 +110,7 @@ open class InkButton @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         val w = width.toFloat()
         val h = height.toFloat()
-        val radius = if (isBordered) radiusPx else 0f
+        val radius = if (isBordered || isFillRounded) radiusPx else 0f
         fill.color = style.foreground
         if (isInverted) {
             canvas.drawRoundRect(0f, 0f, w, h, radius, radius, fill)
@@ -163,13 +175,12 @@ open class InkButton @JvmOverloads constructor(
         canvas.drawText(label, centerX.toFloat(), baseline.roundToInt().toFloat(), text)
     }
 
-    private companion object {
-        const val BORDER_DP = 2f
+    companion object {
         const val PADDING_DP = 12f
         const val MIN_HEIGHT_DP = 56f
-        const val ICON_DP = 32f
-        const val ICON_GAP_DP = 4f
-        const val BADGE_RADIUS_DP = 10f
-        const val BADGE_TEXT_TO_RADIUS = 1.4f
+        private const val ICON_DP = 32f
+        private const val ICON_GAP_DP = 4f
+        private const val BADGE_RADIUS_DP = 10f
+        private const val BADGE_TEXT_TO_RADIUS = 1.4f
     }
 }

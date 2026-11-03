@@ -4,12 +4,16 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Insets
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsets
 import android.widget.TextView
 import androidx.core.content.edit
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.inkphone.eink.InkStyle
+import io.github.andreygladkov.inkphone.ui.InkEditText
+import io.github.andreygladkov.inkphone.ui.InkSegments
 import io.github.andreygladkov.inkphone.ui.InkTabBar
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -25,6 +29,54 @@ import kotlin.test.assertTrue
 @Config(qualifiers = A9_QUALIFIERS)
 class MainActivityRenderingTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
+
+    @Test fun tabBarHidesWhileKeyboardIsShown() {
+        val root = contentRoot(launch())
+        val bar = tabBar(root)
+        root.dispatchApplyWindowInsets(keyboardInsets(visible = true))
+        assertEquals(View.GONE, bar.visibility)
+        root.dispatchApplyWindowInsets(keyboardInsets(visible = false))
+        assertEquals(View.VISIBLE, bar.visibility)
+    }
+
+    private fun keyboardInsets(visible: Boolean) = WindowInsets.Builder()
+        .setInsets(WindowInsets.Type.ime(), Insets.of(0, 0, 0, if (visible) KEYBOARD_PX else 0))
+        .setVisible(WindowInsets.Type.ime(), visible)
+        .build()
+
+    @Test fun listTabsHaveHeadersOfTheSameHeight() {
+        val root = contentRoot(launch())
+        val bar = tabBar(root)
+        val heights = listOf(Tab.CALL_LOG, Tab.FAVORITES, Tab.CONTACTS).map { tab ->
+            bar.getChildAt(tab.ordinal).performClick()
+            var header: View? = null
+            idleUntil {
+                render(root)
+                header = root.find<View>().singleOrNull { it.isShown && (it is InkSegments || it.find<InkEditText>().any { field -> field.parent === it }) }
+                header != null
+            }
+            header!!.height
+        }
+        assertEquals(1, heights.distinct().size, heights.toString())
+    }
+
+    @Test fun tabBarIsCompactButKeepsTouchTargets() {
+        val root = contentRoot(launch())
+        render(root)
+        val density = context.resources.displayMetrics.density
+        val bar = tabBar(root)
+        assertTrue(bar.height <= 64 * density, "tab bar ${bar.height / density}dp")
+        (0 until bar.childCount).forEach { assertTrue(bar.getChildAt(it).height >= 48 * density) }
+    }
+
+    @Test fun selectedTabFillsItsCellSquare() {
+        val root = contentRoot(launch())
+        val bitmap = render(root)
+        val bar = tabBar(root)
+        val tab = (0 until bar.childCount).map(bar::getChildAt).single { it.isSelected }
+        assertEquals(Color.BLACK, bitmap.getPixel(bar.left + tab.left, bar.top + tab.top))
+        assertEquals(Color.BLACK, bitmap.getPixel(bar.left + tab.right - 1, bar.top + tab.bottom - 1))
+    }
 
     @Test fun blackOnWhiteIsPureBlackAndWhite() {
         val bitmap = render(launch())
@@ -145,4 +197,8 @@ class MainActivityRenderingTest {
     }
 
     private fun blackPixels(bitmap: Bitmap) = bitmap.pixels().count { it == Color.BLACK }
+
+    private companion object {
+        const val KEYBOARD_PX = 700
+    }
 }

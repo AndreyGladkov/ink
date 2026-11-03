@@ -25,6 +25,10 @@ data class InkStyle(
         val CORNER_RADII_DP = listOf(0f, 4f, 8f, 12f, 16f)
         const val DEFAULT_WEIGHT = 500
         const val BOLD_WEIGHT = 700
+        const val LINE_DP = 2f
+        const val SECONDARY_SCALE = 0.8f
+        const val TITLE_SCALE = 1.2f
+        const val DISPLAY_SCALE = 1.5f
 
         fun from(prefs: SharedPreferences) = InkStyle(
             inverted = prefs.getBoolean(PREF_INVERTED, false),
