@@ -12,8 +12,22 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.core.content.edit
+import io.github.andreygladkov.ink.eink.A9Panel
+import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.haptics.HapticChannel
+import io.github.andreygladkov.ink.haptics.HapticStrength
+import io.github.andreygladkov.ink.haptics.Haptics
+import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkChoiceRow
+import io.github.andreygladkov.ink.ui.InkPagedList
+import io.github.andreygladkov.ink.ui.InkTabBar
+import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.ink.ui.InkWindow
+import io.github.andreygladkov.ink.ui.addSection
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.call.CallLauncher
+import io.github.andreygladkov.inkphone.call.CallPanelClear
 import io.github.andreygladkov.inkphone.canReadContacts
 import io.github.andreygladkov.inkphone.contacts.AccountLabels
 import io.github.andreygladkov.inkphone.contacts.AccountRef
@@ -21,22 +35,10 @@ import io.github.andreygladkov.inkphone.contacts.ContactListOptions
 import io.github.andreygladkov.inkphone.contacts.NameOrder
 import io.github.andreygladkov.inkphone.dialer.DialerScreen
 import io.github.andreygladkov.inkphone.dialer.KeypadLetters
-import io.github.andreygladkov.inkphone.eink.A9Panel
-import io.github.andreygladkov.inkphone.eink.InkStyle
-import io.github.andreygladkov.inkphone.haptics.HapticChannel
-import io.github.andreygladkov.inkphone.haptics.HapticStrength
-import io.github.andreygladkov.inkphone.haptics.Haptics
-import io.github.andreygladkov.inkphone.inkPrefs
-import io.github.andreygladkov.inkphone.ui.InkButton
-import io.github.andreygladkov.inkphone.ui.InkChoiceRow
-import io.github.andreygladkov.inkphone.ui.InkPagedList
-import io.github.andreygladkov.inkphone.ui.InkTabBar
-import io.github.andreygladkov.inkphone.ui.InkTextView
-import io.github.andreygladkov.inkphone.ui.InkWindow
-import io.github.andreygladkov.inkphone.ui.addSection
 import io.github.andreygladkov.inkphone.vcard.ExportActivity
 import io.github.andreygladkov.inkphone.vcard.ImportActivity
 import kotlin.math.roundToInt
+import io.github.andreygladkov.ink.R as InkR
 
 class SettingsActivity : Activity() {
     private val prefs: SharedPreferences get() = inkPrefs()
@@ -129,7 +131,7 @@ class SettingsActivity : Activity() {
         if (haptics.isDisabledBySystem) {
             body.addView(InkTextView(this).apply { setText(R.string.haptics_disabled_by_system) })
             body.addView(InkButton(this).apply {
-                setText(R.string.open_settings)
+                setText(InkR.string.open_settings)
                 setOnClickListener { startActivity(Intent(Settings.ACTION_SOUND_SETTINGS)) }
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
         }
@@ -212,8 +214,8 @@ class SettingsActivity : Activity() {
             setPadding(0, gap(), 0, 0)
         })
         body.addView(InkChoiceRow(this, getString(R.string.a9_clear_after_call),
-            listOf(true to getString(R.string.on), false to getString(R.string.off)), prefs.getBoolean(A9Panel.PREF_CLEAR_AFTER_CALL, false),
-        ) { on -> prefs.edit { putBoolean(A9Panel.PREF_CLEAR_AFTER_CALL, on) } })
+            listOf(true to getString(R.string.on), false to getString(R.string.off)), prefs.getBoolean(CallPanelClear.PREF_CLEAR_AFTER_CALL, false),
+        ) { on -> prefs.edit { putBoolean(CallPanelClear.PREF_CLEAR_AFTER_CALL, on) } })
         body.addView(InkChoiceRow(this, getString(R.string.a9_clear_every_pages),
             A9Panel.PAGE_INTERVALS.map { it to if (it == 0) getString(R.string.off) else it.toString() },
             prefs.getInt(A9Panel.PREF_CLEAR_EVERY_PAGES, 0),

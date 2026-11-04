@@ -15,15 +15,15 @@ import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.core.content.edit
+import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkEditText
+import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.ink.ui.InkWindow
+import io.github.andreygladkov.ink.ui.addSection
 import io.github.andreygladkov.inkphone.R
-import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.hasPermission
-import io.github.andreygladkov.inkphone.inkPrefs
-import io.github.andreygladkov.inkphone.ui.InkButton
-import io.github.andreygladkov.inkphone.ui.InkEditText
-import io.github.andreygladkov.inkphone.ui.InkTextView
-import io.github.andreygladkov.inkphone.ui.InkWindow
-import io.github.andreygladkov.inkphone.ui.addSection
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
 

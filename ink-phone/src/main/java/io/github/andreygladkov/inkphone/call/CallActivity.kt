@@ -14,14 +14,13 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
+import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.inkphone.R
-import io.github.andreygladkov.inkphone.eink.A9Panel
-import io.github.andreygladkov.inkphone.eink.InkStyle
+import io.github.andreygladkov.inkphone.dialer.DialPad
 import io.github.andreygladkov.inkphone.hasPermission
-import io.github.andreygladkov.inkphone.ui.DialPad
-import io.github.andreygladkov.inkphone.ui.InkButton
-import io.github.andreygladkov.inkphone.ui.InkTextView
-import io.github.andreygladkov.inkphone.ui.InkWindow
 import kotlin.math.roundToInt
 
 class CallActivity : Activity() {
@@ -45,7 +44,7 @@ class CallActivity : Activity() {
     }
     private val finishAfterEnd = Runnable {
         CallManager.clearEnded()
-        A9Panel.onCallScreenClosed(this)
+        CallPanelClear.onCallScreenClosed(this)
         finish()
     }
 

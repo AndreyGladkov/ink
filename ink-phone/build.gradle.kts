@@ -75,8 +75,9 @@ base {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.17.0")
-    implementation("com.googlecode.ez-vcard:ez-vcard:0.12.1") {
+    implementation(project(":ink-ui"))
+    implementation(libs.androidx.core)
+    implementation(libs.ez.vcard) {
         // Only plain vCard text is read and written; jCard, xCard and hCard support is not needed.
         exclude(group = "com.fasterxml.jackson.core")
         exclude(group = "org.freemarker")
@@ -85,7 +86,8 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.robolectric:robolectric:4.16.1")
-    testImplementation("androidx.test:core:1.7.0")
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(testFixtures(project(":ink-ui")))
 }

@@ -12,19 +12,19 @@ import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
+import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkEditText
+import io.github.andreygladkov.ink.ui.InkPagedList
+import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.canReadContacts
 import io.github.andreygladkov.inkphone.contacts.ContactEntry
 import io.github.andreygladkov.inkphone.contacts.ContactList
 import io.github.andreygladkov.inkphone.contacts.ContactListOptions
 import io.github.andreygladkov.inkphone.contacts.ContactsRepository
-import io.github.andreygladkov.inkphone.eink.InkStyle
-import io.github.andreygladkov.inkphone.inkPrefs
-import io.github.andreygladkov.inkphone.ui.InkButton
-import io.github.andreygladkov.inkphone.ui.InkEditText
-import io.github.andreygladkov.inkphone.ui.InkPagedList
-import io.github.andreygladkov.inkphone.ui.InkTextView
-import io.github.andreygladkov.inkphone.ui.InkWindow
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
 

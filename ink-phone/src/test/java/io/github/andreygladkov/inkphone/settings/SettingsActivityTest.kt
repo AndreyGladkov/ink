@@ -3,16 +3,16 @@ package io.github.andreygladkov.inkphone.settings
 import android.content.Context
 import android.os.VibratorManager
 import androidx.test.core.app.ApplicationProvider
-import io.github.andreygladkov.inkphone.A9_QUALIFIERS
-import io.github.andreygladkov.inkphone.assertPureBlackAndWhite
-import io.github.andreygladkov.inkphone.contentRoot
-import io.github.andreygladkov.inkphone.eink.InkStyle
-import io.github.andreygladkov.inkphone.find
-import io.github.andreygladkov.inkphone.haptics.HapticChannel
-import io.github.andreygladkov.inkphone.inkPrefs
-import io.github.andreygladkov.inkphone.render
-import io.github.andreygladkov.inkphone.ui.InkButton
-import io.github.andreygladkov.inkphone.ui.InkChoiceRow
+import io.github.andreygladkov.ink.A9_QUALIFIERS
+import io.github.andreygladkov.ink.assertPureBlackAndWhite
+import io.github.andreygladkov.ink.contentRoot
+import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.find
+import io.github.andreygladkov.ink.haptics.HapticChannel
+import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.ink.render
+import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkChoiceRow
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -69,7 +69,7 @@ class SettingsActivityTest {
         option(row(contentRoot(activity), "Толщина шрифта"), "Плотный").performClick()
         assertEquals(600, InkStyle.of(context).weight)
         option(row(contentRoot(activity), "Списки"), "Прокрутка").performClick()
-        assertTrue(context.inkPrefs().getBoolean(io.github.andreygladkov.inkphone.ui.InkPagedList.PREF_SCROLL, false))
+        assertTrue(context.inkPrefs().getBoolean(io.github.andreygladkov.ink.ui.InkPagedList.PREF_SCROLL, false))
     }
 
     @Test fun aboutShowsVersionAndLicenses() {

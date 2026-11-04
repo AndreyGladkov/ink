@@ -7,4 +7,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "ink"
+include(":ink-ui")
 include(":ink-phone")

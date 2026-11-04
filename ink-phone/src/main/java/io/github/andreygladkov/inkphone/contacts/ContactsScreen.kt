@@ -16,18 +16,18 @@ import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkEditText
+import io.github.andreygladkov.ink.ui.InkPagedList
+import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.ink.ui.LetterIndexView
+import io.github.andreygladkov.ink.ui.PermissionGate
+import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.TabScreen
-import io.github.andreygladkov.inkphone.eink.InkStyle
-import io.github.andreygladkov.inkphone.inkPrefs
 import io.github.andreygladkov.inkphone.settings.SettingsActivity
-import io.github.andreygladkov.inkphone.ui.InkButton
-import io.github.andreygladkov.inkphone.ui.InkEditText
-import io.github.andreygladkov.inkphone.ui.InkPagedList
-import io.github.andreygladkov.inkphone.ui.InkTextView
-import io.github.andreygladkov.inkphone.ui.LetterIndexView
-import io.github.andreygladkov.inkphone.ui.PermissionGate
-import io.github.andreygladkov.inkphone.ui.iconButton
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
 
