@@ -4,6 +4,14 @@ SMS and MMS app for Android phones with e-ink screens, built for the Hisense A9 
 
 Every pixel is pure black or white: text without antialiasing, two-tone icons and emoji, no animations. Pictures in messages are shown as 1-bit dithered thumbnails; the full-screen viewer shows the original. Lists and conversations turn by pages.
 
+<p>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width="160">
+</p>
+
 [Русская версия ниже](#ink-messages-1)
 
 ## Features
@@ -52,6 +60,14 @@ Bundled components: the MMS parser from AOSP Messaging (`mmslib`, Apache License
 SMS и MMS для Android-телефонов с e-ink экраном, сделано под Hisense A9 и выглядит и ведёт себя как [Ink Phone](../ink-phone/README.md#ink-phone-1).
 
 Каждый пиксель чисто чёрный или белый: текст без сглаживания, двухцветные иконки и эмодзи, никаких анимаций. Картинки в сообщениях показываются однобитными миниатюрами с растром; полноэкранный просмотр показывает оригинал. Списки и переписки листаются страницами.
+
+<p>
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/1.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/2.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/3.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/5.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/8.png" width="160">
+</p>
 
 - Категории вкладками: Избранное (помеченные контакты, общие с Ink Phone), Контакты, Прочие (банки, коды, незнакомые номера) и Все, у каждой счётчик непрочитанных. Можно выбрать, какая открывается при запуске.
 - Переписка открывается на последней странице, более старые выше. Заголовки дней, время под последним сообщением серии, «отправка…» и «не отправлено — повторить».
