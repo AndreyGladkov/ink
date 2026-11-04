@@ -1,0 +1,112 @@
+{
+  "conversations": [
+    {
+      "number": "+1 555-0129",
+      "messages": [
+        [
+          "in",
+          "Reminder: your appointment is tomorrow at 10:30. Reply 1 to confirm."
+        ],
+        [
+          "out",
+          "1"
+        ]
+      ]
+    },
+    {
+      "number": "7722",
+      "messages": [
+        [
+          "in",
+          "Purchase $4.50 COFFEE SHOP. Available $1,834.55"
+        ]
+      ]
+    },
+    {
+      "number": "+1 555-0107",
+      "messages": [
+        [
+          "in",
+          "Wi-Fi password at the cabin: ink2026"
+        ],
+        [
+          "out",
+          "Thanks!"
+        ]
+      ]
+    },
+    {
+      "number": "+1 555-0104",
+      "messages": [
+        [
+          "out",
+          "Hi! Send me the photos from the weekend"
+        ],
+        [
+          "in",
+          "Tonight, they are on my laptop"
+        ]
+      ]
+    },
+    {
+      "number": "+1 555-0108",
+      "messages": [
+        [
+          "in",
+          "Don't forget Grace's birthday on Saturday!"
+        ],
+        [
+          "in",
+          "I already got a present ✨"
+        ]
+      ]
+    },
+    {
+      "number": "0711",
+      "messages": [
+        [
+          "in",
+          "Your verification code is 482913. Do not share it."
+        ]
+      ]
+    },
+    {
+      "number": "+1 555-0118",
+      "messages": [
+        [
+          "in",
+          "Call me tonight, I have news"
+        ]
+      ]
+    },
+    {
+      "number": "+1 555-0101",
+      "messages": [
+        [
+          "in",
+          "Hi! When are you done today?"
+        ],
+        [
+          "out",
+          "Around seven, why?"
+        ],
+        [
+          "in",
+          "Coffee after work? ☕"
+        ],
+        [
+          "out",
+          "Sure! At the station at 7:15"
+        ],
+        [
+          "in",
+          "Deal ✅"
+        ]
+      ]
+    }
+  ],
+  "thread": "Alice Bennett",
+  "select": "Sure! At the station at 7:15",
+  "search": "Wi-Fi",
+  "compose": "555"
+}
