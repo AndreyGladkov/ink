@@ -20,8 +20,17 @@ class Labels(private val context: Context) {
     fun address(address: String): String =
         if (ContactDirectory.isPhoneNumber(address)) PhoneNumberUtils.formatNumber(address, countryIso) ?: address else address
 
-    fun attachments(message: Message): List<String> = message.attachments.map {
-        context.getString(if (it == Attachment.IMAGE) R.string.attachment_image else R.string.attachment_other)
+    fun attachments(message: Message): List<String> {
+        if (message.pending != null) return listOf(context.getString(R.string.attachment_mms))
+        return message.attachments.map { context.getString(attachmentLabel(it.kind)) }
+    }
+
+    private fun attachmentLabel(kind: Attachment.Kind) = when (kind) {
+        Attachment.Kind.IMAGE -> R.string.attachment_image
+        Attachment.Kind.CONTACT -> R.string.attachment_contact
+        Attachment.Kind.AUDIO -> R.string.attachment_audio
+        Attachment.Kind.VIDEO -> R.string.attachment_video
+        Attachment.Kind.OTHER -> R.string.attachment_other
     }
 
     fun preview(message: Message): String {

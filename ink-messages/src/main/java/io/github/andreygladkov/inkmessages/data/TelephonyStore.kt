@@ -7,6 +7,7 @@ import android.provider.BaseColumns
 import android.provider.Telephony.Mms
 import android.provider.Telephony.Sms
 import android.provider.Telephony.TextBasedSmsColumns
+import io.github.andreygladkov.inkmessages.mmslib.pdu.PduHeaders
 
 class TelephonyStore(private val resolver: ContentResolver) {
     fun threadAddresses(): Map<Long, List<String>> {
@@ -62,17 +63,22 @@ class TelephonyStore(private val resolver: ContentResolver) {
 
     private fun mmsHeaders(extra: String? = null): List<Message> {
         val selection = listOfNotNull("${Mms.MESSAGE_BOX} != ${Mms.MESSAGE_BOX_DRAFTS}", extra).joinToString(" AND ")
-        val projection = arrayOf(Mms._ID, Mms.THREAD_ID, Mms.DATE, Mms.MESSAGE_BOX, Mms.READ, Mms.SUBSCRIPTION_ID)
+        val projection = arrayOf(
+            Mms._ID, Mms.THREAD_ID, Mms.DATE, Mms.MESSAGE_BOX, Mms.READ, Mms.SUBSCRIPTION_ID,
+            Mms.MESSAGE_TYPE, Mms.MESSAGE_SIZE, Mms.RETRIEVE_STATUS,
+        )
         return resolver.query(Mms.CONTENT_URI, projection, selection, null, null)?.use { cursor ->
             cursor.map {
                 val box = it.getInt(3)
                 val incoming = box == Mms.MESSAGE_BOX_INBOX
+                val pending = if (it.getInt(6) == PduHeaders.MESSAGE_TYPE_NOTIFICATION_IND) PendingMms(it.getLong(7), failed = !it.isNull(8)) else null
                 Message(
                     id = it.getLong(0), isMms = true, threadId = it.getLong(1),
                     // The MMS table stores dates in seconds, unlike SMS.
                     date = it.getLong(2) * 1000, text = "",
                     isOutgoing = !incoming, isUnread = incoming && it.getInt(4) == 0, subId = it.getInt(5),
                     status = if (box == Mms.MESSAGE_BOX_OUTBOX) SendStatus.SENDING else SendStatus.NONE,
+                    pending = pending,
                 )
             }
         }.orEmpty()
@@ -95,15 +101,18 @@ class TelephonyStore(private val resolver: ContentResolver) {
         if (ids.isEmpty()) return emptyMap()
         val texts = HashMap<Long, MutableList<String>>()
         val attachments = HashMap<Long, MutableList<Attachment>>()
-        resolver.query(MMS_PARTS, arrayOf(Mms.Part.MSG_ID, Mms.Part.CONTENT_TYPE, Mms.Part.TEXT), "${Mms.Part.MSG_ID} IN (${ids.joinToString(",")})", null, null)?.use { cursor ->
+        val projection = arrayOf(Mms.Part.MSG_ID, Mms.Part.CONTENT_TYPE, Mms.Part.TEXT, Mms.Part._ID, Mms.Part.NAME, Mms.Part.FILENAME, Mms.Part.CONTENT_LOCATION)
+        resolver.query(MMS_PARTS, projection, "${Mms.Part.MSG_ID} IN (${ids.joinToString(",")})", null, null)?.use { cursor ->
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(0)
                 val type = cursor.getString(1).orEmpty().lowercase()
-                when {
-                    type == "text/plain" -> cursor.getString(2)?.takeIf(String::isNotEmpty)?.let { texts.getOrPut(id, ::ArrayList) += it }
-                    type == "application/smil" -> Unit
-                    type.startsWith("image/") -> attachments.getOrPut(id, ::ArrayList) += Attachment.IMAGE
-                    else -> attachments.getOrPut(id, ::ArrayList) += Attachment.OTHER
+                when (type) {
+                    "text/plain" -> cursor.getString(2)?.takeIf(String::isNotEmpty)?.let { texts.getOrPut(id, ::ArrayList) += it }
+                    "application/smil" -> Unit
+                    else -> {
+                        val name = (4..6).firstNotNullOfOrNull { column -> cursor.getString(column)?.takeIf(String::isNotBlank) }
+                        attachments.getOrPut(id, ::ArrayList) += Attachment(cursor.getLong(3), type, name)
+                    }
                 }
             }
         }
