@@ -45,7 +45,20 @@ object MessageNotifications {
         val app = context.applicationContext
         Loader.executor.execute {
             try {
-                if (ThreadState.visibleThreadId != threadId) show(app, threadId)
+                if (ThreadState.visibleThreadId != threadId) showUnread(app, threadId)
+            } finally {
+                done()
+            }
+        }
+    }
+
+    fun onReplied(context: Context, threadId: Long, since: Long, done: () -> Unit) {
+        val app = context.applicationContext
+        Loader.executor.execute {
+            try {
+                ThreadState.updateRead(app, threadId)
+                val messages = TelephonyStore(app.contentResolver).thread(threadId).filter { it.date >= since }.takeLast(MAX_MESSAGES)
+                if (messages.isNotEmpty()) show(app, threadId, messages, since, alert = false)
             } finally {
                 done()
             }
@@ -54,32 +67,35 @@ object MessageNotifications {
 
     fun cancel(context: Context, threadId: Long) = NotificationManagerCompat.from(context).cancel(threadId.toInt())
 
-    private fun show(context: Context, threadId: Long) {
+    private fun showUnread(context: Context, threadId: Long) {
+        val unread = TelephonyStore(context.contentResolver).thread(threadId).filter { it.isUnread }.takeLast(MAX_MESSAGES)
+        if (unread.isNotEmpty()) show(context, threadId, unread, since = unread.first().date, alert = true)
+    }
+
+    private fun show(context: Context, threadId: Long, messages: List<Message>, since: Long, alert: Boolean) {
         if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return
         val store = TelephonyStore(context.contentResolver)
         val contacts = ContactDirectory(context.contentResolver)
         val participants = store.threadAddresses()[threadId].orEmpty().map(contacts::participant)
-        val unread = store.thread(threadId).filter { it.isUnread }.takeLast(MAX_MESSAGES)
-        if (unread.isEmpty()) return
         val labels = Labels(context)
         val title = labels.title(participants)
         val sender = Person.Builder().setName(title).build()
         val style = NotificationCompat.MessagingStyle(Person.Builder().setName(context.getString(R.string.me)).build())
             .setConversationTitle(if (participants.size > 1) title else null)
             .setGroupConversation(participants.size > 1)
-        unread.forEach { style.addMessage(body(labels, it), it.date, sender) }
+        messages.forEach { style.addMessage(body(labels, it), it.date, if (it.isOutgoing) null else sender) }
         val builder = NotificationCompat.Builder(context, channelId(categoryOf(participants)))
             .setSmallIcon(R.drawable.ic_notification)
             .setStyle(style)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-            .setWhen(unread.last().date)
+            .setWhen(messages.last().date)
             .setAutoCancel(true)
-            .setOnlyAlertOnce(false)
+            .setOnlyAlertOnce(!alert)
             .setContentIntent(openThread(context, threadId))
         val single = participants.singleOrNull()
-        if (single != null && ContactDirectory.isPhoneNumber(single.address)) builder.addAction(replyAction(context, threadId, single.address))
+        if (single != null && ContactDirectory.isPhoneNumber(single.address)) builder.addAction(replyAction(context, threadId, single.address, since))
         builder.addAction(0, context.getString(R.string.action_mark_read), NotificationActions.read(context, threadId))
-        OtpCode.find(unread.last().text)?.let { code ->
+        messages.lastOrNull { !it.isOutgoing }?.let { OtpCode.find(it.text) }?.let { code ->
             builder.addAction(0, context.getString(R.string.action_copy_code, code), NotificationActions.copy(context, threadId, code))
         }
         NotificationManagerCompat.from(context).notify(threadId.toInt(), builder.build())
@@ -88,9 +104,9 @@ object MessageNotifications {
     private fun body(labels: Labels, message: Message) =
         (labels.attachments(message) + listOf(message.text).filter(String::isNotEmpty)).joinToString("\n")
 
-    private fun replyAction(context: Context, threadId: Long, address: String): NotificationCompat.Action {
+    private fun replyAction(context: Context, threadId: Long, address: String, since: Long): NotificationCompat.Action {
         val input = RemoteInput.Builder(NotificationActions.KEY_REPLY).setLabel(context.getString(R.string.action_reply)).build()
-        return NotificationCompat.Action.Builder(0, context.getString(R.string.action_reply), NotificationActions.reply(context, threadId, address))
+        return NotificationCompat.Action.Builder(0, context.getString(R.string.action_reply), NotificationActions.reply(context, threadId, address, since))
             .addRemoteInput(input)
             .setAllowGeneratedReplies(false)
             .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)

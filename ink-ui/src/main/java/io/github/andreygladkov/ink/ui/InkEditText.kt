@@ -42,6 +42,10 @@ class InkEditText(context: Context) : EditText(context) {
         imeOptions = EditorInfo.IME_ACTION_SEARCH or EditorInfo.IME_FLAG_NO_EXTRACT_UI
     }
 
+    // The system spell checker underlines words in red, and its replacement popup is a colored Material panel;
+    // turning it off keeps the keyboard's own suggestion strip, which follows the input type.
+    override fun isSuggestionsEnabled(): Boolean = false
+
     override fun onFocusChanged(focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
         super.onFocusChanged(focused, direction, previouslyFocusedRect)
         invalidate()

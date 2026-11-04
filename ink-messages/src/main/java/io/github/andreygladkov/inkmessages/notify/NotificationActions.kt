@@ -24,7 +24,8 @@ class NotificationActions : BroadcastReceiver() {
                 val sims = Sims(context)
                 val subId = sims.forThread(context.inkPrefs(), threadId, sims.active())?.subId ?: sims.defaultSubId()
                 SmsSender.send(context, address, text, subId)
-                ThreadState.markRead(context, threadId)
+                val pending = goAsync()
+                MessageNotifications.onReplied(context, threadId, intent.getLongExtra(EXTRA_SINCE, 0), pending::finish)
             }
             ACTION_COPY -> {
                 val code = intent.getStringExtra(EXTRA_CODE) ?: return
@@ -41,11 +42,15 @@ class NotificationActions : BroadcastReceiver() {
         private const val EXTRA_THREAD_ID = "thread_id"
         private const val EXTRA_ADDRESS = "address"
         private const val EXTRA_CODE = "code"
+        private const val EXTRA_SINCE = "since"
 
         fun read(context: Context, threadId: Long) = pending(context, ACTION_READ, threadId, PendingIntent.FLAG_IMMUTABLE)
 
-        fun reply(context: Context, threadId: Long, address: String) =
-            pending(context, ACTION_REPLY, threadId, PendingIntent.FLAG_MUTABLE) { putExtra(EXTRA_ADDRESS, address) }
+        fun reply(context: Context, threadId: Long, address: String, since: Long) =
+            pending(context, ACTION_REPLY, threadId, PendingIntent.FLAG_MUTABLE) {
+                putExtra(EXTRA_ADDRESS, address)
+                putExtra(EXTRA_SINCE, since)
+            }
 
         fun copy(context: Context, threadId: Long, code: String) =
             pending(context, ACTION_COPY, threadId, PendingIntent.FLAG_IMMUTABLE) { putExtra(EXTRA_CODE, code) }
