@@ -1,4 +1,4 @@
-name: Ink Phone CI
+name: CI
 
 on:
   push:
@@ -6,7 +6,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      phone: ${{ steps.filter.outputs.phone }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            shared: &shared
+              - 'gradle/**'
+              - 'gradle.properties'
+              - '*.gradle.kts'
+              - '.github/workflows/ci.yml'
+            phone:
+              - *shared
+              - 'ink-phone/**'
+
+  phone:
+    needs: changes
+    if: ${{ needs.changes.outputs.phone == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -20,21 +42,21 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
 
       - name: Unit tests
-        run: ./gradlew testDebugUnitTest
+        run: ./gradlew :ink-phone:testDebugUnitTest
 
       - name: Lint
-        run: ./gradlew lintRelease
+        run: ./gradlew :ink-phone:lintRelease
 
       - name: Build release APK
-        run: ./gradlew assembleRelease
+        run: ./gradlew :ink-phone:assembleRelease
 
       - uses: actions/upload-artifact@v4
         with:
           name: InkPhone-unsigned
-          path: app/build/outputs/apk/release/*.apk
+          path: ink-phone/build/outputs/apk/release/*.apk
 
       - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: reports
-          path: '*/build/reports'
+          name: phone-reports
+          path: ink-phone/build/reports
