@@ -91,7 +91,7 @@ class AboutActivity : Activity() {
         const val GPL = "GPL-3.0.txt"
         const val OFL = "OFL-1.1.txt"
         const val APACHE = "Apache-2.0.txt"
-        const val SOURCE_URL = "https://github.com/AndreyGladkov/ink-phone"
+        const val SOURCE_URL = "https://github.com/AndreyGladkov/ink"
         const val PADDING_DP = 16f
         const val GAP_DP = 8f
 

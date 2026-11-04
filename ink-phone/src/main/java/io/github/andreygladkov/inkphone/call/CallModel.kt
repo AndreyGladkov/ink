@@ -13,6 +13,7 @@ data class CallSnapshot(
     val canHold: Boolean = false,
     val canMerge: Boolean = false,
     val isConference: Boolean = false,
+    val canRespondViaText: Boolean = false,
 ) {
     val title: String? get() = name ?: number
 }

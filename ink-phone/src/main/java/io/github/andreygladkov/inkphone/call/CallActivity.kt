@@ -9,19 +9,24 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import android.text.InputType
 import android.telecom.TelecomManager
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkEditText
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.dialer.DialPad
 import io.github.andreygladkov.inkphone.hasPermission
 import kotlin.math.roundToInt
+
+private enum class Reply { NONE, CHOOSE, WRITE }
 
 class CallActivity : Activity() {
     private val main = Handler(Looper.getMainLooper())
@@ -35,6 +40,17 @@ class CallActivity : Activity() {
     private var dtmf = StringBuilder()
     private var proximity: PowerManager.WakeLock? = null
     private var shown: CallScreenModel? = null
+    private var reply = Reply.NONE
+    private var replyCallId: String? = null
+    private val replyField by lazy {
+        InkEditText(this).apply {
+            isBordered = true
+            isSingleLine = false
+            maxLines = REPLY_MAX_LINES
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            contentDescription = getString(R.string.call_reply_custom)
+        }
+    }
 
     private val listener: () -> Unit = { render() }
     private val tick = Runnable {
@@ -161,11 +177,7 @@ class CallActivity : Activity() {
         controls.removeAllViews()
         main.removeCallbacks(finishAfterEnd)
         when (model) {
-            is CallScreenModel.Incoming -> controls.addView(row(
-                button(R.string.call_decline, R.drawable.ic_call_end) { CallManager.reject(model.call.id) },
-                button(R.string.call_answer, R.drawable.ic_call) { CallManager.answer(model.call.id) },
-                tall = true,
-            ))
+            is CallScreenModel.Incoming -> renderIncoming(model.call)
             is CallScreenModel.Waiting -> {
                 controls.addView(button(R.string.call_hold_and_answer, R.drawable.ic_call) { CallManager.answer(model.incoming.id) }, full())
                 controls.addView(button(R.string.call_end_and_answer, R.drawable.ic_call) { CallManager.endAndAnswer(model.incoming.id, model.current.id) }, full())
@@ -183,6 +195,52 @@ class CallActivity : Activity() {
             is CallScreenModel.InCall -> renderInCall(model)
             is CallScreenModel.Ended, CallScreenModel.Idle -> main.postDelayed(finishAfterEnd, ENDED_SHOWN_MS)
         }
+    }
+
+    private fun renderIncoming(call: CallSnapshot) {
+        if (replyCallId != call.id) {
+            replyCallId = call.id
+            reply = Reply.NONE
+            replyField.setText("")
+        }
+        val canReply = call.canRespondViaText && call.number != null
+        when (if (canReply) reply else Reply.NONE) {
+            Reply.NONE -> {
+                controls.addView(row(
+                    button(R.string.call_decline, R.drawable.ic_call_end) { CallManager.reject(call.id) },
+                    button(R.string.call_answer, R.drawable.ic_call) { CallManager.answer(call.id) },
+                    tall = true,
+                ))
+                if (canReply) controls.addView(button(R.string.call_decline_with_sms, R.drawable.ic_sms) { showReply(Reply.CHOOSE) }, full())
+            }
+            Reply.CHOOSE -> {
+                QuickReplies.of(this).all().forEach { text ->
+                    controls.addView(button(0, 0, text) { CallManager.rejectWithMessage(call.id, text) }.apply {
+                        gravity = Gravity.START or Gravity.CENTER_VERTICAL
+                    }, full())
+                }
+                controls.addView(row(
+                    button(R.string.back, R.drawable.ic_arrow_back) { showReply(Reply.NONE) },
+                    button(R.string.call_reply_custom, R.drawable.ic_edit) { showReply(Reply.WRITE) },
+                ))
+            }
+            Reply.WRITE -> {
+                (replyField.parent as? ViewGroup)?.removeView(replyField)
+                controls.addView(replyField, full())
+                controls.addView(row(
+                    button(R.string.back, R.drawable.ic_arrow_back) { showReply(Reply.CHOOSE) },
+                    button(R.string.call_reply_send, R.drawable.ic_sms) {
+                        replyField.text.toString().trim().takeIf(String::isNotEmpty)?.let { CallManager.rejectWithMessage(call.id, it) }
+                    },
+                ))
+                replyField.requestFocus()
+            }
+        }
+    }
+
+    private fun showReply(next: Reply) {
+        reply = next
+        shown?.let(::renderControls)
     }
 
     private fun renderInCall(model: CallScreenModel.InCall) {
@@ -305,6 +363,7 @@ class CallActivity : Activity() {
         private const val ICON_DP = 24f
         private const val ENDED_SHOWN_MS = 1500L
         private const val MAX_CALL_MS = 4 * 60 * 60 * 1000L
+        private const val REPLY_MAX_LINES = 4
 
         private const val EXTRA_ANSWER = "answer"
 

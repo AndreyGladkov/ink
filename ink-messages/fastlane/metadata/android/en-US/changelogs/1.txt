@@ -1,0 +1,1 @@
+First release: SMS and MMS, categories, notifications, search, message actions and blocking.

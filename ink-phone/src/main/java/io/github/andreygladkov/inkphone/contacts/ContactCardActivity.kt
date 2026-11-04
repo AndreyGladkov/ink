@@ -2,9 +2,11 @@ package io.github.andreygladkov.inkphone.contacts
 
 import android.Manifest
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.graphics.Paint
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -76,11 +78,12 @@ class ContactCardActivity : Activity() {
     private fun reload() {
         val number = intent.getStringExtra(EXTRA_NUMBER)?.takeIf { it.isNotBlank() }
         val contactId = intent.getLongExtra(EXTRA_CONTACT_ID, -1)
-        if (number == null && contactId >= 0 && !canReadContacts()) {
+        val external = ContactIntents.contactUri(intent)
+        if (number == null && (contactId >= 0 || external != null) && !canReadContacts()) {
             requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), REQUEST_READ)
             return
         }
-        load(contactId, number)
+        load(contactId, number, external)
     }
 
     @Deprecated("Deprecated in Java")
@@ -90,7 +93,7 @@ class ContactCardActivity : Activity() {
         if (requestCode == REQUEST_EDIT && resultCode == ContactEditActivity.RESULT_DELETED) finish()
     }
 
-    private fun load(contactId: Long, number: String?) {
+    private fun load(contactId: Long, number: String?, external: Uri?) {
         val repository = ContactsRepository(contentResolver)
         val calls = CallLogRepository(contentResolver)
         val canReadContacts = canReadContacts()
@@ -99,7 +102,11 @@ class ContactCardActivity : Activity() {
         loader.execute {
             val loaded = runCatching {
                 val details = if (canReadContacts) {
-                    val id = if (number != null) ContactLookup.find(this, number)?.contactId ?: -1 else contactId
+                    val id = when {
+                        number != null -> ContactLookup.find(this, number)?.contactId ?: -1
+                        external != null -> ContactIntents.contactId(contentResolver, external) ?: -1
+                        else -> contactId
+                    }
                     repository.loadDetails(id)
                 } else {
                     null
@@ -239,6 +246,14 @@ class ContactCardActivity : Activity() {
             })
         }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         addView(InkButton(context).apply {
+            setText(R.string.sms)
+            textScale = InkStyle.SECONDARY_SCALE
+            icon = R.drawable.ic_sms
+            iconPosition = InkButton.IconPosition.START
+            iconSizeDp = CALL_ICON_DP
+            setOnClickListener { message(phone.number) }
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(ROW_GAP_DP) })
+        addView(InkButton(context).apply {
             setText(R.string.call)
             textScale = InkStyle.SECONDARY_SCALE
             icon = R.drawable.ic_call
@@ -246,6 +261,15 @@ class ContactCardActivity : Activity() {
             iconSizeDp = CALL_ICON_DP
             setOnClickListener { call(phone.number) }
         })
+    }
+
+    /** Opens the default SMS app, which is Ink Messages when the user chose it. */
+    private fun message(number: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_SENDTO, Uri.fromParts("smsto", number, null)))
+        } catch (_: ActivityNotFoundException) {
+            Unit
+        }
     }
 
     private fun dottedLine() = View(this).apply {

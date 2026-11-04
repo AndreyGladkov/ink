@@ -4,30 +4,31 @@ import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.Editable
+import android.text.InputType
+import android.text.TextWatcher
 import android.provider.ContactsContract.RawContacts
-import android.provider.Settings
 import android.telecom.TelecomManager
 import android.view.Gravity
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.core.content.edit
-import io.github.andreygladkov.ink.eink.A9Panel
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.haptics.HapticChannel
-import io.github.andreygladkov.ink.haptics.HapticStrength
-import io.github.andreygladkov.ink.haptics.Haptics
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkChoiceRow
-import io.github.andreygladkov.ink.ui.InkPagedList
-import io.github.andreygladkov.ink.ui.InkTabBar
+import io.github.andreygladkov.ink.ui.InkEditText
+import io.github.andreygladkov.ink.ui.InkSettings
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.addSection
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.call.CallLauncher
 import io.github.andreygladkov.inkphone.call.CallPanelClear
+import io.github.andreygladkov.inkphone.call.QuickReplies
 import io.github.andreygladkov.inkphone.canReadContacts
 import io.github.andreygladkov.inkphone.contacts.AccountLabels
 import io.github.andreygladkov.inkphone.contacts.AccountRef
@@ -61,7 +62,7 @@ class SettingsActivity : Activity() {
         addCalls(body)
         addContacts(body)
         addImportExport(body)
-        if (A9Panel.isInstalled(this)) addA9(body)
+        addA9(body)
         addAbout(body)
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -89,10 +90,8 @@ class SettingsActivity : Activity() {
 
     private fun addDisplay(body: LinearLayout) {
         val style = InkStyle.of(this)
-        body.addSection(getString(R.string.settings_display))
-        body.addView(InkChoiceRow(this, getString(R.string.settings_text_size),
-            InkStyle.TEXT_SIZES_SP.map { it to it.roundToInt().toString() }, style.textSizeSp,
-        ) { size -> restyle { putFloat(InkStyle.PREF_TEXT_SIZE_SP, size) } })
+        body.addSection(getString(InkR.string.settings_display))
+        body.addView(InkSettings.textSize(this))
         body.addView(InkChoiceRow(this, getString(R.string.settings_dialer_number_size),
             DialerScreen.NUMBER_SCALES.map { it to (style.textSizeSp * it).roundToInt().toString() },
             DialerScreen.numberScale(prefs),
@@ -105,44 +104,13 @@ class SettingsActivity : Activity() {
             ),
             KeypadLetters.from(prefs),
         ) { letters -> prefs.edit { putString(KeypadLetters.PREF, letters.name) } })
-        body.addView(InkChoiceRow(this, getString(R.string.settings_weight),
-            listOf(400 to getString(R.string.weight_regular), 500 to getString(R.string.weight_medium), 600 to getString(R.string.weight_semibold)),
-            style.weight,
-        ) { weight -> restyle { putInt(InkStyle.PREF_WEIGHT, weight) } })
-        body.addView(InkChoiceRow(this, getString(R.string.settings_lists),
-            listOf(false to getString(R.string.lists_pages), true to getString(R.string.lists_scroll)),
-            prefs.getBoolean(InkPagedList.PREF_SCROLL, false),
-        ) { scroll -> restyle { putBoolean(InkPagedList.PREF_SCROLL, scroll) } })
-        body.addView(InkChoiceRow(this, getString(R.string.settings_corner_radius),
-            InkStyle.CORNER_RADII_DP.map { it to it.roundToInt().toString() }, style.cornerRadiusDp,
-            decorate = { radius -> cornerRadiusDp = radius },
-        ) { radius -> restyle { putFloat(InkStyle.PREF_CORNER_RADIUS_DP, radius) } })
-        body.addView(InkChoiceRow(this, getString(R.string.settings_colors),
-            listOf(false to getString(R.string.colors_black_on_white), true to getString(R.string.colors_white_on_black)), style.inverted,
-        ) { inverted -> restyle { putBoolean(InkStyle.PREF_INVERTED, inverted) } })
-        body.addView(InkChoiceRow(this, getString(R.string.settings_tab_labels),
-            listOf(true to getString(R.string.on), false to getString(R.string.off)), prefs.getBoolean(InkTabBar.PREF_LABELS, true),
-        ) { labels -> prefs.edit { putBoolean(InkTabBar.PREF_LABELS, labels) } })
+        listOf(InkSettings::weight, InkSettings::lists, InkSettings::cornerRadius, InkSettings::colors, InkSettings::tabLabels).forEach { body.addView(it(this)) }
     }
 
-    private fun addHaptics(body: LinearLayout) {
-        val haptics = Haptics.of(this)
-        body.addSection(getString(R.string.settings_haptics))
-        if (haptics.isDisabledBySystem) {
-            body.addView(InkTextView(this).apply { setText(R.string.haptics_disabled_by_system) })
-            body.addView(InkButton(this).apply {
-                setText(InkR.string.open_settings)
-                setOnClickListener { startActivity(Intent(Settings.ACTION_SOUND_SETTINGS)) }
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-        }
-        val levels = (HapticStrength.OFF..HapticStrength.MAX).map { it to if (it == HapticStrength.OFF) getString(R.string.off) else it.toString() }
-        listOf(HapticChannel.KEYS to R.string.settings_haptic_keys, HapticChannel.BUTTONS to R.string.settings_haptic_buttons).forEach { (channel, title) ->
-            body.addView(InkChoiceRow(this, getString(title), levels, haptics.strength(channel)) { level ->
-                prefs.edit { putInt(channel.prefKey, level) }
-                haptics.perform(channel)
-            })
-        }
-    }
+    private fun addHaptics(body: LinearLayout) = InkSettings.addHaptics(this, body, listOf(
+        HapticChannel.KEYS to getString(R.string.settings_haptic_keys),
+        HapticChannel.BUTTONS to getString(InkR.string.settings_haptic_buttons),
+    ))
 
     private fun addContacts(body: LinearLayout) {
         val options = ContactListOptions.from(prefs)
@@ -204,23 +172,36 @@ class SettingsActivity : Activity() {
         body.addView(wideButton(R.string.settings_sim, R.drawable.ic_settings) {
             startActivity(Intent(TelecomManager.ACTION_CHANGE_PHONE_ACCOUNTS))
         }, rowParams())
+        addQuickReplies(body)
     }
 
-    private fun addA9(body: LinearLayout) {
-        body.addSection(getString(R.string.settings_a9))
+    private fun addQuickReplies(body: LinearLayout) {
+        val replies = QuickReplies.of(this)
         body.addView(InkTextView(this).apply {
-            setText(R.string.a9_hint)
-            textScale = InkStyle.SECONDARY_SCALE
-            setPadding(0, gap(), 0, 0)
+            setText(R.string.settings_quick_replies)
+            setPadding(0, gap() * 2, 0, 0)
         })
-        body.addView(InkChoiceRow(this, getString(R.string.a9_clear_after_call),
-            listOf(true to getString(R.string.on), false to getString(R.string.off)), prefs.getBoolean(CallPanelClear.PREF_CLEAR_AFTER_CALL, false),
-        ) { on -> prefs.edit { putBoolean(CallPanelClear.PREF_CLEAR_AFTER_CALL, on) } })
-        body.addView(InkChoiceRow(this, getString(R.string.a9_clear_every_pages),
-            A9Panel.PAGE_INTERVALS.map { it to if (it == 0) getString(R.string.off) else it.toString() },
-            prefs.getInt(A9Panel.PREF_CLEAR_EVERY_PAGES, 0),
-        ) { every -> prefs.edit { putInt(A9Panel.PREF_CLEAR_EVERY_PAGES, every) } })
+        replies.all().forEachIndexed { index, text ->
+            body.addView(InkEditText(this).apply {
+                isBordered = true
+                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+                imeOptions = EditorInfo.IME_ACTION_DONE or EditorInfo.IME_FLAG_NO_EXTRACT_UI
+                contentDescription = getString(R.string.settings_quick_reply, index + 1)
+                setText(text)
+                addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+                    override fun afterTextChanged(s: Editable?) = replies.set(index, s.toString())
+                })
+            }, rowParams())
+        }
     }
+
+    private fun addA9(body: LinearLayout) = InkSettings.addA9(this, body, listOf(
+        InkSettings.onOff(this, R.string.a9_clear_after_call, prefs.getBoolean(CallPanelClear.PREF_CLEAR_AFTER_CALL, false)) { on ->
+            prefs.edit { putBoolean(CallPanelClear.PREF_CLEAR_AFTER_CALL, on) }
+        },
+    ))
 
     private fun addAbout(body: LinearLayout) {
         body.addSection(getString(R.string.about))
@@ -259,11 +240,6 @@ class SettingsActivity : Activity() {
                 topMargin = (GAP_DP * resources.displayMetrics.density).roundToInt()
             })
         }
-    }
-
-    private fun restyle(change: SharedPreferences.Editor.() -> Unit) {
-        prefs.edit(commit = true, action = change)
-        recreate()
     }
 
     private companion object {
