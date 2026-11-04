@@ -10,6 +10,8 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Telephony
 import android.text.TextUtils
+import android.text.format.Formatter
+import android.util.Size
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
@@ -26,10 +28,16 @@ import io.github.andreygladkov.inkmessages.MessageDates
 import io.github.andreygladkov.inkmessages.R
 import io.github.andreygladkov.inkmessages.contacts.ContactDirectory
 import io.github.andreygladkov.inkmessages.contacts.Participant
+import io.github.andreygladkov.inkmessages.data.Attachment
 import io.github.andreygladkov.inkmessages.data.Loader
 import io.github.andreygladkov.inkmessages.data.Message
+import io.github.andreygladkov.inkmessages.data.PendingMms
 import io.github.andreygladkov.inkmessages.data.SendStatus
 import io.github.andreygladkov.inkmessages.data.TelephonyStore
+import io.github.andreygladkov.inkmessages.mms.Attachments
+import io.github.andreygladkov.inkmessages.mms.MmsDownloader
+import io.github.andreygladkov.inkmessages.mms.MmsStore
+import io.github.andreygladkov.inkmessages.mms.VCards
 import io.github.andreygladkov.inkmessages.notify.MessageNotifications
 import io.github.andreygladkov.inkmessages.sms.Drafts
 import io.github.andreygladkov.inkmessages.sms.Sim
@@ -53,6 +61,8 @@ class ThreadActivity : Activity() {
     private var participants: List<Participant> = emptyList()
     private var activeSims: List<Sim> = emptyList()
     private var shown: List<Message>? = null
+    private var imageSizes: Map<Long, Size?> = emptyMap()
+    private var contactNames: Map<Long, String?> = emptyMap()
     private val reload = Runnable { load() }
     private val observer = object : ContentObserver(main) {
         override fun onChange(selfChange: Boolean) {
@@ -114,10 +124,18 @@ class ThreadActivity : Activity() {
                 val people = store.threadAddresses()[threadId].orEmpty().map(contacts::participant)
                 people to store.thread(threadId)
             }.getOrDefault(emptyList<Participant>() to emptyList())
+            val images = loaded.second.flatMap(Message::attachments).filter { it.kind == Attachment.Kind.IMAGE }
+            val sizes = images.associate { it.partId to runCatching { MmsImageView.bounds(contentResolver, it) }.getOrNull() }
+            val cards = loaded.second.flatMap(Message::attachments).filter { it.kind == Attachment.Kind.CONTACT }
+            val names = cards.associate { card ->
+                card.partId to runCatching { contentResolver.openInputStream(card.uri)?.use { VCards.displayName(it.reader().readText()) } }.getOrNull()
+            }
             val available = sims.active()
             main.post {
                 if (isDestroyed) return@post
                 activeSims = available
+                imageSizes = sizes
+                contactNames = names
                 show(loaded.first, loaded.second)
             }
         }
@@ -170,8 +188,63 @@ class ThreadActivity : Activity() {
         is ThreadItem.Day -> dayHeader(dates.dayHeader(item.day, now))
         is ThreadItem.Bubble -> {
             val message = item.message
-            val body = (labels.attachments(message) + listOf(message.text).filter(String::isNotEmpty)).joinToString("\n")
-            BubbleRow(this, message.isOutgoing, body, footer(message, item.showTime))
+            val pending = message.pending
+            if (pending != null) {
+                BubbleRow(this, false, getString(R.string.mms_pending, Formatter.formatShortFileSize(this, pending.sizeBytes)), downloadFooter(message, pending))
+            } else {
+                BubbleRow(this, message.isOutgoing, message.text, footer(message, item.showTime), message.attachments.map { attachmentView(it, message.isOutgoing) })
+            }
+        }
+    }
+
+    private fun attachmentView(attachment: Attachment, isOutgoing: Boolean): View {
+        val size = imageSizes[attachment.partId]
+        if (attachment.kind == Attachment.Kind.IMAGE && size != null) {
+            return MmsImageView(this, attachment, size, BubbleRow.borderDp(isOutgoing)).apply {
+                contentDescription = getString(R.string.attachment_image)
+                setOnClickListener { startActivity(ImageViewerActivity.intent(this@ThreadActivity, attachment)) }
+            }
+        }
+        return InkButton(this).apply {
+            text = attachmentLabel(attachment)
+            setOnClickListener {
+                if (attachment.kind == Attachment.Kind.IMAGE) {
+                    startActivity(ImageViewerActivity.intent(this@ThreadActivity, attachment))
+                } else {
+                    Attachments.open(this@ThreadActivity, attachment) { setText(R.string.no_app) }
+                }
+            }
+        }
+    }
+
+    private fun attachmentLabel(attachment: Attachment): String {
+        val kind = getString(
+            when (attachment.kind) {
+                Attachment.Kind.IMAGE -> R.string.open_image
+                Attachment.Kind.CONTACT -> R.string.open_contact
+                Attachment.Kind.AUDIO -> R.string.open_audio
+                Attachment.Kind.VIDEO -> R.string.open_video
+                Attachment.Kind.OTHER -> R.string.open_file
+            },
+        )
+        val name = contactNames[attachment.partId] ?: attachment.name?.substringBeforeLast('.')?.takeIf(String::isNotBlank)
+        return if (name == null) kind else getString(R.string.attachment_named, kind, name)
+    }
+
+    private fun downloadFooter(message: Message, pending: PendingMms): View {
+        if (MmsDownloader.isActive(message.id)) return secondary(getString(R.string.mms_downloading))
+        return InkButton(this).apply {
+            setText(if (pending.failed) R.string.mms_download_failed else R.string.mms_download)
+            textScale = InkStyle.SECONDARY_SCALE
+            minHeight = 0
+            paddingDp = FAILED_PADDING_DP
+            isEnabled = SmsRole.isDefault(this@ThreadActivity)
+            setOnClickListener {
+                isEnabled = false
+                setText(R.string.mms_downloading)
+                val app = applicationContext
+                Loader.executor.execute { MmsStore(app).notification(message.id)?.let { MmsDownloader.start(app, it, automatic = false) } }
+            }
         }
     }
 

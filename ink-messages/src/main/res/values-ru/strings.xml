@@ -19,6 +19,10 @@
     <string name="you_prefix">Я: %1$s</string>
     <string name="attachment_image">[Фото]</string>
     <string name="attachment_other">[Вложение]</string>
+    <string name="attachment_contact">[Контакт]</string>
+    <string name="attachment_audio">[Аудио]</string>
+    <string name="attachment_video">[Видео]</string>
+    <string name="attachment_mms">[MMS]</string>
 
     <string name="date_today">Сегодня</string>
     <string name="date_yesterday">Вчера</string>
@@ -74,4 +78,20 @@
     <string name="action_reply">Ответить</string>
     <string name="action_mark_read">Прочитано</string>
     <string name="action_copy_code">Копировать %1$s</string>
+    <string name="mms_pending">MMS · %s</string>
+    <string name="mms_download">Загрузить</string>
+    <string name="mms_download_failed">Не загружено — загрузить</string>
+    <string name="mms_downloading">загрузка…</string>
+    <string name="open_image">Фото</string>
+    <string name="open_contact">Контакт</string>
+    <string name="open_audio">Аудио</string>
+    <string name="open_video">Видео</string>
+    <string name="open_file">Файл</string>
+    <string name="attachment_named">%1$s: %2$s</string>
+    <string name="no_app">Нечем открыть</string>
+    <string name="viewer_title">Фото</string>
+    <string name="save">Сохранить</string>
+    <string name="saved">Сохранено</string>
+    <string name="save_failed">Не сохранено</string>
+    <string name="share">Поделиться</string>
 </resources>

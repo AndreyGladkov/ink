@@ -21,6 +21,10 @@
     <string name="you_prefix">Me: %1$s</string>
     <string name="attachment_image">[Photo]</string>
     <string name="attachment_other">[Attachment]</string>
+    <string name="attachment_contact">[Contact]</string>
+    <string name="attachment_audio">[Audio]</string>
+    <string name="attachment_video">[Video]</string>
+    <string name="attachment_mms">[MMS]</string>
 
     <string name="date_today">Today</string>
     <string name="date_yesterday">Yesterday</string>
@@ -76,4 +80,20 @@
     <string name="action_reply">Reply</string>
     <string name="action_mark_read">Mark read</string>
     <string name="action_copy_code">Copy %1$s</string>
+    <string name="mms_pending">MMS · %s</string>
+    <string name="mms_download">Download</string>
+    <string name="mms_download_failed">Not downloaded — download</string>
+    <string name="mms_downloading">downloading…</string>
+    <string name="open_image">Photo</string>
+    <string name="open_contact">Contact</string>
+    <string name="open_audio">Audio</string>
+    <string name="open_video">Video</string>
+    <string name="open_file">File</string>
+    <string name="attachment_named">%1$s: %2$s</string>
+    <string name="no_app">No app can open this</string>
+    <string name="viewer_title">Photo</string>
+    <string name="save">Save</string>
+    <string name="saved">Saved</string>
+    <string name="save_failed">Not saved</string>
+    <string name="share">Share</string>
 </resources>

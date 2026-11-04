@@ -53,7 +53,7 @@ object SmsSender {
     }
 
     @Suppress("DEPRECATION")
-    private fun smsManager(context: Context, subId: Int): SmsManager {
+    fun smsManager(context: Context, subId: Int): SmsManager {
         val valid = subId != SubscriptionManager.INVALID_SUBSCRIPTION_ID
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val base = context.getSystemService(SmsManager::class.java)

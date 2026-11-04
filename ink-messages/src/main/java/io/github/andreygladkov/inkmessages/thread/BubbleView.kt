@@ -38,9 +38,11 @@ class BubbleView(context: Context, borderDp: Float) : InkTextView(context) {
     }
 }
 
-class BubbleRow(context: Context, isOutgoing: Boolean, body: CharSequence, footer: View?) : LinearLayout(context) {
+/** A message: its pictures and attachment buttons first, then the text bubble, then an optional footer. */
+class BubbleRow(context: Context, isOutgoing: Boolean, body: CharSequence, footer: View?, attachments: List<View> = emptyList()) : LinearLayout(context) {
     private val density = resources.displayMetrics.density
-    private val bubble = BubbleView(context, if (isOutgoing) OUTGOING_BORDER_DP else INCOMING_BORDER_DP).apply { text = body }
+    private val bubble = BubbleView(context, borderDp(isOutgoing)).apply { text = body }
+    private val images = attachments.filterIsInstance<MmsImageView>()
 
     init {
         orientation = VERTICAL
@@ -48,7 +50,14 @@ class BubbleRow(context: Context, isOutgoing: Boolean, body: CharSequence, foote
         val horizontal = (InkButton.PADDING_DP * density).roundToInt()
         val vertical = (ROW_PADDING_DP * density).roundToInt()
         setPadding(horizontal, vertical, horizontal, vertical)
-        addView(bubble, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+        attachments.forEachIndexed { index, view ->
+            val gap = if (index > 0) (ATTACHMENT_GAP_DP * density).roundToInt() else 0
+            addView(view, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { topMargin = gap })
+        }
+        if (body.isNotEmpty() || attachments.isEmpty()) {
+            val gap = if (attachments.isNotEmpty()) (ATTACHMENT_GAP_DP * density).roundToInt() else 0
+            addView(bubble, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { topMargin = gap })
+        }
         if (footer != null) {
             addView(footer, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { topMargin = (FOOTER_GAP_DP * density).roundToInt() })
         }
@@ -57,15 +66,21 @@ class BubbleRow(context: Context, isOutgoing: Boolean, body: CharSequence, foote
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val available = MeasureSpec.getSize(widthMeasureSpec) - paddingLeft - paddingRight
         val max = (available * MAX_WIDTH_FRACTION).roundToInt()
-        if (MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.UNSPECIFIED && bubble.maxWidth != max) bubble.maxWidth = max
+        if (MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.UNSPECIFIED) {
+            if (bubble.maxWidth != max) bubble.maxWidth = max
+            images.forEach { it.maxWidthPx = max }
+        }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
-    private companion object {
-        const val INCOMING_BORDER_DP = 1f
-        const val OUTGOING_BORDER_DP = 2f
-        const val ROW_PADDING_DP = 4f
-        const val FOOTER_GAP_DP = 2f
-        const val MAX_WIDTH_FRACTION = 0.85f
+    companion object {
+        private const val INCOMING_BORDER_DP = 1f
+        private const val OUTGOING_BORDER_DP = 2f
+        private const val ATTACHMENT_GAP_DP = 4f
+        private const val ROW_PADDING_DP = 4f
+        private const val FOOTER_GAP_DP = 2f
+        private const val MAX_WIDTH_FRACTION = 0.85f
+
+        fun borderDp(isOutgoing: Boolean) = if (isOutgoing) OUTGOING_BORDER_DP else INCOMING_BORDER_DP
     }
 }
