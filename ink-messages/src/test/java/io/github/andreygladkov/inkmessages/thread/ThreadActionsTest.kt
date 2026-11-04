@@ -3,12 +3,14 @@ package io.github.andreygladkov.inkmessages.thread
 import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Looper
+import android.provider.ContactsContract
 import android.view.View
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.contentRoot
 import io.github.andreygladkov.ink.find
 import io.github.andreygladkov.ink.idleUntil
 import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkmessages.TestData
 import io.github.andreygladkov.inkmessages.TestData.INBOX
 import io.github.andreygladkov.inkmessages.TestData.SENT
@@ -18,6 +20,7 @@ import io.github.andreygladkov.inkmessages.contacts.Blocking
 import io.github.andreygladkov.inkmessages.contacts.ContactDirectory
 import io.github.andreygladkov.inkmessages.conversations.ConversationRepository
 import io.github.andreygladkov.inkmessages.data.FakeBlockedNumberProvider
+import io.github.andreygladkov.inkmessages.data.FakePhoneLookupProvider
 import io.github.andreygladkov.inkmessages.data.FakeTelephonyProvider
 import io.github.andreygladkov.inkmessages.data.TelephonyStore
 import org.junit.Before
@@ -54,6 +57,24 @@ class ThreadActionsTest {
         assertEquals(Intent.ACTION_DIAL, dial.action)
         assertEquals("tel", dial.data!!.scheme)
         assertEquals(NUMBER, dial.data!!.schemeSpecificPart)
+    }
+
+    @Test fun theNameOfASavedContactOpensItsCard() {
+        FakePhoneLookupProvider.add(NUMBER, "Мама", starred = true)
+        val activity = open()
+        title(activity).performClick()
+        val view = shadowOf(activity).nextStartedActivity
+        assertEquals(Intent.ACTION_VIEW, view.action)
+        assertEquals(ContactsContract.AUTHORITY, view.data!!.authority)
+        assertTrue(view.data!!.pathSegments.containsAll(listOf("lookup", "lookup-1")), view.data.toString())
+    }
+
+    @Test fun anUnsavedNumberOffersToAddIt() {
+        val activity = open()
+        title(activity).performClick()
+        val insert = shadowOf(activity).nextStartedActivity
+        assertEquals(Intent.ACTION_INSERT, insert.action)
+        assertEquals(NUMBER, insert.getStringExtra(ContactsContract.Intents.Insert.PHONE))
     }
 
     @Test fun markingUnreadFlagsTheLatestIncomingMessageAndLeaves() {
@@ -160,6 +181,8 @@ class ThreadActionsTest {
     }
 
     private fun bubbleRows(activity: ThreadActivity) = contentRoot(activity).find<BubbleRow>()
+
+    private fun title(activity: ThreadActivity) = contentRoot(activity).find<InkTextView>().first { it.isBold && it.hasOnClickListeners() }
 
     private fun bubbleRow(activity: ThreadActivity, text: String) =
         bubbleRows(activity).single { row -> row.find<BubbleView>().any { it.text.toString() == text } }

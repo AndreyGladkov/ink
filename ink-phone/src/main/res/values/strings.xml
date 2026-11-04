@@ -168,4 +168,16 @@
     <string name="contact_save_failed">Could not save the changes</string>
     <string name="contact_delete_failed">Could not delete the contact</string>
     <string name="import_interrupted">Import stopped by an error. Added: %1$d, merged: %2$d</string>
+    <string name="call_decline_with_sms">Decline with SMS</string>
+    <string name="call_reply_custom">Own text…</string>
+    <string name="call_reply_send">Send</string>
+    <string name="settings_quick_replies">Replies when declining a call with SMS</string>
+    <string name="settings_quick_reply">Reply %d</string>
+    <string name="sms">SMS</string>
+    <string-array name="quick_replies">
+        <item>Can\'t talk now, I\'ll call you back.</item>
+        <item>I\'ll call you in five minutes.</item>
+        <item>I\'m driving.</item>
+        <item>Please text me.</item>
+    </string-array>
 </resources>

@@ -88,6 +88,9 @@ object CallManager {
 
     fun reject(id: String) = find(id)?.reject(false, null)
 
+    /** Telecom hands the text to the default SMS app's respond-via-message service. */
+    fun rejectWithMessage(id: String, text: String) = find(id)?.reject(true, text)
+
     fun hangUp(id: String) = find(id)?.disconnect()
 
     fun endAndAnswer(incomingId: String, currentId: String) {
@@ -161,6 +164,7 @@ object CallManager {
             canHold = details.can(Call.Details.CAPABILITY_HOLD) || details.can(Call.Details.CAPABILITY_SUPPORT_HOLD),
             canMerge = details.can(Call.Details.CAPABILITY_MERGE_CONFERENCE) || call.conferenceableCalls.isNotEmpty(),
             isConference = details.hasProperty(Call.Details.PROPERTY_CONFERENCE),
+            canRespondViaText = details.can(Call.Details.CAPABILITY_RESPOND_VIA_TEXT),
         )
     }
 

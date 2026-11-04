@@ -25,6 +25,7 @@ class FakeContactsProvider : ContentProvider() {
     override fun query(uri: Uri, projection: Array<out String>?, selection: String?, args: Array<out String>?, sortOrder: String?): Cursor {
         require(Manifest.permission.READ_CONTACTS)
         if (uri.path!!.startsWith("/phone_lookup/")) return phoneLookup(uri.lastPathSegment!!, projection!!)
+        if (uri.pathSegments.size > 1 && uri.pathSegments[0] == "contacts") return contact(uri, projection!!)
         val rows = when (uri.path) {
             "/contacts" -> contacts.filter { args == null || it[Contacts._ID].toString() == args[0] }
             "/data/phones" -> data.filter { it[Data.MIMETYPE] == Phone.CONTENT_ITEM_TYPE }
@@ -38,6 +39,14 @@ class FakeContactsProvider : ContentProvider() {
         }
         val columns = projection ?: rows.flatMap { it.keys }.distinct().toTypedArray()
         return MatrixCursor(columns).apply { rows.forEach { row -> addRow(columns.map { row[it] }) } }
+    }
+
+    /** contacts/lookup/<key>[/<id>] and contacts/<id>, the URIs Contacts.lookupContact resolves. */
+    private fun contact(uri: Uri, projection: Array<out String>): Cursor {
+        val segments = uri.pathSegments
+        val match = if (segments[1] == "lookup") contacts.firstOrNull { it[Contacts.LOOKUP_KEY] == segments[2] }
+        else contacts.firstOrNull { it[Contacts._ID] == segments[1].toLong() }
+        return MatrixCursor(projection).apply { if (match != null) addRow(projection.map { match[it] }) }
     }
 
     private fun phoneLookup(number: String, projection: Array<out String>): Cursor {

@@ -27,6 +27,8 @@ class FakePhoneLookupProvider : ContentProvider() {
                     when (column) {
                         PhoneLookup.DISPLAY_NAME -> contact.name
                         PhoneLookup.STARRED -> if (contact.starred) 1 else 0
+                        PhoneLookup._ID -> contacts.indexOf(contact) + 1L
+                        PhoneLookup.LOOKUP_KEY -> "lookup-${contacts.indexOf(contact) + 1}"
                         else -> error("unexpected column $column")
                     }
                 })

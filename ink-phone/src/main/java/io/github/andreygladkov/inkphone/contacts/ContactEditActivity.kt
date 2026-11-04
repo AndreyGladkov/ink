@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.ContactsContract
 import android.provider.ContactsContract.CommonDataKinds.Phone
 import android.text.InputType
 import android.view.Gravity
@@ -46,7 +47,7 @@ class ContactEditActivity : Activity() {
     private var deleteArmed = false
     private lateinit var error: InkTextView
 
-    private val contactId get() = intent.getLongExtra(EXTRA_CONTACT_ID, -1)
+    private var contactId = -1L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,17 +82,20 @@ class ContactEditActivity : Activity() {
     }
 
     private fun load() {
-        val id = contactId
-        val number = intent.getStringExtra(EXTRA_NUMBER)
+        val external = ContactIntents.contactUri(intent)
+        val number = intent.getStringExtra(EXTRA_NUMBER) ?: intent.getStringExtra(ContactsContract.Intents.Insert.PHONE)
+        val name = intent.getStringExtra(ContactsContract.Intents.Insert.NAME)
         loader.execute {
             val result = runCatching {
+                val id = if (external != null) ContactIntents.contactId(contentResolver, external) ?: MISSING else intent.getLongExtra(EXTRA_CONTACT_ID, -1)
                 val accounts = writer.writableAccounts()
-                accounts to if (id >= 0) writer.load(id, accounts) else null
+                Triple(id, accounts, if (id >= 0) writer.load(id, accounts) else null)
             }
             main.post {
                 if (isDestroyed) return@post
-                val (accounts, loaded) = result.getOrNull() ?: return@post showNotEditable()
-                if (id >= 0 && loaded == null) showNotEditable() else show(loaded, accounts, number)
+                val (id, accounts, loaded) = result.getOrNull() ?: return@post showNotEditable()
+                contactId = id
+                if (id != -1L && loaded == null) showNotEditable() else show(loaded, accounts, number, name)
             }
         }
     }
@@ -101,7 +105,7 @@ class ContactEditActivity : Activity() {
         body.addView(InkTextView(this).apply { setText(R.string.contact_not_editable) })
     }
 
-    private fun show(contact: EditableContact?, accounts: List<AccountRef>, number: String?) {
+    private fun show(contact: EditableContact?, accounts: List<AccountRef>, number: String?, name: String?) {
         original = contact
         body.removeAllViews()
         body.addView(InkTextView(this).apply {
@@ -133,7 +137,7 @@ class ContactEditActivity : Activity() {
         } else {
             account = contact.account
         }
-        given = field(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS).apply { setText(contact?.givenName) }
+        given = field(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS).apply { setText(contact?.givenName ?: name) }
         family = field(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS).apply { setText(contact?.familyName) }
         body.addView(label(R.string.contact_given_name), rowParams().apply { topMargin = dp(SECTION_GAP_DP) })
         body.addView(given, rowParams())
@@ -303,6 +307,7 @@ class ContactEditActivity : Activity() {
         const val RESULT_DELETED = RESULT_FIRST_USER
         private const val EXTRA_CONTACT_ID = "contact_id"
         private const val EXTRA_NUMBER = "number"
+        private const val MISSING = -2L
         private const val ACCOUNT_TAG = "account"
         private const val REQUEST_PERMISSIONS = 51
         private val PERMISSIONS = arrayOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)

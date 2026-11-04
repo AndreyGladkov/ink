@@ -2,6 +2,7 @@ package io.github.andreygladkov.inkmessages.thread
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ContentUris
@@ -13,6 +14,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.ContactsContract
 import android.provider.Telephony
 import android.text.TextUtils
 import android.text.format.Formatter
@@ -241,6 +243,19 @@ class ThreadActivity : Activity() {
         }
     }
 
+    /** The contact's card, or a new contact for a number not saved yet; Ink Phone handles both. */
+    private fun openContact() {
+        val single = participants.singleOrNull() ?: return
+        val intent = single.contactUri?.let { Intent(Intent.ACTION_VIEW, it) }
+            ?: recipient?.let { Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI).putExtra(ContactsContract.Intents.Insert.PHONE, it) }
+            ?: return
+        try {
+            startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+            Unit
+        }
+    }
+
     private fun showMenu() {
         val isDefault = SmsRole.isDefault(this)
         val unread = InkButton(this).apply {
@@ -462,6 +477,7 @@ class ThreadActivity : Activity() {
             isBold = true
             maxLines = 2
             ellipsize = TextUtils.TruncateAt.END
+            setOnClickListener { openContact() }
         }
         addView(title, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         callButton = iconButton(this@ThreadActivity, R.drawable.ic_call, getString(R.string.call)).apply {

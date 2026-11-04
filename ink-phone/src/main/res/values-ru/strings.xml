@@ -164,4 +164,16 @@
     <string name="contact_save_failed">Не удалось сохранить изменения</string>
     <string name="contact_delete_failed">Не удалось удалить контакт</string>
     <string name="import_interrupted">Импорт прерван ошибкой. Добавлено: %1$d, объединено: %2$d</string>
+    <string name="call_decline_with_sms">Отклонить с SMS</string>
+    <string name="call_reply_custom">Свой текст…</string>
+    <string name="call_reply_send">Отправить</string>
+    <string name="settings_quick_replies">Ответы при отклонении звонка с SMS</string>
+    <string name="settings_quick_reply">Ответ %d</string>
+    <string name="sms">SMS</string>
+    <string-array name="quick_replies">
+        <item>Не могу говорить, перезвоню.</item>
+        <item>Перезвоню через пять минут.</item>
+        <item>Я за рулём.</item>
+        <item>Напишите, пожалуйста, SMS.</item>
+    </string-array>
 </resources>

@@ -4,11 +4,15 @@ import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.Editable
+import android.text.InputType
+import android.text.TextWatcher
 import android.provider.ContactsContract.RawContacts
 import android.provider.Settings
 import android.telecom.TelecomManager
 import android.view.Gravity
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.core.content.edit
@@ -20,6 +24,7 @@ import io.github.andreygladkov.ink.haptics.Haptics
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkChoiceRow
+import io.github.andreygladkov.ink.ui.InkEditText
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTabBar
 import io.github.andreygladkov.ink.ui.InkTextView
@@ -28,6 +33,7 @@ import io.github.andreygladkov.ink.ui.addSection
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.call.CallLauncher
 import io.github.andreygladkov.inkphone.call.CallPanelClear
+import io.github.andreygladkov.inkphone.call.QuickReplies
 import io.github.andreygladkov.inkphone.canReadContacts
 import io.github.andreygladkov.inkphone.contacts.AccountLabels
 import io.github.andreygladkov.inkphone.contacts.AccountRef
@@ -204,6 +210,29 @@ class SettingsActivity : Activity() {
         body.addView(wideButton(R.string.settings_sim, R.drawable.ic_settings) {
             startActivity(Intent(TelecomManager.ACTION_CHANGE_PHONE_ACCOUNTS))
         }, rowParams())
+        addQuickReplies(body)
+    }
+
+    private fun addQuickReplies(body: LinearLayout) {
+        val replies = QuickReplies.of(this)
+        body.addView(InkTextView(this).apply {
+            setText(R.string.settings_quick_replies)
+            setPadding(0, gap() * 2, 0, 0)
+        })
+        replies.all().forEachIndexed { index, text ->
+            body.addView(InkEditText(this).apply {
+                isBordered = true
+                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+                imeOptions = EditorInfo.IME_ACTION_DONE or EditorInfo.IME_FLAG_NO_EXTRACT_UI
+                contentDescription = getString(R.string.settings_quick_reply, index + 1)
+                setText(text)
+                addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+                    override fun afterTextChanged(s: Editable?) = replies.set(index, s.toString())
+                })
+            }, rowParams())
+        }
     }
 
     private fun addA9(body: LinearLayout) {
