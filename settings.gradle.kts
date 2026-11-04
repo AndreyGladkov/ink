@@ -6,5 +6,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ink-phone"
-include(":app")
+rootProject.name = "ink"
+include(":ink-phone")
