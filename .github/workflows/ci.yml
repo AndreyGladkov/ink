@@ -11,6 +11,7 @@ jobs:
     outputs:
       ui: ${{ steps.filter.outputs.ui }}
       phone: ${{ steps.filter.outputs.phone }}
+      messages: ${{ steps.filter.outputs.messages }}
     steps:
       - uses: actions/checkout@v4
 
@@ -29,6 +30,9 @@ jobs:
             phone:
               - *ui
               - 'ink-phone/**'
+            messages:
+              - *ui
+              - 'ink-messages/**'
 
   ui:
     needs: changes
@@ -91,3 +95,38 @@ jobs:
         with:
           name: phone-reports
           path: ink-phone/build/reports
+
+  messages:
+    needs: changes
+    if: ${{ needs.changes.outputs.messages == 'true' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - uses: gradle/actions/setup-gradle@v3
+
+      - name: Unit tests
+        run: ./gradlew :ink-messages:testDebugUnitTest
+
+      - name: Lint
+        run: ./gradlew :ink-messages:lintRelease
+
+      - name: Build release APK
+        run: ./gradlew :ink-messages:assembleRelease
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: InkMessages-unsigned
+          path: ink-messages/build/outputs/apk/release/*.apk
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: messages-reports
+          path: ink-messages/build/reports
