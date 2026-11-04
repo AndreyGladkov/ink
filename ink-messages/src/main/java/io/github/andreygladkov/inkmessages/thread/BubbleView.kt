@@ -15,6 +15,13 @@ class BubbleView(context: Context, borderDp: Float) : InkTextView(context) {
     private val borderPx = (borderDp * density).roundToInt().coerceAtLeast(1)
     private val fill = Paint().apply { isAntiAlias = false }
 
+    /** Drawn into the padding, so selecting a message never moves anything on the page. */
+    var isHighlighted = false
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     init {
         val horizontal = (PADDING_H_DP * density).roundToInt() + borderPx
         val vertical = (PADDING_V_DP * density).roundToInt() + borderPx
@@ -23,7 +30,7 @@ class BubbleView(context: Context, borderDp: Float) : InkTextView(context) {
 
     override fun onDraw(canvas: Canvas) {
         val radius = style.cornerRadiusDp * density
-        val b = borderPx.toFloat()
+        val b = (if (isHighlighted) highlightPx(density) else borderPx).toFloat()
         fill.color = style.foreground
         canvas.drawRoundRect(0f, 0f, width.toFloat(), height.toFloat(), radius, radius, fill)
         fill.color = style.background
@@ -32,17 +39,38 @@ class BubbleView(context: Context, borderDp: Float) : InkTextView(context) {
         super.onDraw(canvas)
     }
 
-    private companion object {
-        const val PADDING_H_DP = 10f
-        const val PADDING_V_DP = 8f
+    companion object {
+        private const val PADDING_H_DP = 10f
+        private const val PADDING_V_DP = 8f
+        private const val HIGHLIGHT_DP = 3f
+
+        fun highlightPx(density: Float) = (HIGHLIGHT_DP * density).roundToInt()
     }
 }
 
 /** A message: its pictures and attachment buttons first, then the text bubble, then an optional footer. */
-class BubbleRow(context: Context, isOutgoing: Boolean, body: CharSequence, footer: View?, attachments: List<View> = emptyList()) : LinearLayout(context) {
+class BubbleRow(context: Context, isOutgoing: Boolean, body: CharSequence, footer: View?, private val attachments: List<View> = emptyList()) : LinearLayout(context) {
     private val density = resources.displayMetrics.density
     private val bubble = BubbleView(context, borderDp(isOutgoing)).apply { text = body }
     private val images = attachments.filterIsInstance<MmsImageView>()
+
+    var isHighlighted = false
+        set(value) {
+            field = value
+            bubble.isHighlighted = value
+            images.forEach { it.isHighlighted = value }
+        }
+
+    /** Children with their own tap handling swallow long presses, so each of them forwards it. */
+    fun setOnMessageLongClick(action: () -> Unit) {
+        val listener = OnLongClickListener {
+            action()
+            true
+        }
+        setOnLongClickListener(listener)
+        bubble.setOnLongClickListener(listener)
+        attachments.forEach { it.setOnLongClickListener(listener) }
+    }
 
     init {
         orientation = VERTICAL

@@ -26,12 +26,14 @@ import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.PermissionGate
 import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkmessages.compose.ComposeActivity
+import io.github.andreygladkov.inkmessages.contacts.Blocking
 import io.github.andreygladkov.inkmessages.contacts.ContactDirectory
 import io.github.andreygladkov.inkmessages.conversations.Conversation
 import io.github.andreygladkov.inkmessages.conversations.ConversationListScreen
 import io.github.andreygladkov.inkmessages.conversations.ConversationRepository
 import io.github.andreygladkov.inkmessages.data.Loader
 import io.github.andreygladkov.inkmessages.data.TelephonyStore
+import io.github.andreygladkov.inkmessages.search.SearchActivity
 import io.github.andreygladkov.inkmessages.settings.SettingsActivity
 import io.github.andreygladkov.inkmessages.sms.Drafts
 import io.github.andreygladkov.inkmessages.sms.SmsRole
@@ -121,7 +123,7 @@ class MainActivity : Activity() {
     }
 
     private fun load() {
-        val repository = ConversationRepository(TelephonyStore(contentResolver), ContactDirectory(contentResolver))
+        val repository = ConversationRepository(TelephonyStore(contentResolver), ContactDirectory(contentResolver), Blocking(this)::isBlocked)
         Loader.executor.execute {
             val loaded = runCatching { repository.load() }.getOrDefault(emptyList())
             main.post { if (!isDestroyed) show(loaded) }
@@ -182,6 +184,9 @@ class MainActivity : Activity() {
             setOnClickListener { startActivity(Intent(this@MainActivity, ComposeActivity::class.java)) }
         }
         addView(composeButton, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f))
+        addView(iconButton(this@MainActivity, R.drawable.ic_search, getString(R.string.search)).apply {
+            setOnClickListener { startActivity(SearchActivity.intent(this@MainActivity)) }
+        })
         addView(iconButton(this@MainActivity, R.drawable.ic_settings, getString(R.string.settings)).apply {
             setOnClickListener { startActivity(SettingsActivity.intent(this@MainActivity)) }
         })

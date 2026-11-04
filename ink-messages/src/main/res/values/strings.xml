@@ -96,4 +96,20 @@
     <string name="saved">Saved</string>
     <string name="save_failed">Not saved</string>
     <string name="share">Share</string>
+    <string name="call">Call</string>
+    <string name="more">More</string>
+    <string name="mark_unread">Unread</string>
+    <string name="block">Block</string>
+    <string name="unblock">Unblock</string>
+    <string name="delete_thread">Delete chat</string>
+    <string name="delete_confirm">Really delete?</string>
+    <string name="copy">Copy</string>
+    <string name="forward">Forward</string>
+    <string name="delete">Delete</string>
+    <string name="delete_message_confirm">Delete?</string>
+    <string name="cancel">Cancel</string>
+    <string name="search">Search</string>
+    <string name="search_conversations">Chats</string>
+    <string name="search_messages">Messages</string>
+    <string name="search_nothing">Nothing found</string>
 </resources>
