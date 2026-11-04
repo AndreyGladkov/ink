@@ -8,4 +8,26 @@
     <string name="page_of" translatable="false">%1$d / %2$d</string>
     <string name="page_of_unknown" translatable="false">%1$d / …</string>
     <string name="selected">Selected</string>
+    <string name="settings_display">Display</string>
+    <string name="settings_text_size">Text size</string>
+    <string name="settings_weight">Font weight</string>
+    <string name="weight_regular">Regular</string>
+    <string name="weight_medium">Medium</string>
+    <string name="weight_semibold">Semibold</string>
+    <string name="settings_lists">Lists</string>
+    <string name="lists_pages">Pages</string>
+    <string name="lists_scroll">Scroll</string>
+    <string name="settings_corner_radius">Button corners</string>
+    <string name="settings_colors">Colors</string>
+    <string name="colors_black_on_white">Black on white</string>
+    <string name="colors_white_on_black">White on black</string>
+    <string name="settings_tab_labels">Tab labels</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="settings_haptics">Vibration</string>
+    <string name="haptics_disabled_by_system">Touch vibration is turned off in system settings</string>
+    <string name="settings_a9">E-ink panel (A9)</string>
+    <string name="a9_hint">Turn on «Allow Control via Broadcasts» in A9 Accessibility Service for these to work.</string>
+    <string name="a9_clear_every_pages">Full refresh every N pages</string>
+    <string name="settings_haptic_buttons">Buttons</string>
 </resources>
