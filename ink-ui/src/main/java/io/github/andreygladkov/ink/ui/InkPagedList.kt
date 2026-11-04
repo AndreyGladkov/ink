@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.InsetDrawable
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -20,7 +21,12 @@ import io.github.andreygladkov.ink.inkPrefs
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-class InkPagedList(context: Context) : LinearLayout(context) {
+/** With [anchorEnd] the list opens on its last, full page and the up button leads to earlier items, like a chat. */
+class InkPagedList(
+    context: Context,
+    private val anchorEnd: Boolean = false,
+    private val dividers: Boolean = true,
+) : LinearLayout(context) {
     interface Adapter {
         val count: Int
         fun itemId(position: Int): Long
@@ -33,19 +39,20 @@ class InkPagedList(context: Context) : LinearLayout(context) {
     private val scrolls = context.inkPrefs().getBoolean(PREF_SCROLL, false)
     private val scrollList: ListView? = if (scrolls) scrollList(context) else null
 
-    private val dividerPx = DottedDrawable(context).intrinsicHeight
+    private val dividerPx = if (dividers) DottedDrawable(context).intrinsicHeight else 0
     private val body = LinearLayout(context).apply { orientation = HORIZONTAL }
     private val pageView = PageView(context)
-    private val prev = pagerButton(R.drawable.ic_page_up, R.string.page_prev) { flip(page - 1) }
-    private val next = pagerButton(R.drawable.ic_page_down, R.string.page_next) { flip(page + 1) }
+    private val towardsTop = if (anchorEnd) 1 else -1
+    private val prev = pagerButton(R.drawable.ic_page_up, R.string.page_prev) { flip(page + towardsTop) }
+    private val next = pagerButton(R.drawable.ic_page_down, R.string.page_next) { flip(page - towardsTop) }
     private val label = InkTextView(context).apply {
-        gravity = android.view.Gravity.CENTER
+        gravity = Gravity.CENTER
         textScale = InkStyle.SECONDARY_SCALE
     }
     private val heights = HashMap<Long, Int>()
     private var heightsWidth = -1
     private var adapter: Adapter? = null
-    private var breaker: PageBreaker? = null
+    private var breaker: PageLayout? = null
     private var pendingPosition = 0
     private val measureRest = object : Runnable {
         override fun run() {
@@ -141,10 +148,14 @@ class InkPagedList(context: Context) : LinearLayout(context) {
     private fun updateFooter() {
         val current = breaker ?: return
         val count = adapter?.count ?: 0
-        prev.visibility = if (page > 0) VISIBLE else INVISIBLE
-        next.visibility = if (page < current.knownPages - 1) VISIBLE else INVISIBLE
+        val hasFirst = page > 0
+        val hasLast = page < current.knownPages - 1
+        prev.visibility = if (if (anchorEnd) hasLast else hasFirst) VISIBLE else INVISIBLE
+        next.visibility = if (if (anchorEnd) hasFirst else hasLast) VISIBLE else INVISIBLE
         label.text = when {
             count == 0 -> ""
+            anchorEnd && !current.isComplete -> ""
+            anchorEnd -> context.getString(R.string.page_of, current.knownPages - page, current.knownPages)
             current.isComplete -> context.getString(R.string.page_of, page + 1, current.knownPages)
             else -> context.getString(R.string.page_of_unknown, page + 1)
         }
@@ -159,9 +170,11 @@ class InkPagedList(context: Context) : LinearLayout(context) {
             heights.clear()
             heightsWidth = width
         }
-        breaker = PageBreaker(adapter.count, height, dividerPx, forcedStart) { position ->
+        val heightOf = { position: Int ->
             heights.getOrPut(adapter.itemId(position)) { measureHeight(adapter.createView(position), width) }
         }
+        breaker = if (anchorEnd) EndAnchoredPageBreaker(adapter.count, height, dividerPx, heightOf)
+        else PageBreaker(adapter.count, height, dividerPx, forcedStart, heightOf)
         return true
     }
 
@@ -179,11 +192,12 @@ class InkPagedList(context: Context) : LinearLayout(context) {
     }
 
     private fun scrollList(context: Context) = ListView(context).apply {
-        divider = divider(context)
-        dividerHeight = DottedDrawable(context).intrinsicHeight
+        divider = if (dividers) divider(context) else null
+        dividerHeight = dividerPx
         selector = ColorDrawable(Color.TRANSPARENT)
         isVerticalScrollBarEnabled = false
         overScrollMode = OVER_SCROLL_NEVER
+        isStackFromBottom = anchorEnd
         setOnScrollListener(object : AbsListView.OnScrollListener {
             private var lastFirst = -1
 
@@ -220,8 +234,11 @@ class InkPagedList(context: Context) : LinearLayout(context) {
 
         init {
             orientation = VERTICAL
-            showDividers = SHOW_DIVIDER_MIDDLE
-            dividerDrawable = divider(context)
+            if (anchorEnd) gravity = Gravity.BOTTOM
+            if (dividers) {
+                showDividers = SHOW_DIVIDER_MIDDLE
+                dividerDrawable = divider(context)
+            }
         }
 
         override fun shouldDelayChildPressedState() = true
@@ -239,7 +256,7 @@ class InkPagedList(context: Context) : LinearLayout(context) {
         @SuppressLint("ClickableViewAccessibility")
         override fun onTouchEvent(event: MotionEvent): Boolean {
             track(event)
-            if (event.actionMasked == MotionEvent.ACTION_UP && swiping) flip(if (event.y < downY) page + 1 else page - 1)
+            if (event.actionMasked == MotionEvent.ACTION_UP && swiping) flip(if (event.y < downY) page - towardsTop else page + towardsTop)
             return true
         }
 

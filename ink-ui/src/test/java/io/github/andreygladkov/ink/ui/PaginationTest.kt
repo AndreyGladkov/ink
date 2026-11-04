@@ -43,4 +43,20 @@ class PaginationTest {
         assertEquals(334, breaker.knownPages)
         assertEquals(1000, measured.size)
     }
+
+    @Test fun endAnchoredPagesKeepTheLastPageFull() {
+        val breaker = EndAnchoredPageBreaker(count = 7, pageHeightPx = 100, dividerPx = 2) { 32 }
+        assertEquals(4 to 7, breaker.start(0) to breaker.end(0))
+        assertEquals(1 to 4, breaker.start(1) to breaker.end(1))
+        assertEquals(0 to 1, breaker.start(2) to breaker.end(2))
+        assertEquals(listOf(2, 1, 1, 1, 0, 0, 0), (0 until 7).map(breaker::pageOf))
+    }
+
+    @Test fun endAnchoredBreakerMeasuresOnlyFromTheEnd() {
+        val measured = ArrayList<Int>()
+        val breaker = EndAnchoredPageBreaker(count = 1000, pageHeightPx = 100, dividerPx = 0) { measured += it; 30 }
+        assertEquals(997, breaker.start(0))
+        assertEquals(1000, breaker.end(0))
+        assertEquals((999 downTo 996).toList(), measured)
+    }
 }

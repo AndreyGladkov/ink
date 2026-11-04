@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Сообщения</string>
+    <string name="back">Назад</string>
+    <string name="settings">Настройки</string>
+
+    <string name="category_favorites">Избранное</string>
+    <string name="category_contacts">Контакты</string>
+    <string name="category_other">Прочие</string>
+    <string name="category_all">Все</string>
+
+    <string name="permission_rationale">Чтобы показать переписки, Ink Messages нужен доступ к сообщениям и контактам.</string>
+    <string name="empty_favorites">Нет переписок с избранными контактами</string>
+    <string name="empty_contacts">Нет переписок с контактами</string>
+    <string name="empty_other">Нет сообщений с номеров не из контактов</string>
+    <string name="empty_all">Сообщений нет</string>
+    <string name="empty_thread">В этой переписке нет сообщений</string>
+
+    <string name="you_prefix">Я: %1$s</string>
+    <string name="attachment_image">[Фото]</string>
+    <string name="attachment_other">[Вложение]</string>
+
+    <string name="date_today">Сегодня</string>
+    <string name="date_yesterday">Вчера</string>
+    <string name="date_yesterday_short">вчера</string>
+    <string name="date_day_month">%1$d %2$s</string>
+    <string name="date_day_month_year">%1$d %2$s %3$d</string>
+    <string-array name="months_short">
+        <item>янв</item>
+        <item>фев</item>
+        <item>мар</item>
+        <item>апр</item>
+        <item>мая</item>
+        <item>июн</item>
+        <item>июл</item>
+        <item>авг</item>
+        <item>сен</item>
+        <item>окт</item>
+        <item>ноя</item>
+        <item>дек</item>
+    </string-array>
+    <string-array name="months_full">
+        <item>января</item>
+        <item>февраля</item>
+        <item>марта</item>
+        <item>апреля</item>
+        <item>мая</item>
+        <item>июня</item>
+        <item>июля</item>
+        <item>августа</item>
+        <item>сентября</item>
+        <item>октября</item>
+        <item>ноября</item>
+        <item>декабря</item>
+    </string-array>
+
+    <string name="settings_start_category">Открывать при запуске</string>
+    <string name="start_last">Последняя открытая</string>
+</resources>
