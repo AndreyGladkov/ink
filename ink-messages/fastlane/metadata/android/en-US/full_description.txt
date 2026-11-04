@@ -1,0 +1,14 @@
+Ink Messages is an SMS and MMS app for Android phones with e-ink screens, built for the Hisense A9 as a companion to the Ink Phone dialer.
+
+Every pixel is pure black or white: text without antialiasing, two-tone icons and emoji, no animations. Pictures in messages are 1-bit dithered thumbnails; the full-screen viewer shows the original. Lists and conversations turn by pages.
+
+<ul>
+<li>Categories as tabs: Favorites, Contacts, Other and All, with unread counters; any of them can open at start.</li>
+<li>Default SMS app: send and receive, long messages in parts, drafts, SIM choice.</li>
+<li>MMS download automatically; pictures, contacts, audio and video open with one tap.</li>
+<li>Notifications per category with reply, mark read and copying a one-time code.</li>
+<li>Search by names, numbers and text; message actions on long press; blocking with the list shared with the dialer.</li>
+<li>Tapping a name opens the contact in Ink Phone.</li>
+</ul>
+
+The app has no internet access.

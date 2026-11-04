@@ -5,4 +5,26 @@
     <string name="page_prev">Предыдущая страница</string>
     <string name="page_next">Следующая страница</string>
     <string name="selected">Выбрано</string>
+    <string name="settings_display">Отображение</string>
+    <string name="settings_text_size">Размер текста</string>
+    <string name="settings_weight">Толщина шрифта</string>
+    <string name="weight_regular">Обычный</string>
+    <string name="weight_medium">Средний</string>
+    <string name="weight_semibold">Плотный</string>
+    <string name="settings_lists">Списки</string>
+    <string name="lists_pages">Страницы</string>
+    <string name="lists_scroll">Прокрутка</string>
+    <string name="settings_corner_radius">Скругление кнопок</string>
+    <string name="settings_colors">Цвета</string>
+    <string name="colors_black_on_white">Чёрным по белому</string>
+    <string name="colors_white_on_black">Белым по чёрному</string>
+    <string name="settings_tab_labels">Подписи вкладок</string>
+    <string name="on">Вкл</string>
+    <string name="off">Выкл</string>
+    <string name="settings_haptics">Вибрация</string>
+    <string name="haptics_disabled_by_system">Вибрация касаний выключена в системе</string>
+    <string name="settings_a9">E-ink панель (A9)</string>
+    <string name="a9_hint">Чтобы это работало, включите «Allow Control via Broadcasts» в A9 Accessibility Service.</string>
+    <string name="a9_clear_every_pages">Полная перерисовка каждые N страниц</string>
+    <string name="settings_haptic_buttons">Кнопки</string>
 </resources>
