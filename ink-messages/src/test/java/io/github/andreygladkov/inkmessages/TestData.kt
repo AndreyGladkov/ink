@@ -2,7 +2,9 @@ package io.github.andreygladkov.inkmessages
 
 import android.Manifest
 import android.app.Application
+import android.app.role.RoleManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.provider.ContactsContract
 import android.provider.Telephony.Mms
 import android.provider.Telephony.TextBasedSmsColumns
@@ -25,5 +27,11 @@ object TestData {
         listOf("sms", "mms", "mms-sms").forEach { Robolectric.setupContentProvider(FakeTelephonyProvider::class.java, it) }
         Robolectric.setupContentProvider(FakePhoneLookupProvider::class.java, ContactsContract.AUTHORITY)
         if (grant) shadowOf(context as Application).grantPermissions(Manifest.permission.READ_SMS, Manifest.permission.READ_CONTACTS)
+    }
+
+    fun makeDefaultSmsApp() {
+        shadowOf(context.getSystemService(RoleManager::class.java)).addHeldRole(RoleManager.ROLE_SMS)
+        shadowOf(context.packageManager).setSystemFeature(PackageManager.FEATURE_TELEPHONY_MESSAGING, true)
+        shadowOf(context as Application).grantPermissions(Manifest.permission.SEND_SMS, Manifest.permission.POST_NOTIFICATIONS)
     }
 }

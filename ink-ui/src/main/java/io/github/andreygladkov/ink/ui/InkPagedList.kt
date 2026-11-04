@@ -12,8 +12,8 @@ import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.AbsListView
 import android.widget.BaseAdapter
-import android.widget.ListView
 import android.widget.LinearLayout
+import android.widget.ListView
 import io.github.andreygladkov.ink.R
 import io.github.andreygladkov.ink.eink.A9Panel
 import io.github.andreygladkov.ink.eink.InkStyle
@@ -134,7 +134,8 @@ class InkPagedList(
         current.end(index.coerceAtLeast(0))
         page = index.coerceIn(0, current.knownPages - 1)
         val start = current.start(page)
-        pendingPosition = start
+        // After a resize the page is rebuilt around this item; for a chat it is the newest one shown, so the bottom stays put.
+        pendingPosition = if (anchorEnd) (current.end(page) - 1).coerceAtLeast(start) else start
         pageView.removeAllViews()
         for (position in start until current.end(page)) {
             pageView.addView(adapter.createView(position), LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))

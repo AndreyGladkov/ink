@@ -47,26 +47,41 @@ class TelephonyStore(private val resolver: ContentResolver) {
 
     private fun smsHeaders(extra: String? = null): List<Message> {
         val selection = listOfNotNull("${Sms.TYPE} != ${TextBasedSmsColumns.MESSAGE_TYPE_DRAFT}", extra).joinToString(" AND ")
-        val projection = arrayOf(Sms._ID, Sms.THREAD_ID, Sms.DATE, Sms.TYPE, Sms.READ)
+        val projection = arrayOf(Sms._ID, Sms.THREAD_ID, Sms.DATE, Sms.TYPE, Sms.READ, Sms.SUBSCRIPTION_ID)
         return resolver.query(Sms.CONTENT_URI, projection, selection, null, null)?.use { cursor ->
             cursor.map {
                 val type = it.getInt(3)
                 val incoming = type == TextBasedSmsColumns.MESSAGE_TYPE_INBOX
-                Message(it.getLong(0), false, it.getLong(1), it.getLong(2), "", !incoming, incoming && it.getInt(4) == 0)
+                Message(
+                    id = it.getLong(0), isMms = false, threadId = it.getLong(1), date = it.getLong(2), text = "",
+                    isOutgoing = !incoming, isUnread = incoming && it.getInt(4) == 0, subId = it.getInt(5), status = smsStatus(type),
+                )
             }
         }.orEmpty()
     }
 
     private fun mmsHeaders(extra: String? = null): List<Message> {
         val selection = listOfNotNull("${Mms.MESSAGE_BOX} != ${Mms.MESSAGE_BOX_DRAFTS}", extra).joinToString(" AND ")
-        val projection = arrayOf(Mms._ID, Mms.THREAD_ID, Mms.DATE, Mms.MESSAGE_BOX, Mms.READ)
+        val projection = arrayOf(Mms._ID, Mms.THREAD_ID, Mms.DATE, Mms.MESSAGE_BOX, Mms.READ, Mms.SUBSCRIPTION_ID)
         return resolver.query(Mms.CONTENT_URI, projection, selection, null, null)?.use { cursor ->
             cursor.map {
-                val incoming = it.getInt(3) == Mms.MESSAGE_BOX_INBOX
-                // The MMS table stores dates in seconds, unlike SMS.
-                Message(it.getLong(0), true, it.getLong(1), it.getLong(2) * 1000, "", !incoming, incoming && it.getInt(4) == 0)
+                val box = it.getInt(3)
+                val incoming = box == Mms.MESSAGE_BOX_INBOX
+                Message(
+                    id = it.getLong(0), isMms = true, threadId = it.getLong(1),
+                    // The MMS table stores dates in seconds, unlike SMS.
+                    date = it.getLong(2) * 1000, text = "",
+                    isOutgoing = !incoming, isUnread = incoming && it.getInt(4) == 0, subId = it.getInt(5),
+                    status = if (box == Mms.MESSAGE_BOX_OUTBOX) SendStatus.SENDING else SendStatus.NONE,
+                )
             }
         }.orEmpty()
+    }
+
+    private fun smsStatus(type: Int) = when (type) {
+        TextBasedSmsColumns.MESSAGE_TYPE_OUTBOX, TextBasedSmsColumns.MESSAGE_TYPE_QUEUED -> SendStatus.SENDING
+        TextBasedSmsColumns.MESSAGE_TYPE_FAILED -> SendStatus.FAILED
+        else -> SendStatus.NONE
     }
 
     private fun smsBodies(ids: List<Long>): Map<Long, String> {
