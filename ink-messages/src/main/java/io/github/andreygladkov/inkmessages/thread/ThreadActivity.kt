@@ -30,6 +30,7 @@ import io.github.andreygladkov.inkmessages.data.Loader
 import io.github.andreygladkov.inkmessages.data.Message
 import io.github.andreygladkov.inkmessages.data.SendStatus
 import io.github.andreygladkov.inkmessages.data.TelephonyStore
+import io.github.andreygladkov.inkmessages.notify.MessageNotifications
 import io.github.andreygladkov.inkmessages.sms.Drafts
 import io.github.andreygladkov.inkmessages.sms.Sim
 import io.github.andreygladkov.inkmessages.sms.Sims
@@ -90,6 +91,7 @@ class ThreadActivity : Activity() {
     override fun onResume() {
         super.onResume()
         ThreadState.visibleThreadId = threadId
+        MessageNotifications.cancel(this, threadId)
         contentResolver.registerContentObserver(Telephony.MmsSms.CONTENT_URI, true, observer)
         contentResolver.registerContentObserver(Telephony.Sms.CONTENT_URI, true, observer)
         contentResolver.registerContentObserver(Telephony.Mms.CONTENT_URI, true, observer)

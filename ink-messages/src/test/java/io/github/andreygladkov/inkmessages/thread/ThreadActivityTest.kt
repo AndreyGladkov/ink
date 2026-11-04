@@ -1,5 +1,7 @@
 package io.github.andreygladkov.inkmessages.thread
 
+import android.app.NotificationManager
+import androidx.core.app.NotificationCompat
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.assertPureBlackAndWhite
 import io.github.andreygladkov.ink.contentRoot
@@ -9,6 +11,8 @@ import io.github.andreygladkov.ink.render
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.inkmessages.Category
+import io.github.andreygladkov.inkmessages.R
 import io.github.andreygladkov.inkmessages.TestData
 import io.github.andreygladkov.inkmessages.TestData.INBOX
 import io.github.andreygladkov.inkmessages.TestData.MMS_INBOX
@@ -16,6 +20,7 @@ import io.github.andreygladkov.inkmessages.TestData.SENT
 import io.github.andreygladkov.inkmessages.TestData.context
 import io.github.andreygladkov.inkmessages.data.FakePhoneLookupProvider
 import io.github.andreygladkov.inkmessages.data.FakeTelephonyProvider
+import io.github.andreygladkov.inkmessages.notify.MessageNotifications
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -142,6 +147,18 @@ class ThreadActivityTest {
         val unread = FakeTelephonyProvider.sms(thread, "Ты где?", now, INBOX, read = false)
         open()
         idleUntil { FakeTelephonyProvider.sms.single { it["_id"] == unread }["read"] == 1 }
+    }
+
+    @Test fun openingTheThreadClearsItsNotificationEvenWithNothingUnread() {
+        TestData.makeDefaultSmsApp()
+        val notifications = context.getSystemService(NotificationManager::class.java)
+        MessageNotifications.createChannels(context)
+        val replied = NotificationCompat.Builder(context, MessageNotifications.channelId(Category.FAVORITES))
+            .setSmallIcon(R.drawable.ic_notification)
+            .build()
+        notifications.notify(thread.toInt(), replied)
+        open()
+        assertTrue(shadowOf(notifications).allNotifications.isEmpty())
     }
 
     @Test fun twoActiveSimsOfferAChoice() {

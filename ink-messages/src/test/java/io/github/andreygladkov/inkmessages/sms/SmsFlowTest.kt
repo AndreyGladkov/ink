@@ -2,10 +2,14 @@ package io.github.andreygladkov.inkmessages.sms
 
 import android.app.Activity
 import android.app.Application
+import android.app.Notification
 import android.app.NotificationManager
+import android.app.RemoteInput
 import android.content.Intent
+import android.os.Bundle
 import android.provider.Telephony
 import android.provider.Telephony.TextBasedSmsColumns
+import androidx.core.app.NotificationCompat
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.idleUntil
 import io.github.andreygladkov.inkmessages.Category
@@ -14,6 +18,7 @@ import io.github.andreygladkov.inkmessages.TestData.context
 import io.github.andreygladkov.inkmessages.data.FakePhoneLookupProvider
 import io.github.andreygladkov.inkmessages.data.FakeTelephonyProvider
 import io.github.andreygladkov.inkmessages.notify.MessageNotifications
+import io.github.andreygladkov.inkmessages.notify.NotificationActions
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -66,6 +71,23 @@ class SmsFlowTest {
         } finally {
             ThreadState.visibleThreadId = null
         }
+    }
+
+    @Test fun replyFromTheNotificationKeepsItWithTheReplyAndMarksTheThreadRead() {
+        deliver(HELLO_PDU)
+        idleUntil { notifications.allNotifications.isNotEmpty() }
+        val reply = notifications.allNotifications.single().actions.first()
+        val answer = Intent()
+        RemoteInput.addResultsToIntent(reply.remoteInputs, answer, Bundle().apply { putCharSequence(NotificationActions.KEY_REPLY, "Ок") })
+        reply.actionIntent.send(context, 0, answer)
+        shadowOf(android.os.Looper.getMainLooper()).idle()
+        idleUntil { notifications.allNotifications.single().let(NotificationCompat.MessagingStyle::extractMessagingStyleFromNotification)!!.messages.size == 2 }
+        val notification = notifications.allNotifications.single()
+        val messages = NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(notification)!!.messages
+        assertEquals(listOf("hellohello", "Ок"), messages.map { it.text.toString() })
+        assertNull(messages.last().person)
+        assertTrue(notification.flags and Notification.FLAG_ONLY_ALERT_ONCE != 0)
+        assertEquals(1, FakeTelephonyProvider.sms.single { it["body"] == "hellohello" }["read"])
     }
 
     @Test fun sendStoresTheMessageInTheOutboxAndFailsWithoutAnSmsService() {
