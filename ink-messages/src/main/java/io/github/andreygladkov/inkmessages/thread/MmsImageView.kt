@@ -33,6 +33,11 @@ class MmsImageView(context: Context, private val attachment: Attachment, private
     }
     private var thumbnail: Bitmap? = null
     var maxWidthPx = Int.MAX_VALUE
+    var isHighlighted = false
+        set(value) {
+            field = value
+            invalidate()
+        }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val offered = MeasureSpec.getSize(widthMeasureSpec).takeIf { MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.UNSPECIFIED } ?: Int.MAX_VALUE
@@ -66,6 +71,18 @@ class MmsImageView(context: Context, private val attachment: Attachment, private
         paint.color = style.background
         canvas.drawRect(borderPx.toFloat(), borderPx.toFloat(), (width - borderPx).toFloat(), (height - borderPx).toFloat(), paint)
         thumbnail?.let { canvas.drawBitmap(it, borderPx.toFloat(), borderPx.toFloat(), paint) }
+        if (isHighlighted) drawFrame(canvas, BubbleView.highlightPx(density))
+    }
+
+    private fun drawFrame(canvas: Canvas, thickness: Int) {
+        paint.color = style.foreground
+        val w = width.toFloat()
+        val h = height.toFloat()
+        val t = thickness.toFloat()
+        canvas.drawRect(0f, 0f, w, t, paint)
+        canvas.drawRect(0f, h - t, w, h, paint)
+        canvas.drawRect(0f, 0f, t, h, paint)
+        canvas.drawRect(w - t, 0f, w, h, paint)
     }
 
     companion object {

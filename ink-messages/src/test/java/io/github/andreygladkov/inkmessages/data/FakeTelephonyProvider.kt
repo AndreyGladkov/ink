@@ -65,13 +65,28 @@ class FakeTelephonyProvider : ContentProvider() {
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
         requirePermission(Manifest.permission.READ_SMS)
         if (!isDefaultApp()) return 0
-        require(uri.authority == "mms") { "only MMS deletes are faked: $uri" }
         val id = uri.lastPathSegment!!.toLong()
-        val removed = mms.removeAll { it["_id"] == id }
-        parts.removeAll { it["mid"] == id }
-        addrs.removeAll { it["msg_id"] == id }
-        if (removed) context!!.contentResolver.notifyChange(uri, null)
-        return if (removed) 1 else 0
+        val removed = when (uri.authority) {
+            "sms" -> if (sms.removeAll { it["_id"] == id }) 1 else 0
+            "mms" -> removeMms { it["_id"] == id }
+            "mms-sms" -> {
+                require(uri.pathSegments.first() == "conversations") { "unexpected delete $uri" }
+                val count = sms.count { it["thread_id"] == id }
+                sms.removeAll { it["thread_id"] == id }
+                count + removeMms { it["thread_id"] == id }
+            }
+            else -> error("unexpected delete $uri")
+        }
+        if (removed > 0) context!!.contentResolver.notifyChange(uri, null)
+        return removed
+    }
+
+    private fun removeMms(which: (Map<String, Any?>) -> Boolean): Int {
+        val ids = mms.filter(which).map { it["_id"] }
+        mms.removeAll { it["_id"] in ids }
+        parts.removeAll { it["mid"] in ids }
+        addrs.removeAll { it["msg_id"] in ids }
+        return ids.size
     }
 
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor {

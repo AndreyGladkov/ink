@@ -5,10 +5,12 @@ import android.app.Application
 import android.app.role.RoleManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.provider.BlockedNumberContract
 import android.provider.ContactsContract
 import android.provider.Telephony.Mms
 import android.provider.Telephony.TextBasedSmsColumns
 import androidx.test.core.app.ApplicationProvider
+import io.github.andreygladkov.inkmessages.data.FakeBlockedNumberProvider
 import io.github.andreygladkov.inkmessages.data.FakePhoneLookupProvider
 import io.github.andreygladkov.inkmessages.data.FakeTelephonyProvider
 import org.robolectric.Robolectric
@@ -24,8 +26,10 @@ object TestData {
     fun installProviders(grant: Boolean = true) {
         FakeTelephonyProvider.reset()
         FakePhoneLookupProvider.reset()
+        FakeBlockedNumberProvider.reset()
         listOf("sms", "mms", "mms-sms").forEach { Robolectric.setupContentProvider(FakeTelephonyProvider::class.java, it) }
         Robolectric.setupContentProvider(FakePhoneLookupProvider::class.java, ContactsContract.AUTHORITY)
+        Robolectric.setupContentProvider(FakeBlockedNumberProvider::class.java, BlockedNumberContract.AUTHORITY)
         if (grant) shadowOf(context as Application).grantPermissions(Manifest.permission.READ_SMS, Manifest.permission.READ_CONTACTS)
     }
 

@@ -1,10 +1,15 @@
 package io.github.andreygladkov.inkmessages.thread
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.database.ContentObserver
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,11 +19,15 @@ import android.text.format.Formatter
 import android.util.Size
 import android.view.Gravity
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkButtonRow
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
@@ -26,11 +35,14 @@ import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkmessages.Labels
 import io.github.andreygladkov.inkmessages.MessageDates
 import io.github.andreygladkov.inkmessages.R
+import io.github.andreygladkov.inkmessages.compose.ComposeActivity
+import io.github.andreygladkov.inkmessages.contacts.Blocking
 import io.github.andreygladkov.inkmessages.contacts.ContactDirectory
 import io.github.andreygladkov.inkmessages.contacts.Participant
 import io.github.andreygladkov.inkmessages.data.Attachment
 import io.github.andreygladkov.inkmessages.data.Loader
 import io.github.andreygladkov.inkmessages.data.Message
+import io.github.andreygladkov.inkmessages.data.MessageEdits
 import io.github.andreygladkov.inkmessages.data.PendingMms
 import io.github.andreygladkov.inkmessages.data.SendStatus
 import io.github.andreygladkov.inkmessages.data.TelephonyStore
@@ -58,7 +70,15 @@ class ThreadActivity : Activity() {
     private lateinit var list: InkPagedList
     private lateinit var empty: InkTextView
     private lateinit var composeBar: ComposeBar
+    private lateinit var callButton: InkButton
+    private lateinit var menuSlot: FrameLayout
+    private lateinit var actionSlot: FrameLayout
     private var participants: List<Participant> = emptyList()
+    private var isBlocked = false
+    private var selected: Message? = null
+    private var highlighted: Long? = null
+    private val rows = HashMap<Long, BubbleRow>()
+    private var backCallback: Any? = null
     private var activeSims: List<Sim> = emptyList()
     private var shown: List<Message>? = null
     private var imageSizes: Map<Long, Size?> = emptyMap()
@@ -83,17 +103,22 @@ class ThreadActivity : Activity() {
             setBackgroundColor(InkStyle.of(this@ThreadActivity).background)
         }
         composeBar = ComposeBar(this, ::send).apply { visibility = View.GONE }
+        menuSlot = FrameLayout(this).apply { visibility = View.GONE }
+        actionSlot = FrameLayout(this).apply { visibility = View.GONE }
+        highlighted = intent.getLongExtra(EXTRA_FOCUS, -1).takeIf { it >= 0 }
         val prefilled = intent.getStringExtra(EXTRA_BODY)
         composeBar.field.setText(prefilled ?: drafts.get(threadId))
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             addView(header())
+            addView(menuSlot, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             addView(line())
             addView(FrameLayout(this@ThreadActivity).apply {
                 addView(list)
                 addView(empty)
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
             addView(composeBar, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            addView(actionSlot, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
         }
         InkWindow.setContent(this, root)
     }
@@ -116,6 +141,13 @@ class ThreadActivity : Activity() {
         if (composeBar.visibility == View.VISIBLE) drafts.set(threadId, composeBar.field.text.toString())
     }
 
+    // Android 11–12 (the A9 runs 11) deliver back only here; API 33+ goes through the callback in watchBack.
+    @SuppressLint("GestureBackNavigation")
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (selected != null) clearSelection() else @Suppress("DEPRECATION") super.onBackPressed()
+    }
+
     private fun load() {
         val store = TelephonyStore(contentResolver)
         val contacts = ContactDirectory(contentResolver)
@@ -131,9 +163,11 @@ class ThreadActivity : Activity() {
                 card.partId to runCatching { contentResolver.openInputStream(card.uri)?.use { VCards.displayName(it.reader().readText()) } }.getOrNull()
             }
             val available = sims.active()
+            val blocked = loaded.first.singleOrNull()?.let { Blocking(this).isBlocked(it.address) } ?: false
             main.post {
                 if (isDestroyed) return@post
                 activeSims = available
+                isBlocked = blocked
                 imageSizes = sizes
                 contactNames = names
                 show(loaded.first, loaded.second)
@@ -144,14 +178,20 @@ class ThreadActivity : Activity() {
     private fun show(people: List<Participant>, messages: List<Message>) {
         participants = people
         title.text = labels.title(people)
-        updateComposeBar()
+        callButton.visibility = if (recipient != null) View.VISIBLE else View.GONE
+        if (menuSlot.visibility == View.VISIBLE) showMenu()
+        if (selected == null) updateComposeBar()
         if (SmsRole.isDefault(this) && messages.any(Message::isUnread)) ThreadState.markRead(this, threadId)
         if (messages == shown) return
-        val atNewest = shown == null || list.page == 0
+        val first = shown == null
+        val atNewest = first || list.page == 0
         shown = messages
+        if (selected != null && messages.none { it.key == selected?.key }) clearSelection()
         val now = System.currentTimeMillis()
         val items = ThreadItems.build(messages, dates::dayOf)
-        val position = if (atNewest) items.lastIndex.coerceAtLeast(0) else list.firstPosition.coerceAtMost(items.lastIndex.coerceAtLeast(0))
+        val focus = highlighted.takeIf { first }?.let { key -> items.indexOfFirst { it.id == key }.takeIf { it >= 0 } }
+        val position = focus ?: if (atNewest) items.lastIndex.coerceAtLeast(0) else list.firstPosition.coerceAtMost(items.lastIndex.coerceAtLeast(0))
+        rows.clear()
         list.setAdapter(object : InkPagedList.Adapter {
             override val count = items.size
             override fun itemId(position: Int) = items[position].id
@@ -189,12 +229,136 @@ class ThreadActivity : Activity() {
         is ThreadItem.Bubble -> {
             val message = item.message
             val pending = message.pending
-            if (pending != null) {
+            val row = if (pending != null) {
                 BubbleRow(this, false, getString(R.string.mms_pending, Formatter.formatShortFileSize(this, pending.sizeBytes)), downloadFooter(message, pending))
             } else {
                 BubbleRow(this, message.isOutgoing, message.text, footer(message, item.showTime), message.attachments.map { attachmentView(it, message.isOutgoing) })
             }
+            rows[message.key] = row
+            row.isHighlighted = message.key == highlighted
+            row.setOnMessageLongClick { select(message) }
+            row
         }
+    }
+
+    private fun showMenu() {
+        val isDefault = SmsRole.isDefault(this)
+        val unread = InkButton(this).apply {
+            setText(R.string.mark_unread)
+            isEnabled = isDefault && shown.orEmpty().any { !it.isOutgoing && it.pending == null }
+            setOnClickListener { markUnread() }
+        }
+        val single = participants.singleOrNull()
+        val block = InkButton(this).apply {
+            setText(if (isBlocked) R.string.unblock else R.string.block)
+            isEnabled = isDefault && single != null
+            setOnClickListener { toggleBlock(single?.address ?: return@setOnClickListener) }
+        }
+        val delete = InkButton(this).apply {
+            setText(R.string.delete_thread)
+            isEnabled = isDefault
+            confirmBeforeAction(R.string.delete_confirm) { deleteThread() }
+        }
+        menuSlot.removeAllViews()
+        menuSlot.addView(buttonRow(unread, block, delete))
+        menuSlot.visibility = View.VISIBLE
+    }
+
+    private fun toggleMenu() {
+        if (menuSlot.visibility == View.VISIBLE) menuSlot.visibility = View.GONE else showMenu()
+    }
+
+    private fun markUnread() {
+        val last = shown.orEmpty().lastOrNull { !it.isOutgoing && it.pending == null } ?: return
+        val app = applicationContext
+        Loader.executor.execute { MessageEdits(app.contentResolver).markUnread(last) }
+        finish()
+    }
+
+    private fun toggleBlock(address: String) {
+        val app = applicationContext
+        val block = !isBlocked
+        Loader.executor.execute { if (block) Blocking(app).block(address) else Blocking(app).unblock(address) }
+        if (block) finish() else {
+            isBlocked = false
+            showMenu()
+        }
+    }
+
+    private fun deleteThread() {
+        val app = applicationContext
+        drafts.set(threadId, "")
+        Loader.executor.execute { MessageEdits(app.contentResolver).deleteThread(threadId) }
+        finish()
+    }
+
+    private fun select(message: Message) {
+        selected = message
+        highlighted = message.key
+        rows.forEach { (key, row) -> row.isHighlighted = key == message.key }
+        menuSlot.visibility = View.GONE
+        if (composeBar.visibility == View.VISIBLE) drafts.set(threadId, composeBar.field.text.toString())
+        getSystemService(InputMethodManager::class.java)?.hideSoftInputFromWindow(composeBar.windowToken, 0)
+        composeBar.visibility = View.GONE
+        val isDefault = SmsRole.isDefault(this)
+        val text = message.text.takeIf(String::isNotEmpty)
+        val copy = InkButton(this).apply {
+            setText(R.string.copy)
+            isEnabled = text != null
+            setOnClickListener {
+                getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText(null, text))
+                clearSelection()
+            }
+        }
+        val forward = InkButton(this).apply {
+            setText(R.string.forward)
+            isEnabled = text != null && isDefault
+            setOnClickListener {
+                startActivity(Intent(this@ThreadActivity, ComposeActivity::class.java).putExtra(Intent.EXTRA_TEXT, text))
+                clearSelection()
+            }
+        }
+        val delete = InkButton(this).apply {
+            setText(R.string.delete)
+            isEnabled = isDefault
+            confirmBeforeAction(R.string.delete_message_confirm) {
+                val app = applicationContext
+                Loader.executor.execute { MessageEdits(app.contentResolver).delete(message) }
+                clearSelection()
+            }
+        }
+        val cancel = InkButton(this).apply {
+            setText(R.string.cancel)
+            setOnClickListener { clearSelection() }
+        }
+        actionSlot.removeAllViews()
+        actionSlot.addView(buttonRow(copy, forward, delete, cancel))
+        actionSlot.visibility = View.VISIBLE
+        watchBack(true)
+    }
+
+    private fun clearSelection() {
+        selected = null
+        highlighted = null
+        rows.values.forEach { it.isHighlighted = false }
+        actionSlot.visibility = View.GONE
+        actionSlot.removeAllViews()
+        updateComposeBar()
+        composeBar.field.setText(drafts.get(threadId))
+        watchBack(false)
+    }
+
+    /** Back first leaves the selection; on API 33+ only a registered callback sees it. */
+    private fun watchBack(enabled: Boolean) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        val dispatcher = onBackInvokedDispatcher
+        (backCallback as? OnBackInvokedCallback)?.let(dispatcher::unregisterOnBackInvokedCallback)
+        backCallback = if (enabled) OnBackInvokedCallback { clearSelection() }.also { dispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, it) } else null
+    }
+
+    private fun buttonRow(vararg buttons: InkButton) = InkButtonRow(this, dp(ROW_GAP_DP), InkStyle.SECONDARY_SCALE).apply {
+        setPadding(dp(ROW_GAP_DP), dp(ROW_GAP_DP), dp(ROW_GAP_DP), dp(ROW_GAP_DP))
+        buttons.forEach(::addButton)
     }
 
     private fun attachmentView(attachment: Attachment, isOutgoing: Boolean): View {
@@ -298,9 +462,14 @@ class ThreadActivity : Activity() {
             isBold = true
             maxLines = 2
             ellipsize = TextUtils.TruncateAt.END
-            setPadding(0, 0, dp(HEADER_PADDING_H_DP), 0)
         }
         addView(title, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        callButton = iconButton(this@ThreadActivity, R.drawable.ic_call, getString(R.string.call)).apply {
+            visibility = View.GONE
+            setOnClickListener { recipient?.let { startActivity(Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", it, null))) } }
+        }
+        addView(callButton)
+        addView(iconButton(this@ThreadActivity, R.drawable.ic_more, getString(R.string.more)).apply { setOnClickListener { toggleMenu() } })
     }
 
     private fun dp(value: Float) = (value * resources.displayMetrics.density).roundToInt()
@@ -308,13 +477,18 @@ class ThreadActivity : Activity() {
     companion object {
         private const val EXTRA_THREAD_ID = "thread_id"
         private const val EXTRA_BODY = "body"
+        private const val EXTRA_FOCUS = "focus"
+        private const val ROW_GAP_DP = 8f
         private const val RELOAD_DEBOUNCE_MS = 500L
         private const val HEADER_PADDING_H_DP = 12f
         private const val HEADER_GAP_DP = 12f
         private const val HEADER_TITLE_GAP_DP = 4f
         private const val FAILED_PADDING_DP = 6f
 
-        fun intent(context: Context, threadId: Long, body: String? = null): Intent =
-            Intent(context, ThreadActivity::class.java).putExtra(EXTRA_THREAD_ID, threadId).apply { if (body != null) putExtra(EXTRA_BODY, body) }
+        fun intent(context: Context, threadId: Long, body: String? = null, focus: Message? = null): Intent =
+            Intent(context, ThreadActivity::class.java).putExtra(EXTRA_THREAD_ID, threadId).apply {
+                if (body != null) putExtra(EXTRA_BODY, body)
+                if (focus != null) putExtra(EXTRA_FOCUS, focus.key)
+            }
     }
 }
