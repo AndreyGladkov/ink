@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ink_prefs_file" translatable="false">ink</string>
+    <string name="grant_access">Allow access</string>
+    <string name="open_settings">Open settings</string>
+    <string name="page_prev">Previous page</string>
+    <string name="page_next">Next page</string>
+    <string name="page_of" translatable="false">%1$d / %2$d</string>
+    <string name="page_of_unknown" translatable="false">%1$d / …</string>
+    <string name="selected">Selected</string>
+</resources>

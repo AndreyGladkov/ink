@@ -11,15 +11,15 @@ import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.ink.ui.InkWindow
+import io.github.andreygladkov.ink.ui.addSection
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.canReadContacts
 import io.github.andreygladkov.inkphone.contacts.AccountLabels
 import io.github.andreygladkov.inkphone.contacts.AccountRef
-import io.github.andreygladkov.inkphone.eink.InkStyle
-import io.github.andreygladkov.inkphone.ui.InkButton
-import io.github.andreygladkov.inkphone.ui.InkTextView
-import io.github.andreygladkov.inkphone.ui.InkWindow
-import io.github.andreygladkov.inkphone.ui.addSection
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
 

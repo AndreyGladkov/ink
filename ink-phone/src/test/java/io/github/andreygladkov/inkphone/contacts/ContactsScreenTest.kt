@@ -16,20 +16,20 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.content.edit
 import androidx.test.core.app.ApplicationProvider
-import io.github.andreygladkov.inkphone.A9_QUALIFIERS
+import io.github.andreygladkov.ink.A9_QUALIFIERS
+import io.github.andreygladkov.ink.assertPureBlackAndWhite
+import io.github.andreygladkov.ink.contentRoot
+import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.find
+import io.github.andreygladkov.ink.idleUntil
+import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.ink.render
+import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkEditText
+import io.github.andreygladkov.ink.ui.InkPagedList
+import io.github.andreygladkov.ink.ui.LetterIndexView
 import io.github.andreygladkov.inkphone.MainActivity
 import io.github.andreygladkov.inkphone.Tab
-import io.github.andreygladkov.inkphone.assertPureBlackAndWhite
-import io.github.andreygladkov.inkphone.contentRoot
-import io.github.andreygladkov.inkphone.eink.InkStyle
-import io.github.andreygladkov.inkphone.find
-import io.github.andreygladkov.inkphone.idleUntil
-import io.github.andreygladkov.inkphone.inkPrefs
-import io.github.andreygladkov.inkphone.render
-import io.github.andreygladkov.inkphone.ui.InkButton
-import io.github.andreygladkov.inkphone.ui.InkEditText
-import io.github.andreygladkov.inkphone.ui.InkPagedList
-import io.github.andreygladkov.inkphone.ui.LetterIndexView
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -171,7 +171,7 @@ class ContactsScreenTest {
     }
 
     @Test fun scrollModeListsEveryContactInBlackAndWhite() {
-        context.inkPrefs().edit { putBoolean(io.github.andreygladkov.inkphone.ui.InkPagedList.PREF_SCROLL, true) }
+        context.inkPrefs().edit { putBoolean(io.github.andreygladkov.ink.ui.InkPagedList.PREF_SCROLL, true) }
         grantContacts()
         val root = contentRoot(launch())
         val listView = root.find<android.widget.ListView>().single { it.isShown }
@@ -188,7 +188,7 @@ class ContactsScreenTest {
         val activity = Robolectric.buildActivity(ContactEditActivity::class.java, ContactEditActivity.intentForNew(context, "+77015550000")).setup().get()
         val root = contentRoot(activity)
         idleUntil { root.find<TextView>().any { it.text.toString() == "Новый контакт" } }
-        root.find<io.github.andreygladkov.inkphone.ui.InkEditText>().first().setText("Тест")
+        root.find<io.github.andreygladkov.ink.ui.InkEditText>().first().setText("Тест")
         root.find<InkButton>().single { it.text.toString() == "Сохранить" }.performClick()
         idleUntil { root.find<TextView>().any { it.isShown && it.text.toString() == "Не удалось сохранить изменения" } }
         assertTrue(!activity.isFinishing)
@@ -217,7 +217,7 @@ class ContactsScreenTest {
         idleUntil { root.find<ContactsScreen>().isNotEmpty() && root.find<ContactsScreen>().single().find<InkButton>().any { it.text.toString() == "Анна Ахматова" } }
         context.inkPrefs().edit { putString(ContactListOptions.PREF_NAME_ORDER, NameOrder.FAMILY_FIRST.name) }
         controller.pause().resume()
-        root.find<io.github.andreygladkov.inkphone.ui.InkTabBar>().single().select(Tab.CONTACTS)
+        root.find<io.github.andreygladkov.ink.ui.InkTabBar<Tab>>().single().select(Tab.CONTACTS)
         idleUntil { root.find<ContactsScreen>().single().find<InkButton>().any { it.isShown && it.text.toString() == "Ахматова, Анна" } }
     }
 
@@ -320,7 +320,7 @@ class ContactsScreenTest {
         val activity = Robolectric.buildActivity(ContactEditActivity::class.java, ContactEditActivity.intentForNew(context, "+77015550000")).setup().get()
         val root = contentRoot(activity)
         idleUntil { root.find<TextView>().any { it.text.toString() == "Новый контакт" } }
-        val fields = root.find<io.github.andreygladkov.inkphone.ui.InkEditText>()
+        val fields = root.find<io.github.andreygladkov.ink.ui.InkEditText>()
         assertEquals(listOf("", "", "+77015550000"), fields.map { it.text.toString() })
         fields.first().requestFocus()
         assertPureBlackAndWhite(render(root, height = 2400))

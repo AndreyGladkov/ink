@@ -5,14 +5,10 @@
     <string name="tab_contacts">Контакты</string>
     <string name="tab_dialer">Набор</string>
     <string name="contacts_permission_rationale">Чтобы показать контакты, нужен доступ к ним.</string>
-    <string name="grant_access">Разрешить доступ</string>
-    <string name="open_settings">Открыть настройки</string>
     <string name="contacts_empty">Нет контактов</string>
     <string name="search_hint">Поиск</string>
     <string name="search_empty">Ничего не найдено</string>
     <string name="clear_search">Очистить</string>
-    <string name="page_prev">Предыдущая страница</string>
-    <string name="page_next">Следующая страница</string>
     <string name="back">Назад</string>
     <string name="card_phones">Телефоны</string>
     <string name="card_emails">Эл. почта</string>
@@ -168,5 +164,4 @@
     <string name="contact_save_failed">Не удалось сохранить изменения</string>
     <string name="contact_delete_failed">Не удалось удалить контакт</string>
     <string name="import_interrupted">Импорт прерван ошибкой. Добавлено: %1$d, объединено: %2$d</string>
-    <string name="selected">Выбрано</string>
 </resources>

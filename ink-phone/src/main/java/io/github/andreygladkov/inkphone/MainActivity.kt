@@ -17,21 +17,22 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.content.edit
+import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.ink.ui.InkPagedList
+import io.github.andreygladkov.ink.ui.InkTabBar
+import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.inkphone.call.CallLauncher
 import io.github.andreygladkov.inkphone.calllog.CallLogRepository
 import io.github.andreygladkov.inkphone.calllog.CallLogScreen
 import io.github.andreygladkov.inkphone.contacts.ContactsScreen
 import io.github.andreygladkov.inkphone.dialer.DialerScreen
-import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.favorites.FavoritesScreen
-import io.github.andreygladkov.inkphone.ui.InkPagedList
-import io.github.andreygladkov.inkphone.ui.InkTabBar
-import io.github.andreygladkov.inkphone.ui.InkWindow
 import java.util.concurrent.Executors
 
 class MainActivity : Activity() {
     private lateinit var content: FrameLayout
-    private lateinit var tabBar: InkTabBar
+    private lateinit var tabBar: InkTabBar<Tab>
     private val main = Handler(Looper.getMainLooper())
     private var screen: View? = null
     private val screens = HashMap<Tab, View>()
@@ -44,7 +45,7 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         content = FrameLayout(this)
-        tabBar = InkTabBar(this, inkPrefs().getBoolean(InkTabBar.PREF_LABELS, true), ::showTab).apply {
+        tabBar = InkTabBar(this, Tab.entries, inkPrefs().getBoolean(InkTabBar.PREF_LABELS, true), ::showTab).apply {
             setOnApplyWindowInsetsListener { bar, insets ->
                 bar.visibility = if (insets.isVisible(WindowInsets.Type.ime())) View.GONE else View.VISIBLE
                 insets

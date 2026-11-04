@@ -11,10 +11,18 @@ import android.view.WindowInsets
 import android.widget.TextView
 import androidx.core.content.edit
 import androidx.test.core.app.ApplicationProvider
-import io.github.andreygladkov.inkphone.eink.InkStyle
-import io.github.andreygladkov.inkphone.ui.InkEditText
-import io.github.andreygladkov.inkphone.ui.InkSegments
-import io.github.andreygladkov.inkphone.ui.InkTabBar
+import io.github.andreygladkov.ink.A9_QUALIFIERS
+import io.github.andreygladkov.ink.assertPureBlackAndWhite
+import io.github.andreygladkov.ink.contentRoot
+import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.find
+import io.github.andreygladkov.ink.idleUntil
+import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.ink.pixels
+import io.github.andreygladkov.ink.render
+import io.github.andreygladkov.ink.ui.InkEditText
+import io.github.andreygladkov.ink.ui.InkSegments
+import io.github.andreygladkov.ink.ui.InkTabBar
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -186,7 +194,7 @@ class MainActivityRenderingTest {
 
     private fun launch(): Activity = Robolectric.buildActivity(MainActivity::class.java).setup().get()
 
-    private fun tabBar(root: ViewGroup): InkTabBar = (0 until root.childCount).map(root::getChildAt).filterIsInstance<InkTabBar>().single()
+    private fun tabBar(root: ViewGroup): InkTabBar<Tab> = (0 until root.childCount).map(root::getChildAt).filterIsInstance<InkTabBar<Tab>>().single()
 
     private fun render(activity: Activity) = render(contentRoot(activity))
 

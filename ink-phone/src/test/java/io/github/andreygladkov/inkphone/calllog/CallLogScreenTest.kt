@@ -9,19 +9,19 @@ import android.provider.ContactsContract
 import android.view.View
 import androidx.core.content.edit
 import androidx.test.core.app.ApplicationProvider
-import io.github.andreygladkov.inkphone.A9_QUALIFIERS
+import io.github.andreygladkov.ink.A9_QUALIFIERS
+import io.github.andreygladkov.ink.assertPureBlackAndWhite
+import io.github.andreygladkov.ink.contentRoot
+import io.github.andreygladkov.ink.find
+import io.github.andreygladkov.ink.idleUntil
+import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.ink.render
+import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkPagedList
+import io.github.andreygladkov.ink.ui.InkTabBar
 import io.github.andreygladkov.inkphone.MainActivity
 import io.github.andreygladkov.inkphone.Tab
-import io.github.andreygladkov.inkphone.assertPureBlackAndWhite
 import io.github.andreygladkov.inkphone.contacts.FakeContactsProvider
-import io.github.andreygladkov.inkphone.contentRoot
-import io.github.andreygladkov.inkphone.find
-import io.github.andreygladkov.inkphone.idleUntil
-import io.github.andreygladkov.inkphone.inkPrefs
-import io.github.andreygladkov.inkphone.render
-import io.github.andreygladkov.inkphone.ui.InkButton
-import io.github.andreygladkov.inkphone.ui.InkPagedList
-import io.github.andreygladkov.inkphone.ui.InkTabBar
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -85,7 +85,7 @@ class CallLogScreenTest {
     @Test fun openingLogMarksMissedCallsReadAndClearsBadge() {
         context.inkPrefs().edit { putString("last_tab", Tab.DIALER.name) }
         val activity = Robolectric.buildActivity(MainActivity::class.java).setup().get()
-        val tabs = contentRoot(activity).find<InkTabBar>().single()
+        val tabs = contentRoot(activity).find<InkTabBar<Tab>>().single()
         val logTab = tabs.find<InkButton>()[Tab.CALL_LOG.ordinal]
         idleUntil { logTab.badge == "2" && contentRoot(activity).find<InkPagedList>().any { rows(it).isNotEmpty() } }
         assertTrue(FakeCallLogProvider.calls.count { it[Calls.NEW] == 1 } == 2, "prepared log must not mark calls read")
@@ -101,7 +101,7 @@ class CallLogScreenTest {
         val list = root.find<InkPagedList>().single { it.isShown }
         idleUntil { rows(list).isNotEmpty() }
         val firstRow = list.find<InkButton>().first { "\n" in it.text.toString() }
-        val tabs = root.find<InkTabBar>().single()
+        val tabs = root.find<InkTabBar<Tab>>().single()
         tabs.select(Tab.CONTACTS)
         tabs.select(Tab.CALL_LOG)
         idleUntil { FakeCallLogProvider.calls.none { it[Calls.NEW] == 1 } }

@@ -3,8 +3,8 @@ package io.github.andreygladkov.inkphone.calllog
 import android.content.Context
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import io.github.andreygladkov.ink.ui.IconSpan
 import io.github.andreygladkov.inkphone.R
-import io.github.andreygladkov.inkphone.ui.IconSpan
 import java.time.ZoneId
 
 class CallLabels(private val context: Context) {

@@ -16,6 +16,12 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.Space
 import androidx.core.content.edit
+import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.ink.ui.DottedDrawable
+import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.ink.ui.twoLines
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.TabScreen
 import io.github.andreygladkov.inkphone.call.CallLauncher
@@ -23,14 +29,7 @@ import io.github.andreygladkov.inkphone.contacts.ContactEntry
 import io.github.andreygladkov.inkphone.contacts.ContactList
 import io.github.andreygladkov.inkphone.contacts.ContactListOptions
 import io.github.andreygladkov.inkphone.contacts.ContactsRepository
-import io.github.andreygladkov.inkphone.eink.InkStyle
 import io.github.andreygladkov.inkphone.favorites.SpeedDial
-import io.github.andreygladkov.inkphone.inkPrefs
-import io.github.andreygladkov.inkphone.ui.DialPad
-import io.github.andreygladkov.inkphone.ui.DottedDrawable
-import io.github.andreygladkov.inkphone.ui.InkButton
-import io.github.andreygladkov.inkphone.ui.InkTextView
-import io.github.andreygladkov.inkphone.ui.twoLines
 import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.roundToInt

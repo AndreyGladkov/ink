@@ -2,7 +2,7 @@ package io.github.andreygladkov.inkphone.favorites
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import io.github.andreygladkov.inkphone.inkPrefs
+import io.github.andreygladkov.ink.inkPrefs
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import kotlin.test.Test

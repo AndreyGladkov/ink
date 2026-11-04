@@ -1,0 +1,12 @@
+[versions]
+agp = "9.1.1"
+kotlin = "2.4.0"
+
+[libraries]
+android-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+androidx-core = { module = "androidx.core:core-ktx", version = "1.17.0" }
+ez-vcard = { module = "com.googlecode.ez-vcard:ez-vcard", version = "0.12.1" }
+junit = { module = "junit:junit", version = "4.13.2" }
+robolectric = { module = "org.robolectric:robolectric", version = "4.16.1" }
+androidx-test-core = { module = "androidx.test:core", version = "1.7.0" }

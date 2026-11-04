@@ -9,6 +9,7 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
+      ui: ${{ steps.filter.outputs.ui }}
       phone: ${{ steps.filter.outputs.phone }}
     steps:
       - uses: actions/checkout@v4
@@ -22,9 +23,39 @@ jobs:
               - 'gradle.properties'
               - '*.gradle.kts'
               - '.github/workflows/ci.yml'
-            phone:
+            ui: &ui
               - *shared
+              - 'ink-ui/**'
+            phone:
+              - *ui
               - 'ink-phone/**'
+
+  ui:
+    needs: changes
+    if: ${{ needs.changes.outputs.ui == 'true' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - uses: gradle/actions/setup-gradle@v3
+
+      - name: Unit tests
+        run: ./gradlew :ink-ui:testDebugUnitTest
+
+      - name: Lint
+        run: ./gradlew :ink-ui:lintRelease
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: ui-reports
+          path: ink-ui/build/reports
 
   phone:
     needs: changes
