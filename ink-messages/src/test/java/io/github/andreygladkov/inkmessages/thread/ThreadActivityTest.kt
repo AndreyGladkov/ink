@@ -20,6 +20,7 @@ import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.math.roundToInt
@@ -98,4 +99,61 @@ class ThreadActivityTest {
 
     private fun bubbles(activity: ThreadActivity) =
         contentRoot(activity).find<InkPagedList>().single().find<BubbleView>().map { it.text.toString() }
+
+    @Test fun withoutTheSmsRoleThereIsNoComposeBar() {
+        assertTrue(contentRoot(open()).find<ComposeBar>().none { it.isShown })
+    }
+
+    @Test fun sendingClearsTheFieldAndShowsTheMessage() {
+        TestData.makeDefaultSmsApp()
+        val activity = open()
+        val bar = contentRoot(activity).find<ComposeBar>().single()
+        assertTrue(bar.isShown)
+        bar.field.setText("Еду")
+        contentRoot(activity).find<InkButton>().single { it.contentDescription == "Отправить" }.performClick()
+        assertEquals("", bar.field.text.toString())
+        idleUntil {
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(600))
+            bubbles(activity).lastOrNull() == "Еду"
+        }
+        assertTrue(contentRoot(activity).find<InkButton>().any { it.text.toString() == "Не отправлено — повторить" })
+    }
+
+    @Test fun counterAppearsForMessagesLongerThanOneSms() {
+        TestData.makeDefaultSmsApp()
+        val activity = open()
+        val bar = contentRoot(activity).find<ComposeBar>().single()
+        bar.field.setText("я".repeat(60))
+        assertTrue(contentRoot(activity).find<InkTextView>().none { it.isShown && it.text.contains("SMS") })
+        bar.field.setText("я".repeat(75))
+        assertTrue(contentRoot(activity).find<InkTextView>().any { it.isShown && it.text.toString() == "2 SMS · осталось 59" })
+    }
+
+    @Test fun draftIsKeptWhenLeavingAndRestoredOnReturn() {
+        TestData.makeDefaultSmsApp()
+        val controller = Robolectric.buildActivity(ThreadActivity::class.java, ThreadActivity.intent(context, thread)).setup()
+        contentRoot(controller.get()).find<ComposeBar>().single().field.setText("Наберу позже")
+        controller.pause().stop().destroy()
+        assertEquals("Наберу позже", contentRoot(open()).find<ComposeBar>().single().field.text.toString())
+    }
+
+    @Test fun openingTheThreadMarksItRead() {
+        TestData.makeDefaultSmsApp()
+        val unread = FakeTelephonyProvider.sms(thread, "Ты где?", now, INBOX, read = false)
+        open()
+        idleUntil { FakeTelephonyProvider.sms.single { it["_id"] == unread }["read"] == 1 }
+    }
+
+    @Test fun twoActiveSimsOfferAChoice() {
+        TestData.makeDefaultSmsApp()
+        shadowOf(context as android.app.Application).grantPermissions(android.Manifest.permission.READ_PHONE_STATE)
+        val subscriptions = listOf(1 to "t2", 2 to "MTS").map { (slot, name) ->
+            org.robolectric.shadows.ShadowSubscriptionManager.SubscriptionInfoBuilder.newBuilder().setId(slot + 10).setSimSlotIndex(slot - 1).setDisplayName(name).buildSubscriptionInfo()
+        }
+        shadowOf(context.getSystemService(android.telephony.SubscriptionManager::class.java)).setActiveSubscriptionInfoList(subscriptions)
+        val activity = open()
+        idleUntil { contentRoot(activity).find<InkButton>().any { it.text.toString() == "SIM 2 MTS" } }
+        val labels = contentRoot(activity).find<ComposeBar>().single().find<InkButton>().map { it.text.toString() }
+        assertEquals(listOf("SIM 1 t2", "SIM 2 MTS"), labels.filter { it.startsWith("SIM") })
+    }
 }

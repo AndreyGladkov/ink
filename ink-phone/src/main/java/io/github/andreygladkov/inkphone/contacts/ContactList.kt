@@ -1,7 +1,7 @@
 package io.github.andreygladkov.inkphone.contacts
 
+import io.github.andreygladkov.ink.search.SearchQuery
 import java.text.Collator
-import java.text.Normalizer
 import java.util.Locale
 
 class ContactEntry(val contact: ContactSummary, val displayName: String) {
@@ -17,9 +17,6 @@ object ContactList {
     private const val CYRILLIC = 0
     private const val LATIN = 1
     private const val OTHER = 2
-    private const val MIN_PHONE_QUERY_DIGITS = 2
-    private val TOKEN_SEPARATOR = Regex("[^\\p{L}\\p{N}]+")
-    private val COMBINING_MARKS = Regex("\\p{Mn}+")
 
     fun build(contacts: List<ContactSummary>, options: ContactListOptions): List<ContactEntry> {
         val collator = Collator.getInstance(Locale.forLanguageTag("ru"))
@@ -32,14 +29,9 @@ object ContactList {
     }
 
     fun search(entries: List<ContactEntry>, query: String): List<ContactEntry> {
-        val queryTokens = tokens(query)
-        if (queryTokens.isEmpty()) return entries
-        val digits = query.filter(Char::isDigit)
-        val isPhoneQuery = query.none(Char::isLetter) && digits.length >= MIN_PHONE_QUERY_DIGITS
-        return entries.filter { entry ->
-            queryTokens.all { q -> entry.searchTokens.any { it.startsWith(q) } } ||
-                isPhoneQuery && entry.contact.numberDigits.any { it.contains(digits) }
-        }
+        val search = SearchQuery(query)
+        if (search.isEmpty) return entries
+        return entries.filter { search.matches(it.searchTokens, it.contact.numberDigits) }
     }
 
     fun letters(entries: List<ContactEntry>): List<String> = entries.map { it.letter }.distinct()
@@ -63,16 +55,10 @@ object ContactList {
         val first = name.firstOrNull { it.isLetter() }?.uppercaseChar()
         return when (bucket(name)) {
             CYRILLIC -> if (first == 'Ё') "Е" else first.toString()
-            LATIN -> stripMarks(first.toString())
+            LATIN -> SearchQuery.stripMarks(first.toString())
             else -> OTHER_LETTER
         }
     }
 
-    internal fun tokens(text: String): List<String> =
-        normalize(text).split(TOKEN_SEPARATOR).filter { it.isNotEmpty() }
-
-    private fun normalize(text: String): String = stripMarks(text.lowercase(Locale.ROOT).replace('ё', 'е'))
-
-    private fun stripMarks(text: String): String =
-        Normalizer.normalize(text, Normalizer.Form.NFD).replace(COMBINING_MARKS, "")
+    internal fun tokens(text: String): List<String> = SearchQuery.tokens(text)
 }

@@ -10,6 +10,7 @@ import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkmessages.Category
 import io.github.andreygladkov.inkmessages.Labels
 import io.github.andreygladkov.inkmessages.MessageDates
+import io.github.andreygladkov.inkmessages.R
 import kotlin.math.roundToInt
 
 class ConversationListScreen(
@@ -34,22 +35,22 @@ class ConversationListScreen(
         addView(empty)
     }
 
-    fun show(conversations: List<Conversation>, now: Long) {
+    fun show(conversations: List<Conversation>, now: Long, drafts: Map<Long, String>) {
         val visible = conversations.filter(category::includes)
         val anchor = list.firstPosition.takeIf { it < visible.size } ?: 0
         list.setAdapter(object : InkPagedList.Adapter {
             override val count = visible.size
             override fun itemId(position: Int) = visible[position].threadId
-            override fun createView(position: Int): View = row(visible[position], now)
+            override fun createView(position: Int): View = row(visible[position], now, drafts[visible[position].threadId])
         }, anchor)
         empty.visibility = if (visible.isEmpty()) VISIBLE else GONE
     }
 
-    private fun row(conversation: Conversation, now: Long) = ConversationRow(context).apply {
+    private fun row(conversation: Conversation, now: Long, draft: String?) = ConversationRow(context).apply {
         val name = labels.title(conversation.participants)
         title.text = if (conversation.unread > 0) "$name (${conversation.unread})" else name
         date.text = dates.listLabel(conversation.last.date, now)
-        preview.text = labels.preview(conversation.last)
+        preview.text = draft?.let { context.getString(R.string.draft_prefix, it) } ?: labels.preview(conversation.last)
         isUnread = conversation.unread > 0
         setOnClickListener { open(conversation) }
     }

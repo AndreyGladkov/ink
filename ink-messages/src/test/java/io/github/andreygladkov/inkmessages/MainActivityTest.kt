@@ -127,4 +127,20 @@ class MainActivityTest {
         idleUntil { rows(activity).isNotEmpty() }
         return rows(activity).map { it.title.text.toString() }
     }
+
+    @Test fun withoutTheSmsRoleOffersToBecomeDefaultAndHidesCompose() {
+        val root = contentRoot(open())
+        assertTrue(root.find<InkButton>().single { it.text.toString() == "Сделать основным" }.isShown)
+        assertTrue(root.find<InkButton>().none { it.isShown && it.text.toString() == "Написать" })
+    }
+
+    @Test fun defaultAppShowsComposeAndDraftPreviews() {
+        TestData.makeDefaultSmsApp()
+        io.github.andreygladkov.inkmessages.sms.Drafts(context.inkPrefs()).set(motherThread, "Скоро буду")
+        val activity = open()
+        val root = contentRoot(activity)
+        assertTrue(root.find<InkButton>().none { it.isShown && it.text.toString() == "Сделать основным" })
+        assertTrue(root.find<InkButton>().single { it.text.toString() == "Написать" }.isShown)
+        assertEquals("Черновик: Скоро буду", rows(activity).first().preview.text.toString())
+    }
 }

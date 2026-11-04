@@ -4,8 +4,8 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.view.Gravity
+import android.view.View
 import android.widget.LinearLayout
-import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkTextView
 import kotlin.math.roundToInt
@@ -38,7 +38,7 @@ class BubbleView(context: Context, borderDp: Float) : InkTextView(context) {
     }
 }
 
-class BubbleRow(context: Context, isOutgoing: Boolean, body: CharSequence, time: String?) : LinearLayout(context) {
+class BubbleRow(context: Context, isOutgoing: Boolean, body: CharSequence, footer: View?) : LinearLayout(context) {
     private val density = resources.displayMetrics.density
     private val bubble = BubbleView(context, if (isOutgoing) OUTGOING_BORDER_DP else INCOMING_BORDER_DP).apply { text = body }
 
@@ -49,12 +49,8 @@ class BubbleRow(context: Context, isOutgoing: Boolean, body: CharSequence, time:
         val vertical = (ROW_PADDING_DP * density).roundToInt()
         setPadding(horizontal, vertical, horizontal, vertical)
         addView(bubble, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
-        if (time != null) {
-            addView(InkTextView(context).apply {
-                text = time
-                textScale = InkStyle.SECONDARY_SCALE
-                setPadding(0, (TIME_GAP_DP * density).roundToInt(), 0, 0)
-            }, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+        if (footer != null) {
+            addView(footer, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { topMargin = (FOOTER_GAP_DP * density).roundToInt() })
         }
     }
 
@@ -69,7 +65,7 @@ class BubbleRow(context: Context, isOutgoing: Boolean, body: CharSequence, time:
         const val INCOMING_BORDER_DP = 1f
         const val OUTGOING_BORDER_DP = 2f
         const val ROW_PADDING_DP = 4f
-        const val TIME_GAP_DP = 2f
+        const val FOOTER_GAP_DP = 2f
         const val MAX_WIDTH_FRACTION = 0.85f
     }
 }
