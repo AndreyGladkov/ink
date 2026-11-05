@@ -33,6 +33,7 @@ import io.github.andreygladkov.ink.ui.InkButtonRow
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
+import io.github.andreygladkov.ink.ui.confirmBeforeAction
 import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkmessages.Labels
 import io.github.andreygladkov.inkmessages.MessageDates

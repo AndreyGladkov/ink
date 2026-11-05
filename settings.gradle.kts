@@ -10,3 +10,4 @@ rootProject.name = "ink"
 include(":ink-ui")
 include(":ink-phone")
 include(":ink-messages")
+include(":ink-clock")

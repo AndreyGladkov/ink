@@ -11,6 +11,7 @@ import android.graphics.RegionIterator
 import android.graphics.Typeface
 import android.os.Build
 import androidx.core.content.edit
+import io.github.andreygladkov.ink.lockSafeStorage
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -42,7 +43,7 @@ object StemFit {
     private var store: SharedPreferences? = null
 
     fun attach(context: Context) {
-        store = context.getSharedPreferences("stem_fit", Context.MODE_PRIVATE)
+        store = context.lockSafeStorage().getSharedPreferences("stem_fit", Context.MODE_PRIVATE)
     }
 
     fun typeface(textSizePx: Float, weight: Int): Typeface =
