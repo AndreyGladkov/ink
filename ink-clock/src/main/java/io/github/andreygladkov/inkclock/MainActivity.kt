@@ -27,6 +27,7 @@ import io.github.andreygladkov.ink.ui.PermissionGate
 import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkclock.alarm.AlarmEditActivity
 import io.github.andreygladkov.inkclock.alarm.AlarmListScreen
+import io.github.andreygladkov.inkclock.desk.DeskClockActivity
 import io.github.andreygladkov.inkclock.pomodoro.PomodoroScreen
 import io.github.andreygladkov.inkclock.ring.RingActivity
 import io.github.andreygladkov.inkclock.ring.RingService
@@ -159,6 +160,9 @@ class MainActivity : Activity() {
             setOnClickListener { startActivity(AlarmEditActivity.create(this@MainActivity)) }
         }
         addView(newAlarm, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f))
+        addView(iconButton(this@MainActivity, R.drawable.ic_desk_clock, getString(R.string.desk_clock)).apply {
+            setOnClickListener { startActivity(DeskClockActivity.intent(this@MainActivity)) }
+        })
         addView(iconButton(this@MainActivity, R.drawable.ic_settings, getString(R.string.settings)).apply {
             setOnClickListener { startActivity(SettingsActivity.intent(this@MainActivity)) }
         })

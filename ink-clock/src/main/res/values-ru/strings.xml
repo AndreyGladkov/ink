@@ -100,6 +100,14 @@
     <string name="settings_pomodoro_screen">Не гасить экран во время фазы</string>
     <string name="settings_pomodoro_sound">Звук в конце фазы</string>
 
+    <string name="desk_clock">Настольные часы</string>
+    <string name="desk_next_alarm">Будильник %1$s</string>
+    <string name="settings_dream">Заставка</string>
+    <string name="dream_hint">Во время зарядки заставка Ink Clock показывает время или идущий помодоро. Выберите Ink Clock и запуск «Во время зарядки».</string>
+    <string name="dream_selected">Заставка — Ink Clock.</string>
+    <string name="dream_not_selected">Ink Clock не выбрана заставкой.</string>
+    <string name="dream_choose">Выбрать заставку</string>
+
     <string name="settings_alarms">Будильник</string>
     <string name="settings_snooze">Откладывать на</string>
     <string name="settings_ring_for">Звонить не дольше</string>

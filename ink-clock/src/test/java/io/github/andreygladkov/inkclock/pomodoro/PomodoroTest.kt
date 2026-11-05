@@ -37,19 +37,19 @@ class PomodoroTest {
         assertNull(Pomodoro().endsAt(plan))
     }
 
-    @Test fun workFillsOneCellPerMinuteAndABreakEmptiesThem() {
-        val work = Pomodoro().start(now = 0)
-        assertEquals(PomodoroGrid(25, 0 until 3, current = 3), PomodoroGrid.of(work, plan, now = 3 * 60_000L + 5))
-        val shortBreak = Pomodoro(Phase.SHORT_BREAK).start(now = 0)
-        assertEquals(PomodoroGrid(5, 3 until 5, current = 2), PomodoroGrid.of(shortBreak, plan, now = 2 * 60_000L))
-        assertEquals(PomodoroGrid(5, 0 until 5, current = null), PomodoroGrid.of(Pomodoro(Phase.SHORT_BREAK), plan, now = 0))
-        assertEquals(PomodoroGrid(25, 0 until 0, current = null), PomodoroGrid.of(Pomodoro(), plan, now = 0))
+    @Test fun workEatsTheTomatoClockwiseFromTheStemOneMinuteAtATime() {
+        val dial = PomodoroDial.of(Pomodoro().start(now = 0), plan, now = 3 * 60_000L + 5)
+        assertEquals(PomodoroDial(25, black = 22, refills = false), dial)
+        assertEquals(-90f + 43.2f, dial.startDegrees, 0.001f)
+        assertEquals(316.8f, dial.sweepDegrees, 0.001f)
+        assertEquals(PomodoroDial(25, black = 25, refills = false), PomodoroDial.of(Pomodoro(), plan, now = 0))
     }
 
-    @Test fun longPhasesUseWiderRows() {
-        assertEquals(5 to 5, PomodoroGrid(25, IntRange.EMPTY, null).let { it.columns to it.rows })
-        assertEquals(10 to 5, PomodoroGrid(50, IntRange.EMPTY, null).let { it.columns to it.rows })
-        assertEquals(10 to 3, PomodoroGrid(30, IntRange.EMPTY, null).let { it.columns to it.rows })
-        assertEquals(5 to 1, PomodoroGrid(5, IntRange.EMPTY, null).let { it.columns to it.rows })
+    @Test fun aBreakFillsTheTomatoBackFromTheStem() {
+        val dial = PomodoroDial.of(Pomodoro(Phase.SHORT_BREAK).start(now = 0), plan, now = 2 * 60_000L)
+        assertEquals(PomodoroDial(5, black = 2, refills = true), dial)
+        assertEquals(-90f, dial.startDegrees)
+        assertEquals(144f, dial.sweepDegrees, 0.001f)
+        assertEquals(0, PomodoroDial.of(Pomodoro(Phase.SHORT_BREAK), plan, now = 0).black)
     }
 }

@@ -27,7 +27,7 @@ class PomodoroScreen(private val activity: Activity) : LinearLayout(activity), T
         gravity = Gravity.CENTER_HORIZONTAL
     }
     private val status = InkTextView(activity).apply { gravity = Gravity.CENTER_HORIZONTAL }
-    private val grid = PomodoroGridView(activity)
+    private val tomato = TomatoView(activity)
     private val cycle = InkTextView(activity).apply {
         gravity = Gravity.CENTER_HORIZONTAL
         textScale = InkStyle.DISPLAY_SCALE
@@ -46,7 +46,7 @@ class PomodoroScreen(private val activity: Activity) : LinearLayout(activity), T
         setPadding(padding, 0, padding, padding)
         addView(title, wide())
         addView(status, wide())
-        addView(grid, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = padding; bottomMargin = padding })
+        addView(tomato, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = padding; bottomMargin = padding })
         addView(cycle, wide())
         addView(InkButtonRow(activity, padding / 2, 1f).apply {
             addButton(main)
@@ -70,7 +70,7 @@ class PomodoroScreen(private val activity: Activity) : LinearLayout(activity), T
         val pomodoro = store.pomodoro()
         val plan = store.plan()
         title.text = PomodoroLabels.phase(activity, pomodoro.phase)
-        grid.grid = PomodoroGrid.of(pomodoro, plan, now)
+        tomato.dial = PomodoroDial.of(pomodoro, plan, now)
         cycle.text = cycleDots(pomodoro, plan)
         skip.visibility = if (pomodoro.phase == Phase.WORK) GONE else VISIBLE
         val endsAt = pomodoro.endsAt(plan)

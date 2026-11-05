@@ -2,6 +2,7 @@ package io.github.andreygladkov.inkclock.settings
 
 import android.app.Activity
 import android.app.Application
+import android.provider.Settings
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.assertPureBlackAndWhite
@@ -33,7 +34,7 @@ class SettingsActivityTest {
     @Test fun showsEverySectionInPureBlackAndWhite() {
         val activity = Robolectric.buildActivity(SettingsActivity::class.java, SettingsActivity.intent(context)).setup().get()
         val texts = texts(activity)
-        listOf("Будильник", "Откладывать на", "Звонить не дольше", "Помодоро", "Длинный перерыв после", "Цель на день", "Отображение", "Вибрация", "О приложении")
+        listOf("Будильник", "Откладывать на", "Звонить не дольше", "Помодоро", "Длинный перерыв после", "Цель на день", "Заставка", "Ink Clock не выбрана заставкой.", "Отображение", "Вибрация", "О приложении")
             .forEach { assertTrue(it in texts, "missing $it in $texts") }
         assertPureBlackAndWhite(render(contentRoot(activity)))
     }
@@ -49,6 +50,12 @@ class SettingsActivityTest {
         val activity = Robolectric.buildActivity(SettingsActivity::class.java, SettingsActivity.intent(context)).setup().get()
         contentRoot(activity).find<InkButton>().first { it.text.toString() == "50 мин" }.performClick()
         assertEquals(PomodoroPlan(workMinutes = 50), PomodoroStore.of(context).plan())
+    }
+
+    @Test fun theScreensaverButtonOpensTheSystemChoice() {
+        val activity = Robolectric.buildActivity(SettingsActivity::class.java, SettingsActivity.intent(context)).setup().get()
+        contentRoot(activity).find<InkButton>().single { it.text.toString() == "Выбрать заставку" }.performClick()
+        assertEquals(Settings.ACTION_DREAM_SETTINGS, shadowOf(activity).nextStartedActivity.action)
     }
 
     @Test fun aboutShowsTheVersionAndTheLicenses() {

@@ -102,6 +102,14 @@
     <string name="settings_pomodoro_screen">Keep the screen on during a phase</string>
     <string name="settings_pomodoro_sound">Sound at the end of a phase</string>
 
+    <string name="desk_clock">Desk clock</string>
+    <string name="desk_next_alarm">Alarm %1$s</string>
+    <string name="settings_dream">Screensaver</string>
+    <string name="dream_hint">While charging, the Ink Clock screensaver shows the time or the pomodoro under way. Choose Ink Clock and start it while charging.</string>
+    <string name="dream_selected">Ink Clock is the screensaver.</string>
+    <string name="dream_not_selected">Ink Clock is not chosen as the screensaver.</string>
+    <string name="dream_choose">Choose screensaver</string>
+
     <string name="settings_alarms">Alarms</string>
     <string name="settings_snooze">Snooze for</string>
     <string name="settings_ring_for">Stop ringing after</string>

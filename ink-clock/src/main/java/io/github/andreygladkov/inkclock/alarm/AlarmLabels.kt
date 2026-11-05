@@ -39,14 +39,15 @@ class AlarmLabels(private val context: Context, private val locale: Locale = con
 
     fun summary(alarm: Alarm): String = listOf(days(alarm.days), alarm.label).filter { it.isNotBlank() }.joinToString(" · ")
 
-    fun next(next: NextAlarm, now: ZonedDateTime): String {
-        val days = ChronoUnit.DAYS.between(now.toLocalDate(), next.at.toLocalDate())
-        val day = when (days) {
+    fun next(next: NextAlarm, now: ZonedDateTime): String = context.getString(R.string.next_alarm, moment(next.at, now), until(now, next.at))
+
+    fun moment(at: ZonedDateTime, now: ZonedDateTime): String {
+        val day = when (ChronoUnit.DAYS.between(now.toLocalDate(), at.toLocalDate())) {
             0L -> context.getString(R.string.today)
             1L -> context.getString(R.string.tomorrow)
-            else -> day(next.at.dayOfWeek)
+            else -> day(at.dayOfWeek)
         }
-        return context.getString(R.string.next_alarm, "$day ${time(next.at)}", until(now, next.at))
+        return "$day ${time(at)}"
     }
 
     fun until(now: ZonedDateTime, at: ZonedDateTime): String {

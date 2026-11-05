@@ -32,12 +32,12 @@ class StopwatchScreen(private val activity: Activity) : LinearLayout(activity), 
     init {
         orientation = VERTICAL
         addView(elapsed, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply { topMargin = padding })
+        addView(laps, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = padding })
         addView(InkButtonRow(activity, padding / 2, 1f).apply {
-            setPadding(padding, padding, padding, padding)
+            setPadding(padding, padding / 2, padding, padding)
             addButton(secondaryAction)
             addButton(primaryAction)
         }, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
-        addView(laps, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
     }
 
     override fun onResume() = show()
@@ -52,6 +52,7 @@ class StopwatchScreen(private val activity: Activity) : LinearLayout(activity), 
         val now = now()
         val ms = stopwatch.elapsed(now)
         elapsed.text = StopwatchLabels.elapsed(ms, tenths = !stopwatch.isRunning)
+        (primaryAction.layoutParams as MarginLayoutParams).marginStart = if (stopwatch.isIdle) 0 else padding / 2
         when {
             stopwatch.isIdle -> {
                 secondaryAction.visibility = GONE

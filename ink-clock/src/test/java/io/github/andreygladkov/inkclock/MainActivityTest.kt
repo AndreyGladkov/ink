@@ -14,6 +14,7 @@ import io.github.andreygladkov.inkclock.alarm.Alarm
 import io.github.andreygladkov.inkclock.alarm.AlarmActions
 import io.github.andreygladkov.inkclock.alarm.AlarmEditActivity
 import io.github.andreygladkov.inkclock.alarm.AlarmStore
+import io.github.andreygladkov.inkclock.desk.DeskClockActivity
 import io.github.andreygladkov.inkclock.ring.RingActivity
 import io.github.andreygladkov.inkclock.ring.RingService
 import org.junit.runner.RunWith
@@ -78,6 +79,12 @@ class MainActivityTest {
             .create().startCommand(0, 1)
         assertEquals(RingActivity::class.java.name, shadowOf(activity).nextStartedActivity.component?.className)
         service.destroy()
+    }
+
+    @Test fun theClockButtonOpensTheDeskClock() {
+        val activity = open()
+        contentRoot(activity).find<InkButton>().single { it.contentDescription == "Настольные часы" }.performClick()
+        assertEquals(DeskClockActivity::class.java.name, shadowOf(activity).nextStartedActivity.component?.className)
     }
 
     private fun open() = Robolectric.buildActivity(MainActivity::class.java).setup().get()

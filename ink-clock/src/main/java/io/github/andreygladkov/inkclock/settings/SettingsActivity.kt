@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
@@ -19,12 +20,15 @@ import io.github.andreygladkov.ink.ui.addSection
 import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkclock.ClockPrefs
 import io.github.andreygladkov.inkclock.R
+import io.github.andreygladkov.inkclock.desk.ClockDreamSetting
 import io.github.andreygladkov.inkclock.pomodoro.PomodoroPlan
 import io.github.andreygladkov.inkclock.pomodoro.PomodoroStore
 import kotlin.math.roundToInt
 import io.github.andreygladkov.ink.R as InkR
 
 class SettingsActivity : Activity() {
+    private lateinit var dreamStatus: InkTextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val body = LinearLayout(this).apply {
@@ -36,6 +40,15 @@ class SettingsActivity : Activity() {
         body.addView(minutesRow(R.string.settings_snooze, ClockPrefs.SNOOZE_CHOICES, ClockPrefs.snoozeMinutes(this)) { ClockPrefs.setSnoozeMinutes(this, it) })
         body.addView(minutesRow(R.string.settings_ring_for, ClockPrefs.RING_CHOICES, ClockPrefs.ringMinutes(this)) { ClockPrefs.setRingMinutes(this, it) })
         addPomodoro(body)
+        body.addSection(getString(R.string.settings_dream))
+        body.addView(hint(R.string.dream_hint))
+        dreamStatus = hint(R.string.dream_not_selected)
+        body.addView(dreamStatus)
+        body.addView(InkButton(this).apply {
+            setText(R.string.dream_choose)
+            gravity = Gravity.START or Gravity.CENTER_VERTICAL
+            setOnClickListener { startActivity(Intent(Settings.ACTION_DREAM_SETTINGS)) }
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(GAP_DP) })
         body.addSection(getString(InkR.string.settings_display))
         listOf(InkSettings::textSize, InkSettings::weight, InkSettings::lists, InkSettings::cornerRadius, InkSettings::colors, InkSettings::tabLabels)
             .forEach { body.addView(it(this)) }
@@ -60,6 +73,17 @@ class SettingsActivity : Activity() {
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         }
         InkWindow.setContent(this, root)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        dreamStatus.setText(if (ClockDreamSetting.isSelected(this)) R.string.dream_selected else R.string.dream_not_selected)
+    }
+
+    private fun hint(text: Int) = InkTextView(this).apply {
+        setText(text)
+        textScale = InkStyle.SECONDARY_SCALE
+        setPadding(0, dp(GAP_DP), 0, 0)
     }
 
     private fun minutesRow(title: Int, choices: List<Int>, current: Int, onChoose: (Int) -> Unit) =

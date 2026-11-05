@@ -7,8 +7,8 @@
     <path
         android:fillColor="#000000"
         android:fillType="evenOdd"
-        android:pathData="M12,7C6.5,7 3,10.5 3,14.5C3,18.9 7,22 12,22C17,22 21,18.9 21,14.5C21,10.5 17.5,7 12,7ZM12,9C7.6,9 5,11.6 5,14.5C5,17.8 8.2,20 12,20C15.8,20 19,17.8 19,14.5C19,11.6 16.4,9 12,9Z" />
+        android:pathData="@string/tomato_ring" />
     <path
         android:fillColor="#000000"
-        android:pathData="M11,2h2v3.2l3.5,-1.7 0.9,1.8 -4.4,2.2h-2L6.6,5.3 7.5,3.5 11,5.2Z" />
+        android:pathData="@string/tomato_calyx_icon" />
 </vector>

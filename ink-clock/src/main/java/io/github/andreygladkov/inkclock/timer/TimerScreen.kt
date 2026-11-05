@@ -28,6 +28,7 @@ class TimerScreen(private val activity: Activity) : LinearLayout(activity), TabS
     private val setup = LinearLayout(activity).apply {
         orientation = VERTICAL
         addView(entryView, wide())
+        addView(View(activity), LayoutParams(0, 0, 1f))
         addView(recent, wide())
         addView(DigitKeypad(activity, onDigit = { entry = entry.type(it); showEntry() }, onErase = { entry = entry.erase(); showEntry() }),
             wide().apply { topMargin = gap })

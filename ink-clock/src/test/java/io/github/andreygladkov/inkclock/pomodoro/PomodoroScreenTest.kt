@@ -33,13 +33,13 @@ class PomodoroScreenTest {
     @Test fun workStartsKeepsTheScreenOnAndStopsInBlackAndWhite() {
         val activity = open()
         assertTrue(listOf("Работа", "25 мин", "○ ○ ○ ○", "Сегодня 0 из 8").all { it in texts(activity) }, "${texts(activity)}")
-        assertEquals(25, grid(activity).cells)
+        assertEquals(PomodoroDial(25, black = 25, refills = false), dial(activity))
         assertPureBlackAndWhite(render(contentRoot(activity)))
 
         button(activity, "Начать работу").performClick()
         assertTrue(store.pomodoro().isRunning)
         assertTrue(texts(activity).any { it.startsWith("осталось 25 мин · до ") }, "${texts(activity)}")
-        assertEquals(0, grid(activity).current)
+        assertEquals(25, dial(activity).black)
         assertTrue(keepsScreenOn(activity))
         assertPureBlackAndWhite(render(contentRoot(activity)))
 
@@ -52,7 +52,7 @@ class PomodoroScreenTest {
         store.save(Pomodoro(Phase.LONG_BREAK, cycleDone = 4, doneToday = 9, day = PomodoroActions.today()))
         val activity = open()
         assertTrue(listOf("Длинный перерыв", "15 мин", "● ● ● ●", "Сегодня 9 из 8").all { it in texts(activity) }, "${texts(activity)}")
-        assertEquals(0 until 15, grid(activity).solid)
+        assertEquals(PomodoroDial(15, black = 0, refills = true), dial(activity))
         assertPureBlackAndWhite(render(contentRoot(activity)))
         button(activity, "Пропустить").performClick()
         assertEquals(Pomodoro(Phase.WORK, cycleDone = 0, doneToday = 9, day = PomodoroActions.today()), store.pomodoro())
@@ -74,7 +74,7 @@ class PomodoroScreenTest {
 
     private fun open() = Robolectric.buildActivity(MainActivity::class.java, MainActivity.intent(context, Tab.POMODORO)).setup().get()
 
-    private fun grid(activity: MainActivity) = contentRoot(activity).find<PomodoroGridView>().single().grid!!
+    private fun dial(activity: MainActivity) = contentRoot(activity).find<TomatoView>().single().dial!!
 
     private fun keepsScreenOn(activity: MainActivity) = activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON != 0
 
