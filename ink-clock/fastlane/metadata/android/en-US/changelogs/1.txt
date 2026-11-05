@@ -1,0 +1,1 @@
+First release: alarms that ring before the first unlock, timer, stopwatch, pomodoro drawn as a tomato, desk clock and screensaver.

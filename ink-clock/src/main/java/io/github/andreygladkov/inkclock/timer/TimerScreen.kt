@@ -39,10 +39,7 @@ class TimerScreen(private val activity: Activity) : LinearLayout(activity), TabS
     }
 
     private val remaining = big()
-    private val until = InkTextView(activity).apply {
-        gravity = Gravity.CENTER_HORIZONTAL
-        textScale = InkStyle.SECONDARY_SCALE
-    }
+    private val until = InkTextView(activity).apply { gravity = Gravity.CENTER_HORIZONTAL }
     private val pauseResume = InkButton(activity)
     private val running = LinearLayout(activity).apply {
         orientation = VERTICAL

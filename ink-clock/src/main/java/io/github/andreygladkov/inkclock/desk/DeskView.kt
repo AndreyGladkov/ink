@@ -1,12 +1,15 @@
 package io.github.andreygladkov.inkclock.desk
 
 import android.content.Context
+import android.graphics.Paint
 import android.text.format.DateFormat
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.eink.A9Panel
 import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.eink.StemFit
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkclock.R
 import io.github.andreygladkov.inkclock.alarm.AlarmLabels
@@ -90,10 +93,34 @@ class DeskView(context: Context) : LinearLayout(context) {
 
     private fun showClock(now: ZonedDateTime) {
         time.text = alarmLabels.time(now)
+        fitTime()
         date.text = now.format(dateFormat)
         val next = AlarmScheduler.next(AlarmStore.of(context).all(), now)
         alarm.text = next?.let { context.getString(R.string.desk_next_alarm, alarmLabels.moment(it.at, now)) }.orEmpty()
         alarm.visibility = if (next == null) GONE else VISIBLE
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        post { fitTime() }
+    }
+
+    // "9:04 PM" does not fit the width at the size "21:04" does. Scales step by a quarter, so only a few
+    // StemFit typefaces are made, and each is measured with the typeface it will be drawn with.
+    private fun fitTime() {
+        val available = width - paddingLeft - paddingRight
+        if (available <= 0 || time.text.isEmpty()) return
+        val style = InkStyle.of(context)
+        val base = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, style.textSizeSp, resources.displayMetrics)
+        val probe = Paint(time.paint)
+        var scale = TIME_SCALE
+        while (scale > MIN_TIME_SCALE) {
+            probe.textSize = base * scale
+            probe.typeface = StemFit.typeface(probe.textSize, maxOf(style.weight, InkStyle.BOLD_WEIGHT))
+            if (probe.measureText(time.text.toString()) <= available) break
+            scale -= TIME_SCALE_STEP
+        }
+        if (time.textScale != scale) time.textScale = scale
     }
 
     private fun column(vararg views: View) = LinearLayout(context).apply {
@@ -115,6 +142,8 @@ class DeskView(context: Context) : LinearLayout(context) {
     companion object {
         private const val PADDING_DP = 24f
         private const val TIME_SCALE = 6f
+        private const val MIN_TIME_SCALE = 2f
+        private const val TIME_SCALE_STEP = 0.25f
         private const val MINUTE_MS = 60_000L
 
         /** The next wall-clock minute, or the next minute of a running pomodoro if that comes first. */
