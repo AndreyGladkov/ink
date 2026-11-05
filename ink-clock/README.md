@@ -33,6 +33,8 @@ Requires Android 11 or newer.
 - **GitHub:** download `InkClock-<version>-release.apk` from [Releases](https://github.com/AndreyGladkov/ink/releases).
 - **[Obtainium](https://github.com/ImranR98/Obtainium):** add `https://github.com/AndreyGladkov/ink` as an app and set "Filter release titles by regular expression" to `^Ink Clock `, because the repository also publishes other apps.
 
+Signing certificate SHA-256: `5F:7D:71:5C:8E:B6:40:8F:54:35:41:51:A8:36:CB:4A:65:C3:04:E5:C8:18:8F:4E:B8:70:7B:CA:29:85:04:89`.
+
 After installing, open the app and allow notifications: a ringing alarm shows its screen through them.
 
 Android has no default clock app, so alarms other apps set make it ask which clock to use. To leave Ink Clock the only one, turn the built-in clock off over adb; its own alarms stop ringing too:
@@ -91,6 +93,8 @@ Bundled components: Noto Emoji font (SIL Open Font License 1.1) and Material ico
 
 - **GitHub:** скачайте `InkClock-<версия>-release.apk` в [Releases](https://github.com/AndreyGladkov/ink/releases).
 - **[Obtainium](https://github.com/ImranR98/Obtainium):** добавьте `https://github.com/AndreyGladkov/ink` и в поле «Filter release titles by regular expression» укажите `^Ink Clock ` — в репозитории публикуются и другие приложения.
+
+SHA-256 сертификата подписи: `5F:7D:71:5C:8E:B6:40:8F:54:35:41:51:A8:36:CB:4A:65:C3:04:E5:C8:18:8F:4E:B8:70:7B:CA:29:85:04:89`.
 
 После установки откройте приложение и разрешите уведомления: через них звонящий будильник показывает свой экран.
 
