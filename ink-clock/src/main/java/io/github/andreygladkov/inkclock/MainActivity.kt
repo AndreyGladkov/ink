@@ -27,6 +27,7 @@ import io.github.andreygladkov.ink.ui.PermissionGate
 import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkclock.alarm.AlarmEditActivity
 import io.github.andreygladkov.inkclock.alarm.AlarmListScreen
+import io.github.andreygladkov.inkclock.pomodoro.PomodoroScreen
 import io.github.andreygladkov.inkclock.ring.RingActivity
 import io.github.andreygladkov.inkclock.ring.RingService
 import io.github.andreygladkov.inkclock.settings.SettingsActivity
@@ -50,7 +51,8 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        screens = mapOf(Tab.ALARMS to AlarmListScreen(this), Tab.TIMER to TimerScreen(this), Tab.STOPWATCH to StopwatchScreen(this))
+        screens = mapOf(Tab.ALARMS to AlarmListScreen(this), Tab.TIMER to TimerScreen(this), Tab.STOPWATCH to StopwatchScreen(this),
+            Tab.POMODORO to PomodoroScreen(this))
         val content = FrameLayout(this).apply { screens.values.forEach { addView(it.apply { visibility = View.INVISIBLE }) } }
         tabBar = InkTabBar(this, Tab.entries, inkPrefs().getBoolean(InkTabBar.PREF_LABELS, true), ::showTab)
         InkWindow.setContent(this, LinearLayout(this).apply {

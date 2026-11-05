@@ -75,6 +75,31 @@
     <string name="stopwatch_since">Секундомер идёт с %1$s</string>
     <string name="stopwatch_paused">Секундомер на паузе: %1$s</string>
 
+    <string name="tab_pomodoro">Помодоро</string>
+    <string name="pomodoro_work">Работа</string>
+    <string name="pomodoro_short_break">Перерыв</string>
+    <string name="pomodoro_long_break">Длинный перерыв</string>
+    <string name="pomodoro_left">осталось %1$d мин · до %2$s</string>
+    <string name="pomodoro_until">%1$s до %2$s</string>
+    <string name="pomodoro_begin_work">Начать работу</string>
+    <string name="pomodoro_begin_break">Начать перерыв</string>
+    <string name="pomodoro_skip_break">Пропустить</string>
+    <string name="pomodoro_today">Сегодня %1$d из %2$d</string>
+    <string name="pomodoro_work_done">Работа окончена</string>
+    <string name="pomodoro_break_done">Перерыв окончен</string>
+    <string name="pomodoro_start_work">Начать работу на %1$d мин?</string>
+    <string name="pomodoro_start_break">Начать перерыв на %1$d мин?</string>
+    <string name="channel_pomodoro_sound">Помодоро со звуком</string>
+    <string name="channel_pomodoro_quiet">Помодоро без звука</string>
+    <string name="settings_pomodoro">Помодоро</string>
+    <string name="settings_pomodoro_work">Работа</string>
+    <string name="settings_pomodoro_short">Короткий перерыв</string>
+    <string name="settings_pomodoro_long">Длинный перерыв</string>
+    <string name="settings_pomodoro_cycle">Длинный перерыв после</string>
+    <string name="settings_pomodoro_goal">Цель на день</string>
+    <string name="settings_pomodoro_screen">Не гасить экран во время фазы</string>
+    <string name="settings_pomodoro_sound">Звук в конце фазы</string>
+
     <string name="settings_alarms">Будильник</string>
     <string name="settings_snooze">Откладывать на</string>
     <string name="settings_ring_for">Звонить не дольше</string>

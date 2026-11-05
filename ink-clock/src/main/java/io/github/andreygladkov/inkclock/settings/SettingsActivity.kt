@@ -19,6 +19,8 @@ import io.github.andreygladkov.ink.ui.addSection
 import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkclock.ClockPrefs
 import io.github.andreygladkov.inkclock.R
+import io.github.andreygladkov.inkclock.pomodoro.PomodoroPlan
+import io.github.andreygladkov.inkclock.pomodoro.PomodoroStore
 import kotlin.math.roundToInt
 import io.github.andreygladkov.ink.R as InkR
 
@@ -33,6 +35,7 @@ class SettingsActivity : Activity() {
         body.addSection(getString(R.string.settings_alarms))
         body.addView(minutesRow(R.string.settings_snooze, ClockPrefs.SNOOZE_CHOICES, ClockPrefs.snoozeMinutes(this)) { ClockPrefs.setSnoozeMinutes(this, it) })
         body.addView(minutesRow(R.string.settings_ring_for, ClockPrefs.RING_CHOICES, ClockPrefs.ringMinutes(this)) { ClockPrefs.setRingMinutes(this, it) })
+        addPomodoro(body)
         body.addSection(getString(InkR.string.settings_display))
         listOf(InkSettings::textSize, InkSettings::weight, InkSettings::lists, InkSettings::cornerRadius, InkSettings::colors, InkSettings::tabLabels)
             .forEach { body.addView(it(this)) }
@@ -61,6 +64,22 @@ class SettingsActivity : Activity() {
 
     private fun minutesRow(title: Int, choices: List<Int>, current: Int, onChoose: (Int) -> Unit) =
         InkChoiceRow(this, getString(title), choices.map { it to getString(R.string.minutes_short, it) }, current, onChoose = onChoose)
+
+    private fun addPomodoro(body: LinearLayout) {
+        val store = PomodoroStore.of(this)
+        val plan = store.plan()
+        body.addSection(getString(R.string.settings_pomodoro))
+        body.addView(minutesRow(R.string.settings_pomodoro_work, PomodoroPlan.WORK_CHOICES, plan.workMinutes) { store.savePlan(store.plan().copy(workMinutes = it)) })
+        body.addView(minutesRow(R.string.settings_pomodoro_short, PomodoroPlan.SHORT_BREAK_CHOICES, plan.shortBreakMinutes) { store.savePlan(store.plan().copy(shortBreakMinutes = it)) })
+        body.addView(minutesRow(R.string.settings_pomodoro_long, PomodoroPlan.LONG_BREAK_CHOICES, plan.longBreakMinutes) { store.savePlan(store.plan().copy(longBreakMinutes = it)) })
+        body.addView(countRow(R.string.settings_pomodoro_cycle, PomodoroPlan.CYCLE_CHOICES, plan.cycleLength) { store.savePlan(store.plan().copy(cycleLength = it)) })
+        body.addView(countRow(R.string.settings_pomodoro_goal, PomodoroPlan.GOAL_CHOICES, plan.dailyGoal) { store.savePlan(store.plan().copy(dailyGoal = it)) })
+        body.addView(InkSettings.onOff(this, R.string.settings_pomodoro_screen, store.keepsScreenOn) { store.keepsScreenOn = it })
+        body.addView(InkSettings.onOff(this, R.string.settings_pomodoro_sound, store.playsSound) { store.playsSound = it })
+    }
+
+    private fun countRow(title: Int, choices: List<Int>, current: Int, onChoose: (Int) -> Unit) =
+        InkChoiceRow(this, getString(title), choices.map { it to it.toString() }, current, onChoose = onChoose)
 
     private fun header() = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL

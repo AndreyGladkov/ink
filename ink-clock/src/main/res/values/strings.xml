@@ -77,6 +77,31 @@
     <string name="stopwatch_since">Stopwatch running since %1$s</string>
     <string name="stopwatch_paused">Stopwatch paused at %1$s</string>
 
+    <string name="tab_pomodoro">Pomodoro</string>
+    <string name="pomodoro_work">Work</string>
+    <string name="pomodoro_short_break">Break</string>
+    <string name="pomodoro_long_break">Long break</string>
+    <string name="pomodoro_left">%1$d min left · until %2$s</string>
+    <string name="pomodoro_until">%1$s until %2$s</string>
+    <string name="pomodoro_begin_work">Start work</string>
+    <string name="pomodoro_begin_break">Start break</string>
+    <string name="pomodoro_skip_break">Skip</string>
+    <string name="pomodoro_today">Today %1$d of %2$d</string>
+    <string name="pomodoro_work_done">Work is done</string>
+    <string name="pomodoro_break_done">Break is over</string>
+    <string name="pomodoro_start_work">Start %1$d min of work?</string>
+    <string name="pomodoro_start_break">Start a %1$d min break?</string>
+    <string name="channel_pomodoro_sound">Pomodoro with sound</string>
+    <string name="channel_pomodoro_quiet">Pomodoro without sound</string>
+    <string name="settings_pomodoro">Pomodoro</string>
+    <string name="settings_pomodoro_work">Work</string>
+    <string name="settings_pomodoro_short">Short break</string>
+    <string name="settings_pomodoro_long">Long break</string>
+    <string name="settings_pomodoro_cycle">Long break after</string>
+    <string name="settings_pomodoro_goal">Daily goal</string>
+    <string name="settings_pomodoro_screen">Keep the screen on during a phase</string>
+    <string name="settings_pomodoro_sound">Sound at the end of a phase</string>
+
     <string name="settings_alarms">Alarms</string>
     <string name="settings_snooze">Snooze for</string>
     <string name="settings_ring_for">Stop ringing after</string>

@@ -97,6 +97,10 @@
             android:directBootAware="true"
             android:exported="false" />
         <receiver
+            android:name=".pomodoro.PomodoroActions$PhaseEndReceiver"
+            android:directBootAware="true"
+            android:exported="false" />
+        <receiver
             android:name=".notify.ActionReceiver"
             android:directBootAware="true"
             android:exported="false" />

@@ -12,6 +12,8 @@ import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkclock.BuildConfig
 import io.github.andreygladkov.inkclock.ClockPrefs
+import io.github.andreygladkov.inkclock.pomodoro.PomodoroPlan
+import io.github.andreygladkov.inkclock.pomodoro.PomodoroStore
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -31,7 +33,7 @@ class SettingsActivityTest {
     @Test fun showsEverySectionInPureBlackAndWhite() {
         val activity = Robolectric.buildActivity(SettingsActivity::class.java, SettingsActivity.intent(context)).setup().get()
         val texts = texts(activity)
-        listOf("Будильник", "Откладывать на", "Звонить не дольше", "Отображение", "Вибрация", "О приложении")
+        listOf("Будильник", "Откладывать на", "Звонить не дольше", "Помодоро", "Длинный перерыв после", "Цель на день", "Отображение", "Вибрация", "О приложении")
             .forEach { assertTrue(it in texts, "missing $it in $texts") }
         assertPureBlackAndWhite(render(contentRoot(activity)))
     }
@@ -41,6 +43,12 @@ class SettingsActivityTest {
         contentRoot(activity).find<InkButton>().first { it.text.toString() == "5 мин" }.performClick()
         assertEquals(5, ClockPrefs.snoozeMinutes(context))
         assertEquals(10, ClockPrefs.ringMinutes(context))
+    }
+
+    @Test fun thePomodoroPlanIsRemembered() {
+        val activity = Robolectric.buildActivity(SettingsActivity::class.java, SettingsActivity.intent(context)).setup().get()
+        contentRoot(activity).find<InkButton>().first { it.text.toString() == "50 мин" }.performClick()
+        assertEquals(PomodoroPlan(workMinutes = 50), PomodoroStore.of(context).plan())
     }
 
     @Test fun aboutShowsTheVersionAndTheLicenses() {

@@ -11,6 +11,10 @@ import io.github.andreygladkov.inkclock.R
 import io.github.andreygladkov.inkclock.Tab
 import io.github.andreygladkov.inkclock.alarm.Alarm
 import io.github.andreygladkov.inkclock.alarm.AlarmLabels
+import io.github.andreygladkov.inkclock.pomodoro.Phase
+import io.github.andreygladkov.inkclock.pomodoro.Pomodoro
+import io.github.andreygladkov.inkclock.pomodoro.PomodoroLabels
+import io.github.andreygladkov.inkclock.pomodoro.PomodoroPlan
 import io.github.andreygladkov.inkclock.ring.Ring
 import io.github.andreygladkov.inkclock.ring.RingActivity
 import io.github.andreygladkov.inkclock.stopwatch.Stopwatch
@@ -26,9 +30,14 @@ object ClockNotifications {
     private const val ID_TIMER = 2
     private const val ID_STOPWATCH = 3
     private const val ID_TIMER_MISSED = 4
+    private const val ID_POMODORO = 5
+    private const val ID_POMODORO_DONE = 6
     private const val CHANNEL_RINGING = "ringing"
     private const val CHANNEL_STATUS = "status"
     private const val CHANNEL_MISSED = "missed"
+    private const val CHANNEL_POMODORO_SOUND = "pomodoro_sound"
+    private const val CHANNEL_POMODORO_QUIET = "pomodoro_quiet"
+    private val POMODORO_VIBRATION = longArrayOf(0, 300, 200, 300)
     private const val SNOOZED_ID_BASE = 1000
     private const val MISSED_ID_BASE = 2000
 
@@ -39,13 +48,19 @@ object ClockNotifications {
                 .apply { setSound(null, null) },
             NotificationChannel(CHANNEL_STATUS, context.getString(R.string.channel_status), NotificationManager.IMPORTANCE_LOW),
             NotificationChannel(CHANNEL_MISSED, context.getString(R.string.channel_missed), NotificationManager.IMPORTANCE_DEFAULT),
+            NotificationChannel(CHANNEL_POMODORO_SOUND, context.getString(R.string.channel_pomodoro_sound), NotificationManager.IMPORTANCE_HIGH)
+                .apply { vibrationPattern = POMODORO_VIBRATION },
+            NotificationChannel(CHANNEL_POMODORO_QUIET, context.getString(R.string.channel_pomodoro_quiet), NotificationManager.IMPORTANCE_HIGH).apply {
+                setSound(null, null)
+                vibrationPattern = POMODORO_VIBRATION
+            },
         ))
     }
 
     fun ringing(context: Context, ring: Ring): Notification {
         val screen = PendingIntent.getActivity(context, 0, RingActivity.intent(context), PendingIntent.FLAG_IMMUTABLE)
         val builder = Notification.Builder(context, CHANNEL_RINGING)
-            .setSmallIcon(R.drawable.ic_notification)
+            .setSmallIcon(smallIcon(if (ring is Ring.OfTimer) Tab.TIMER else Tab.ALARMS))
             .setCategory(Notification.CATEGORY_ALARM)
             .setOngoing(true)
             .setContentIntent(screen)
@@ -117,17 +132,45 @@ object ClockNotifications {
         manager(context).notify(ID_STOPWATCH, status(context, Tab.STOPWATCH).setContentTitle(title).build())
     }
 
+    fun showPomodoro(context: Context, pomodoro: Pomodoro, plan: PomodoroPlan) {
+        val endsAt = pomodoro.endsAt(plan) ?: return manager(context).cancel(ID_POMODORO)
+        val notification = status(context, Tab.POMODORO)
+            .setContentTitle(context.getString(R.string.pomodoro_until, PomodoroLabels.phase(context, pomodoro.phase), AlarmLabels(context).time(zoned(endsAt))))
+            .addAction(action(context, ActionReceiver.ACTION_POMODORO_STOP, R.string.stop))
+            .build()
+        manager(context).notify(ID_POMODORO, notification)
+    }
+
+    /** The phase-end signal is this notification's channel sound and vibration, so the setting picks the channel. */
+    fun showPomodoroDone(context: Context, ended: Phase, next: Pomodoro, plan: PomodoroPlan, sound: Boolean) {
+        val notification = Notification.Builder(context, if (sound) CHANNEL_POMODORO_SOUND else CHANNEL_POMODORO_QUIET)
+            .setSmallIcon(smallIcon(Tab.POMODORO))
+            .setCategory(Notification.CATEGORY_REMINDER)
+            .setAutoCancel(true)
+            .setContentIntent(open(context, Tab.POMODORO))
+            .setContentTitle(context.getString(if (ended == Phase.WORK) R.string.pomodoro_work_done else R.string.pomodoro_break_done))
+            .setContentText(PomodoroLabels.nextPrompt(context, next.phase, plan))
+            .addAction(action(context, ActionReceiver.ACTION_POMODORO_START, R.string.start))
+            .build()
+        manager(context).notify(ID_POMODORO_DONE, notification)
+    }
+
+    fun cancelPomodoroDone(context: Context) = manager(context).cancel(ID_POMODORO_DONE)
+
     private fun status(context: Context, tab: Tab) = Notification.Builder(context, CHANNEL_STATUS)
-        .setSmallIcon(R.drawable.ic_notification)
+        .setSmallIcon(smallIcon(tab))
         .setCategory(Notification.CATEGORY_STATUS)
         .setOngoing(true)
         .setContentIntent(open(context, tab))
 
     private fun missed(context: Context, tab: Tab) = Notification.Builder(context, CHANNEL_MISSED)
-        .setSmallIcon(R.drawable.ic_notification)
+        .setSmallIcon(smallIcon(tab))
         .setCategory(Notification.CATEGORY_ALARM)
         .setAutoCancel(true)
         .setContentIntent(open(context, tab))
+
+    // The status bar draws a small icon from its alpha channel alone, so each tab's black icon serves as is.
+    private fun smallIcon(tab: Tab) = tab.icon
 
     private fun open(context: Context, tab: Tab) =
         PendingIntent.getActivity(context, tab.ordinal, MainActivity.intent(context, tab), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
