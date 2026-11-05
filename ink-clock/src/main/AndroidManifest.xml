@@ -36,7 +36,7 @@
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:exported="false" />
         <activity
-            android:name=".alarm.RingActivity"
+            android:name=".ring.RingActivity"
             android:directBootAware="true"
             android:screenOrientation="portrait"
             android:showWhenLocked="true"
@@ -46,7 +46,7 @@
             android:taskAffinity=""
             android:exported="false" />
         <activity
-            android:name=".alarm.SetAlarmActivity"
+            android:name=".ClockIntentsActivity"
             android:theme="@android:style/Theme.NoDisplay"
             android:excludeFromRecents="true"
             android:taskAffinity=""
@@ -56,6 +56,8 @@
                 <action android:name="android.intent.action.SHOW_ALARMS" />
                 <action android:name="android.intent.action.SNOOZE_ALARM" />
                 <action android:name="android.intent.action.DISMISS_ALARM" />
+                <action android:name="android.intent.action.SET_TIMER" />
+                <action android:name="android.intent.action.SHOW_TIMERS" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -69,7 +71,7 @@
             android:exported="false" />
 
         <service
-            android:name=".alarm.RingService"
+            android:name=".ring.RingService"
             android:directBootAware="true"
             android:foregroundServiceType="systemExempted"
             android:exported="false" />
@@ -90,6 +92,10 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".timer.TimerActions$FireReceiver"
+            android:directBootAware="true"
+            android:exported="false" />
         <receiver
             android:name=".notify.ActionReceiver"
             android:directBootAware="true"

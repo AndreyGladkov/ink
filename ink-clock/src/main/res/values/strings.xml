@@ -50,8 +50,32 @@
     <string name="snoozed_until">Snoozed until %1$s</string>
     <string name="missed_alarm">Missed alarm %1$s</string>
     <string name="channel_ringing">Ringing alarm</string>
-    <string name="channel_status">Snoozed alarms</string>
+    <string name="channel_status">Snoozed alarms, timer and stopwatch</string>
     <string name="channel_missed">Missed alarms</string>
+
+    <string name="tab_timer">Timer</string>
+    <string name="tab_stopwatch">Stopwatch</string>
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="reset">Reset</string>
+    <string name="stop">Stop</string>
+    <string name="add_minute">+1 min</string>
+    <string name="timer_entry">%1$02dh %2$02dm %3$02ds</string>
+    <string name="timer_done">Time is up</string>
+    <string name="timer_until">until %1$s</string>
+    <string name="timer_on_pause">paused</string>
+    <string name="timer_running">Timer until %1$s</string>
+    <string name="timer_paused">Timer paused, %1$s left</string>
+    <string name="timer_set_for">Timer set for %1$s</string>
+    <string name="duration_seconds">%1$d s</string>
+    <string name="duration_minutes">%1$d min</string>
+    <string name="duration_hours">%1$d h</string>
+    <string name="duration_hours_minutes">%1$d h %2$d min</string>
+    <string name="lap">Lap</string>
+    <string name="lap_number">Lap %1$d</string>
+    <string name="stopwatch_since">Stopwatch running since %1$s</string>
+    <string name="stopwatch_paused">Stopwatch paused at %1$s</string>
 
     <string name="settings_alarms">Alarms</string>
     <string name="settings_snooze">Snooze for</string>

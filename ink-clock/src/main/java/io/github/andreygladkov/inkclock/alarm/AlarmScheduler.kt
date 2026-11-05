@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import io.github.andreygladkov.inkclock.MainActivity
+import io.github.andreygladkov.inkclock.ring.RingService
+import io.github.andreygladkov.inkclock.timer.TimerActions
 import java.time.ZonedDateTime
 
 data class NextAlarm(val alarm: Alarm, val at: ZonedDateTime)
@@ -39,13 +41,15 @@ object AlarmScheduler {
     class FireReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val id = intent.getIntExtra(EXTRA_ALARM_ID, -1)
-            if (id >= 0) RingService.start(context, id) else reschedule(context)
+            if (id >= 0) RingService.startAlarm(context, id) else reschedule(context)
         }
     }
 
     class RescheduleReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action in RESCHEDULE_ACTIONS) reschedule(context)
+            if (intent.action !in RESCHEDULE_ACTIONS) return
+            reschedule(context)
+            TimerActions.reschedule(context)
         }
     }
 }

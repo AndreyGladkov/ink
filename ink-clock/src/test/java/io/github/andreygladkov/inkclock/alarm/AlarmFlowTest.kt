@@ -7,6 +7,8 @@ import android.content.Intent
 import android.os.UserManager
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.inkclock.notify.ActionReceiver
+import io.github.andreygladkov.inkclock.ring.Ring
+import io.github.andreygladkov.inkclock.ring.RingService
 import org.junit.After
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -63,7 +65,7 @@ class AlarmFlowTest {
     @Test fun firingRingsInTheForegroundUntilSnoozed() {
         AlarmActions.save(context, Alarm(1, 7, 0, label = "Подъём"))
         fire(1)
-        assertEquals(1, RingService.ringing?.id)
+        assertEquals(1, (RingService.ringing as Ring.OfAlarm).alarm.id)
         val ringing = shadowOf(service!!.get()).lastForegroundNotification
         assertEquals("07:00", ringing.extras.getString("android.title"))
         assertNotNull(ringing.fullScreenIntent)

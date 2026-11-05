@@ -1,9 +1,15 @@
-package io.github.andreygladkov.inkclock.alarm
+package io.github.andreygladkov.inkclock
 
 import android.app.Application
 import android.content.Intent
 import android.provider.AlarmClock
 import androidx.test.core.app.ApplicationProvider
+import io.github.andreygladkov.inkclock.alarm.Alarm
+import io.github.andreygladkov.inkclock.alarm.AlarmEditActivity
+import io.github.andreygladkov.inkclock.alarm.AlarmStore
+import io.github.andreygladkov.inkclock.alarm.Ringtone
+import io.github.andreygladkov.inkclock.timer.Timer
+import io.github.andreygladkov.inkclock.timer.TimerStore
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -17,7 +23,7 @@ import kotlin.test.assertEquals
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "ru")
-class SetAlarmActivityTest {
+class ClockIntentsActivityTest {
     private val context = ApplicationProvider.getApplicationContext<Application>()
     private val store = AlarmStore.of(context)
 
@@ -48,5 +54,19 @@ class SetAlarmActivityTest {
         assertEquals(emptyList(), store.all())
     }
 
-    private fun run(intent: Intent) = Robolectric.buildActivity(SetAlarmActivity::class.java, intent).create().get()
+    @Test fun anAppCanStartATimerWithoutOpeningTheApp() {
+        run(Intent(AlarmClock.ACTION_SET_TIMER).putExtra(AlarmClock.EXTRA_LENGTH, 300).putExtra(AlarmClock.EXTRA_MESSAGE, "Чай").putExtra(AlarmClock.EXTRA_SKIP_UI, true))
+        val timer = TimerStore.of(context).timer() as Timer.Running
+        assertEquals(300_000, timer.durationMs)
+        assertEquals("Чай", timer.label)
+        assertEquals("Таймер на 5 мин", ShadowToast.getTextOfLatestToast())
+    }
+
+    @Test fun aTimerWithoutSkipUiStartsAndShowsTheTimerTab() {
+        val activity = run(Intent(AlarmClock.ACTION_SET_TIMER).putExtra(AlarmClock.EXTRA_LENGTH, 60))
+        assertEquals(60_000, (TimerStore.of(context).timer() as Timer.Running).durationMs)
+        assertEquals("TIMER", shadowOf(activity).nextStartedActivity.getStringExtra("tab"))
+    }
+
+    private fun run(intent: Intent) = Robolectric.buildActivity(ClockIntentsActivity::class.java, intent).create().get()
 }

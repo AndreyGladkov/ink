@@ -1,4 +1,4 @@
-package io.github.andreygladkov.inkclock.alarm
+package io.github.andreygladkov.inkclock.ring
 
 import android.content.Context
 import android.media.AudioAttributes
@@ -17,8 +17,9 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import android.provider.Settings
 import androidx.core.net.toUri
+import io.github.andreygladkov.inkclock.alarm.Ringtone
 
-class AlarmSound(private val context: Context) {
+class RingSound(private val context: Context) {
     private val main = Handler(Looper.getMainLooper())
     private val attributes = AudioAttributes.Builder()
         .setUsage(AudioAttributes.USAGE_ALARM)
@@ -50,12 +51,12 @@ class AlarmSound(private val context: Context) {
         }
     }
 
-    fun start(alarm: Alarm) {
+    fun start(ringtone: Ringtone, vibrates: Boolean) {
         stop()
         audio.requestAudioFocus(focus)
-        player = candidates(alarm.ringtone).firstNotNullOfOrNull(::play)
-        if (player == null && alarm.ringtone != Ringtone.Silent) startBeeping()
-        if (alarm.vibrates) vibrate()
+        player = candidates(ringtone).firstNotNullOfOrNull(::play)
+        if (player == null && ringtone != Ringtone.Silent) startBeeping()
+        if (vibrates) vibrate()
     }
 
     fun stop() {

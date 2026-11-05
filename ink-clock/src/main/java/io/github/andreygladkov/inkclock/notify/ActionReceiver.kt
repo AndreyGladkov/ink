@@ -4,7 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import io.github.andreygladkov.inkclock.alarm.AlarmActions
-import io.github.andreygladkov.inkclock.alarm.RingService
+import io.github.andreygladkov.inkclock.ring.RingService
+import io.github.andreygladkov.inkclock.timer.TimerActions
 
 class ActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -13,13 +14,24 @@ class ActionReceiver : BroadcastReceiver() {
             ACTION_SNOOZE -> RingService.snooze(alarmId)
             ACTION_DISMISS -> RingService.dismiss(alarmId)
             ACTION_CANCEL_SNOOZE -> AlarmActions.dismiss(context, alarmId)
+            ACTION_TIMER_STOP -> RingService.stopTimer()
+            ACTION_TIMER_ADD_MINUTE -> RingService.addMinute()
+            ACTION_TIMER_PAUSE -> TimerActions.pause(context)
+            ACTION_TIMER_RESUME -> TimerActions.resume(context)
+            ACTION_TIMER_RESET -> TimerActions.reset(context)
         }
     }
 
     companion object {
         const val EXTRA_ALARM_ID = "alarm_id"
-        const val ACTION_SNOOZE = "io.github.andreygladkov.inkclock.SNOOZE"
-        const val ACTION_DISMISS = "io.github.andreygladkov.inkclock.DISMISS"
-        const val ACTION_CANCEL_SNOOZE = "io.github.andreygladkov.inkclock.CANCEL_SNOOZE"
+        private const val PREFIX = "io.github.andreygladkov.inkclock."
+        const val ACTION_SNOOZE = PREFIX + "SNOOZE"
+        const val ACTION_DISMISS = PREFIX + "DISMISS"
+        const val ACTION_CANCEL_SNOOZE = PREFIX + "CANCEL_SNOOZE"
+        const val ACTION_TIMER_STOP = PREFIX + "TIMER_STOP"
+        const val ACTION_TIMER_ADD_MINUTE = PREFIX + "TIMER_ADD_MINUTE"
+        const val ACTION_TIMER_PAUSE = PREFIX + "TIMER_PAUSE"
+        const val ACTION_TIMER_RESUME = PREFIX + "TIMER_RESUME"
+        const val ACTION_TIMER_RESET = PREFIX + "TIMER_RESET"
     }
 }

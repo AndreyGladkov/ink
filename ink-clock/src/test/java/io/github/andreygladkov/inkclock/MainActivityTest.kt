@@ -1,6 +1,7 @@
 package io.github.andreygladkov.inkclock
 
 import android.app.Application
+import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.assertPureBlackAndWhite
@@ -10,8 +11,11 @@ import io.github.andreygladkov.ink.render
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkclock.alarm.Alarm
+import io.github.andreygladkov.inkclock.alarm.AlarmActions
 import io.github.andreygladkov.inkclock.alarm.AlarmEditActivity
 import io.github.andreygladkov.inkclock.alarm.AlarmStore
+import io.github.andreygladkov.inkclock.ring.RingActivity
+import io.github.andreygladkov.inkclock.ring.RingService
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -65,6 +69,15 @@ class MainActivityTest {
         val started = shadowOf(activity).nextStartedActivity
         assertEquals(AlarmEditActivity::class.java.name, started.component?.className)
         assertEquals(1, started.getIntExtra("alarm_id", -1))
+    }
+
+    @Test fun aRingWhileTheAppIsOpenShowsTheRingScreen() {
+        AlarmActions.save(context, Alarm(1, 7, 0))
+        val activity = open()
+        val service = Robolectric.buildService(RingService::class.java, Intent(context, RingService::class.java).putExtra(RingService.EXTRA_ALARM_ID, 1))
+            .create().startCommand(0, 1)
+        assertEquals(RingActivity::class.java.name, shadowOf(activity).nextStartedActivity.component?.className)
+        service.destroy()
     }
 
     private fun open() = Robolectric.buildActivity(MainActivity::class.java).setup().get()

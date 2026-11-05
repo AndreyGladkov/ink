@@ -48,8 +48,32 @@
     <string name="snoozed_until">Отложен до %1$s</string>
     <string name="missed_alarm">Пропущен будильник %1$s</string>
     <string name="channel_ringing">Звонящий будильник</string>
-    <string name="channel_status">Отложенные будильники</string>
+    <string name="channel_status">Отложенные будильники, таймер и секундомер</string>
     <string name="channel_missed">Пропущенные будильники</string>
+
+    <string name="tab_timer">Таймер</string>
+    <string name="tab_stopwatch">Секундомер</string>
+    <string name="start">Старт</string>
+    <string name="pause">Пауза</string>
+    <string name="resume">Продолжить</string>
+    <string name="reset">Сброс</string>
+    <string name="stop">Стоп</string>
+    <string name="add_minute">+1 мин</string>
+    <string name="timer_entry">%1$02dч %2$02dм %3$02dс</string>
+    <string name="timer_done">Время вышло</string>
+    <string name="timer_until">до %1$s</string>
+    <string name="timer_on_pause">на паузе</string>
+    <string name="timer_running">Таймер до %1$s</string>
+    <string name="timer_paused">Таймер на паузе, осталось %1$s</string>
+    <string name="timer_set_for">Таймер на %1$s</string>
+    <string name="duration_seconds">%1$d с</string>
+    <string name="duration_minutes">%1$d мин</string>
+    <string name="duration_hours">%1$d ч</string>
+    <string name="duration_hours_minutes">%1$d ч %2$d мин</string>
+    <string name="lap">Круг</string>
+    <string name="lap_number">Круг %1$d</string>
+    <string name="stopwatch_since">Секундомер идёт с %1$s</string>
+    <string name="stopwatch_paused">Секундомер на паузе: %1$s</string>
 
     <string name="settings_alarms">Будильник</string>
     <string name="settings_snooze">Откладывать на</string>

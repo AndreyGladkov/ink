@@ -1,4 +1,4 @@
-package io.github.andreygladkov.inkclock.alarm
+package io.github.andreygladkov.inkclock.ring
 
 import android.app.Application
 import android.content.Intent
@@ -12,6 +12,10 @@ import io.github.andreygladkov.ink.find
 import io.github.andreygladkov.ink.render
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.inkclock.alarm.Alarm
+import io.github.andreygladkov.inkclock.alarm.AlarmActions
+import io.github.andreygladkov.inkclock.alarm.AlarmStore
+import io.github.andreygladkov.inkclock.timer.TimerActions
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -66,6 +70,21 @@ class RingActivityTest {
         ShadowLooper.idleMainLooper(1, TimeUnit.SECONDS)
         assertNull(RingService.ringing)
         assertFalse(store.get(1)!!.isEnabled)
+        assertTrue(activity.isFinishing)
+    }
+
+    @Test fun aRingingTimerStopsWithATap() {
+        RingService.dismiss(1)
+        TimerActions.start(context, 300_000, label = "Чай", now = 0)
+        service.destroy()
+        service = Robolectric.buildService(RingService::class.java, Intent(context, RingService::class.java).putExtra("timer", true))
+            .create().startCommand(0, 1)
+        val activity = open()
+        val texts = contentRoot(activity).find<InkTextView>().map { it.text.toString() }
+        assertTrue("Время вышло" in texts && "Чай" in texts, "$texts")
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+        button(activity, "Стоп").performClick()
+        assertNull(RingService.ringing)
         assertTrue(activity.isFinishing)
     }
 
