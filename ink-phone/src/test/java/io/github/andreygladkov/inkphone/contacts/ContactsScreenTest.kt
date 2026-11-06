@@ -206,7 +206,7 @@ class ContactsScreenTest {
         val activity = Robolectric.buildActivity(ContactCardActivity::class.java, ContactCardActivity.intentForNumber(context, "")).setup().get()
         val root = contentRoot(activity)
         idleUntil { root.find<TextView>().any { it.text.toString() == "Контакт не найден" } }
-        assertTrue(root.find<InkButton>().none { it.text.toString() == "Вызов" })
+        assertTrue(root.find<InkButton>().none { it.contentDescription == "Вызов" })
     }
 
     @Test fun preparedContactsTabFollowsSettingsChanges() {
@@ -280,7 +280,9 @@ class ContactsScreenTest {
         assertTrue("Мобильный · по умолчанию" in texts, texts.toString())
         assertTrue("konstantin@example.com" in texts)
         assertTrue("Google · me@gmail.com" in texts)
-        assertEquals(2, root.find<InkButton>().count { it.text.toString() == "Вызов" })
+        listOf("SMS", "Вызов").forEach { action ->
+            assertEquals(2, root.find<InkButton>().count { it.contentDescription == action && it.text.isEmpty() && !it.isBordered }, action)
+        }
         assertTrue("В избранное" in texts)
         assertTrue("Изменить" in texts)
         assertEquals(1, root.find<InkButton>().count { it.text.toString() == "Сделать основным" })

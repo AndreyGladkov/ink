@@ -42,8 +42,8 @@ class ContactIntentsTest {
 
     @Test fun eachNumberOffersAnSmsBesideTheCall() {
         val card = Robolectric.buildActivity(ContactCardActivity::class.java, ContactCardActivity.intent(context, 7)).setup().get()
-        idleUntil { contentRoot(card).find<InkButton>().any { it.text.toString() == "SMS" } }
-        contentRoot(card).find<InkButton>().single { it.text.toString() == "SMS" }.performClick()
+        idleUntil { contentRoot(card).find<InkButton>().any { it.contentDescription == "SMS" } }
+        contentRoot(card).find<InkButton>().single { it.contentDescription == "SMS" }.performClick()
         val sms = shadowOf(card).nextStartedActivity
         assertEquals(Intent.ACTION_SENDTO, sms.action)
         assertEquals("smsto", sms.data!!.scheme)
