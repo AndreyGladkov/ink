@@ -74,6 +74,17 @@ class TimerScreenTest {
         assertTrue("Чай · на паузе" in texts(activity))
     }
 
+    @Test fun aLabelThatChangesOnPauseStillFitsItsButton() {
+        TimerActions.start(context, 300_000)
+        val activity = open()
+        render(contentRoot(activity))
+        button(activity, "Пауза").performClick()
+        render(contentRoot(activity))
+        val resume = button(activity, "Продолжить")
+        val available = resume.width - resume.paddingLeft - resume.paddingRight
+        assertTrue(resume.paint.measureText(resume.text.toString()) <= available, "'${resume.text}' overflows $available px")
+    }
+
     @Test fun anEmptyEntryDoesNotStart() {
         val activity = open()
         button(activity, "Старт").performClick()
