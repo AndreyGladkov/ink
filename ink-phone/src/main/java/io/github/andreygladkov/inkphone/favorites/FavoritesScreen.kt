@@ -21,7 +21,7 @@ import io.github.andreygladkov.ink.ui.twoLines
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.TabScreen
 import io.github.andreygladkov.inkphone.call.ContactLookup
-import io.github.andreygladkov.inkphone.call.callButton
+import io.github.andreygladkov.inkphone.call.messageAndCallButtons
 import io.github.andreygladkov.inkphone.contacts.ContactCardActivity
 import io.github.andreygladkov.inkphone.contacts.ContactList
 import io.github.andreygladkov.inkphone.contacts.ContactListOptions
@@ -159,7 +159,7 @@ class FavoritesScreen(private val activity: Activity) : LinearLayout(activity), 
             }
         }, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
         if (row.number != null) {
-            addView(callButton(activity, row.number), LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(GAP_DP) })
+            addView(messageAndCallButtons(activity, row.number), LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(GAP_DP) })
         }
     }
 

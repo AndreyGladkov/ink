@@ -60,10 +60,11 @@ class CallLogScreenTest {
         assertTrue(rows[0].startsWith("Мама (2)\nпропущ."), rows.toString())
         assertTrue(rows[1].startsWith("+77020000000\nисх"), rows.toString())
         assertTrue(rows[2].startsWith("Неизвестный номер\nвх"), rows.toString())
-        assertEquals(2, list.find<InkButton>().count { it.contentDescription == "Вызов" && it.text.isEmpty() && !it.isBordered })
         val density = context.resources.displayMetrics.density
-        list.find<InkButton>().filter { it.contentDescription == "Вызов" }.forEach {
-            assertTrue(it.width >= 56 * density && it.height >= 56 * density, "call target ${it.width}x${it.height}px")
+        listOf("SMS", "Вызов").forEach { action ->
+            val buttons = list.find<InkButton>().filter { it.contentDescription == action }
+            assertEquals(2, buttons.count { it.text.isEmpty() && !it.isBordered }, action)
+            buttons.forEach { assertTrue(it.width >= 56 * density && it.height >= 56 * density, "$action target ${it.width}x${it.height}px") }
         }
         assertTrue(!list.find<InkButton>().single { it.text.toString().startsWith("Неизвестный номер") }.isClickable)
         assertPureBlackAndWhite(render(root))

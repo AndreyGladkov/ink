@@ -50,6 +50,9 @@ class FavoritesScreenTest {
         val list = root.find<InkPagedList>().single { it.isShown }
         idleUntil { rows(list).isNotEmpty() }
         assertEquals(listOf("Анна\n+7 703 333 44 55", "Мама\n+7 701 111 22 33"), rows(list))
+        listOf("SMS", "Вызов").forEach { action ->
+            assertEquals(2, list.find<InkButton>().count { it.contentDescription == action && it.text.isEmpty() && !it.isBordered }, action)
+        }
         assertPureBlackAndWhite(render(root))
     }
 

@@ -23,7 +23,7 @@ import io.github.andreygladkov.ink.ui.twoLines
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.TabScreen
 import io.github.andreygladkov.inkphone.call.CallLauncher
-import io.github.andreygladkov.inkphone.call.callButton
+import io.github.andreygladkov.inkphone.call.messageAndCallButtons
 import io.github.andreygladkov.inkphone.contacts.ContactCardActivity
 import java.time.ZoneId
 import java.util.concurrent.Executors
@@ -169,7 +169,7 @@ class CallLogScreen(private val activity: Activity, private val onMissedRead: ()
                 else setOnClickListener { activity.startActivity(ContactCardActivity.intentForNumber(activity, entry.number)) }
             }, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
             if (entry.number.isNotEmpty()) {
-                addView(callButton(activity, entry.number), LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(GAP_DP) })
+                addView(messageAndCallButtons(activity, entry.number), LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(GAP_DP) })
             }
         }
     }

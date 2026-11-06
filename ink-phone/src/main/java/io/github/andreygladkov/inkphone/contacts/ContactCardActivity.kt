@@ -2,7 +2,6 @@ package io.github.andreygladkov.inkphone.contacts
 
 import android.Manifest
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.graphics.Paint
@@ -28,6 +27,7 @@ import io.github.andreygladkov.ink.ui.addSection
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.call.CallLauncher
 import io.github.andreygladkov.inkphone.call.ContactLookup
+import io.github.andreygladkov.inkphone.call.messageAndCallButtons
 import io.github.andreygladkov.inkphone.calllog.CallLabels
 import io.github.andreygladkov.inkphone.calllog.CallLogEntry
 import io.github.andreygladkov.inkphone.calllog.CallLogGrouping
@@ -207,7 +207,7 @@ class ContactCardActivity : Activity() {
     private fun action(text: Int, icon: Int, onClick: () -> Unit) = InkButton(this).apply {
         setText(text)
         this.icon = icon
-        iconSizeDp = CALL_ICON_DP
+        iconSizeDp = ACTION_ICON_DP
         isBordered = false
         setOnClickListener { onClick() }
     }
@@ -245,31 +245,7 @@ class ContactCardActivity : Activity() {
                 setOnClickListener { write { it.setDefaultPhone(phone.dataId) } }
             })
         }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-        addView(InkButton(context).apply {
-            setText(R.string.sms)
-            textScale = InkStyle.SECONDARY_SCALE
-            icon = R.drawable.ic_sms
-            iconPosition = InkButton.IconPosition.START
-            iconSizeDp = CALL_ICON_DP
-            setOnClickListener { message(phone.number) }
-        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(ROW_GAP_DP) })
-        addView(InkButton(context).apply {
-            setText(R.string.call)
-            textScale = InkStyle.SECONDARY_SCALE
-            icon = R.drawable.ic_call
-            iconPosition = InkButton.IconPosition.START
-            iconSizeDp = CALL_ICON_DP
-            setOnClickListener { call(phone.number) }
-        })
-    }
-
-    /** Opens the default SMS app, which is Ink Messages when the user chose it. */
-    private fun message(number: String) {
-        try {
-            startActivity(Intent(Intent.ACTION_SENDTO, Uri.fromParts("smsto", number, null)))
-        } catch (_: ActivityNotFoundException) {
-            Unit
-        }
+        addView(messageAndCallButtons(this@ContactCardActivity, phone.number))
     }
 
     private fun dottedLine() = View(this).apply {
@@ -281,8 +257,6 @@ class ContactCardActivity : Activity() {
         text = value
         setPadding(0, dp(ROW_GAP_DP), 0, dp(ROW_GAP_DP))
     }
-
-    private fun call(number: String) = CallLauncher.call(this, number)
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -311,7 +285,7 @@ class ContactCardActivity : Activity() {
         private const val REQUEST_WRITE = 62
         private const val REQUEST_READ = 63
         private const val HISTORY_SIZE = 10
-        private const val CALL_ICON_DP = 20f
+        private const val ACTION_ICON_DP = 20f
         private const val PADDING_DP = 16f
         private const val ROW_GAP_DP = 6f
         private val loader = Executors.newSingleThreadExecutor()
