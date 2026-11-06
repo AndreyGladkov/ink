@@ -30,7 +30,7 @@ class TimerScreen(private val activity: Activity) : LinearLayout(activity), TabS
         addView(entryView, wide())
         addView(View(activity), LayoutParams(0, 0, 1f))
         addView(recent, wide())
-        addView(DigitKeypad(activity, onDigit = { entry = entry.type(it); showEntry() }, onErase = { entry = entry.erase(); showEntry() }),
+        addView(DigitKeypad(activity, onDigit = { entry = entry.type(it); showEntry() }, onErase = { entry = entry.erase(); showEntry() }, hasDoubleZero = true),
             wide().apply { topMargin = gap })
         addView(InkButton(activity).apply {
             setText(R.string.start)
@@ -112,10 +112,11 @@ class TimerScreen(private val activity: Activity) : LinearLayout(activity), TabS
         recent.removeAllViews()
         val durations = store.recent()
         if (durations.isEmpty()) return
-        recent.addView(InkButtonRow(activity, gap, InkStyle.SECONDARY_SCALE).apply {
+        recent.addView(InkButtonRow(activity, gap, InkStyle.SECONDARY_SCALE, isDivided = true).apply {
             durations.forEach { duration ->
                 addButton(InkButton(activity).apply {
                     text = labels.duration(duration)
+                    isBordered = false
                     setPadding(0, paddingTop, 0, paddingBottom)
                     setOnClickListener { start(duration) }
                 })

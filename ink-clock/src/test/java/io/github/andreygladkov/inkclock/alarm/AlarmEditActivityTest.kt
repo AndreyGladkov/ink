@@ -35,6 +35,7 @@ class AlarmEditActivityTest {
     @Test fun aNewAlarmIsTypedOnTheKeypadAndSaved() {
         val activity = open(AlarmEditActivity.create(context))
         assertTrue("07:00" in texts(activity))
+        assertTrue(contentRoot(activity).find<InkButton>().none { it.text.toString() == "00" })
         assertPureBlackAndWhite(render(contentRoot(activity)))
         listOf("6", "4", "5").forEach { button(activity, it).performClick() }
         assertTrue("06:45" in texts(activity))
