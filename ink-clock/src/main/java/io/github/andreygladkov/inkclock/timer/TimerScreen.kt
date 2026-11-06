@@ -30,7 +30,7 @@ class TimerScreen(private val activity: Activity) : LinearLayout(activity), TabS
         addView(entryView, wide())
         addView(View(activity), LayoutParams(0, 0, 1f))
         addView(recent, wide())
-        addView(DigitKeypad(activity, onDigit = { entry = entry.type(it); showEntry() }, onErase = { entry = entry.erase(); showEntry() }),
+        addView(DigitKeypad(activity, onKey = { entry = entry.type(it); showEntry() }, onErase = { entry = entry.erase(); showEntry() }),
             wide().apply { topMargin = gap })
         addView(InkButton(activity).apply {
             setText(R.string.start)

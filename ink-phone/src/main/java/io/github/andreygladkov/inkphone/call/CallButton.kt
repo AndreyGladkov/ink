@@ -6,7 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.view.Gravity
 import android.widget.LinearLayout
-import io.github.andreygladkov.ink.ui.VerticalDivider
+import io.github.andreygladkov.ink.ui.VerticalLineDrawable
 import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkphone.R
 
@@ -23,8 +23,9 @@ private fun smsButton(activity: Activity, number: String) =
 fun messageAndCallButtons(activity: Activity, number: String) = LinearLayout(activity).apply {
     orientation = LinearLayout.HORIZONTAL
     gravity = Gravity.CENTER_VERTICAL
+    dividerDrawable = VerticalLineDrawable(activity)
+    showDividers = LinearLayout.SHOW_DIVIDER_MIDDLE
     addView(smsButton(activity, number))
-    addView(VerticalDivider(activity))
     addView(callButton(activity, number))
 }
 

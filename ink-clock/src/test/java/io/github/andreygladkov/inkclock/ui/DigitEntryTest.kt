@@ -6,22 +6,33 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class DigitEntryTest {
-    private fun typed(text: String, time: AlarmTime) = text.fold(time) { current, digit -> current.type(digit) }
+    private fun typed(text: String, time: AlarmTime) = text.fold(time) { current, digit -> current.type(digit.toString()) }
+
+    private fun typed(vararg keys: String, maxDigits: Int) = keys.fold(DigitEntry("", maxDigits)) { current, key -> current.type(key) }
 
     @Test fun digitsShiftInFromTheRight() {
-        val entry = "730".fold(DigitEntry("", 4)) { current, digit -> current.type(digit) }
+        val entry = typed("7", "3", "0", maxDigits = 4)
         assertEquals(listOf(7, 30), entry.groups())
         assertEquals(listOf(0, 73), entry.erase().groups())
     }
 
     @Test fun digitsBeyondTheLimitAreIgnored() {
-        assertEquals("1234", "12345".fold(DigitEntry("", 4)) { current, digit -> current.type(digit) }.digits)
+        assertEquals("1234", typed("1", "2", "3", "4", "5", maxDigits = 4).digits)
+    }
+
+    @Test fun aDoubleZeroThatDoesNotFitWholeIsIgnored() {
+        assertEquals("123", typed("1", "2", "3", "00", maxDigits = 4).digits)
+        assertEquals("1200", typed("1", "2", "00", maxDigits = 4).digits)
+    }
+
+    @Test fun zerosTypedFirstTakeNoPlace() {
+        assertEquals(listOf(1, 0, 0), typed("00", "0", "1", "0", "0", "0", "0", maxDigits = 6).groups())
     }
 
     @Test fun theFirstKeyReplacesTheShownTime() {
         val time = AlarmTime.of(7, 30, is24Hour = true)
         assertEquals("07:30", time.display())
-        assertEquals("00:06", time.type('6').display())
+        assertEquals("00:06", time.type("6").display())
         assertEquals("00:00", time.erase().display())
         assertEquals(6 to 45, typed("645", time).toHourMinute())
     }

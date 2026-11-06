@@ -42,7 +42,11 @@ class TomatoViewTest {
         return render(view, WIDTH, HEIGHT)
     }
 
-    /** Maps tomato.xml units to pixels from the black extent of a drawing: the body spans x 2.8–21.2, the stem tops out at y 5.6. */
+    /**
+     * Maps tomato.xml units to pixels from the black extent of a drawing: the body spans x 2.8–21.2 and the stem tops
+     * out at y 5.6. The outline is stroked on the body's edge, so half of its width, read where the body is widest,
+     * lies outside that span.
+     */
     private class ArtFrame(drawing: Bitmap) {
         private val left: Int
         private val top: Int
@@ -52,9 +56,11 @@ class TomatoViewTest {
             val pixels = drawing.pixels()
             val black = pixels.indices.filter { pixels[it] == Color.BLACK }
             val xs = black.map { it % drawing.width }
-            left = xs.min()
+            val widest = black.first { it % drawing.width == xs.min() } / drawing.width
+            val outline = (xs.min() until drawing.width).takeWhile { pixels[widest * drawing.width + it] == Color.BLACK }.size
+            left = xs.min() + outline / 2
             top = black.minOf { it / drawing.width }
-            scale = (xs.max() - left) / (BODY_RIGHT - BODY_LEFT)
+            scale = (xs.max() - outline / 2 - left).toFloat() / (BODY_RIGHT - BODY_LEFT)
         }
 
         fun pixel(bitmap: Bitmap, unitX: Float, unitY: Float) =

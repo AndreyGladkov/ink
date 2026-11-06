@@ -8,7 +8,7 @@ import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.inkclock.R
 import kotlin.math.roundToInt
 
-class DigitKeypad(context: Context, private val onDigit: (Char) -> Unit, private val onErase: () -> Unit) : LinearLayout(context) {
+class DigitKeypad(context: Context, private val onKey: (String) -> Unit, private val onErase: () -> Unit) : LinearLayout(context) {
     init {
         orientation = VERTICAL
         val density = resources.displayMetrics.density
@@ -23,7 +23,7 @@ class DigitKeypad(context: Context, private val onDigit: (Char) -> Unit, private
         }
     }
 
-    private fun key(key: Char) = InkButton(context).apply {
+    private fun key(key: String) = InkButton(context).apply {
         hapticChannel = HapticChannel.KEYS
         when (key) {
             ERASE -> {
@@ -31,23 +31,17 @@ class DigitKeypad(context: Context, private val onDigit: (Char) -> Unit, private
                 contentDescription = context.getString(R.string.erase)
                 setOnClickListener { onErase() }
             }
-            DOUBLE_ZERO -> {
-                text = "00"
-                textScale = InkStyle.TITLE_SCALE
-                setOnClickListener { repeat(2) { onDigit('0') } }
-            }
             else -> {
-                text = key.toString()
+                text = key
                 textScale = InkStyle.TITLE_SCALE
-                setOnClickListener { onDigit(key) }
+                setOnClickListener { onKey(key) }
             }
         }
     }
 
     private companion object {
         const val GAP_DP = 6f
-        const val ERASE = '<'
-        const val DOUBLE_ZERO = 'Z'
-        val ROWS = listOf("123", "456", "789", "${DOUBLE_ZERO}0$ERASE")
+        const val ERASE = "<"
+        val ROWS = listOf(listOf("1", "2", "3"), listOf("4", "5", "6"), listOf("7", "8", "9"), listOf("00", "0", ERASE))
     }
 }

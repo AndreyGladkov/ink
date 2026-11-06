@@ -121,7 +121,7 @@ class AlarmEditActivity : Activity() {
         addView(timeError, wide())
         if (!time.is24Hour) addView(InkChoiceRow(this@AlarmEditActivity, getString(R.string.half_of_day),
             listOf(false to getString(R.string.am), true to getString(R.string.pm)), time.isPm) { pm -> time = time.copy(isPm = pm) })
-        addView(DigitKeypad(this@AlarmEditActivity, onDigit = { time = time.type(it); showTime() }, onErase = { time = time.erase(); showTime() }),
+        addView(DigitKeypad(this@AlarmEditActivity, onKey = { time = time.type(it); showTime() }, onErase = { time = time.erase(); showTime() }),
             wide().apply { topMargin = dp(GAP_DP) })
         addSection(getString(R.string.repeat))
         addView(dayButtons(), wide().apply { topMargin = dp(GAP_DP) })
@@ -243,7 +243,7 @@ class AlarmEditActivity : Activity() {
 }
 
 data class AlarmTime(val entry: DigitEntry, val is24Hour: Boolean, val isPm: Boolean, val isFresh: Boolean) {
-    fun type(digit: Char) = copy(entry = (if (isFresh) entry.copy(digits = "") else entry).type(digit), isFresh = false)
+    fun type(key: String) = copy(entry = (if (isFresh) entry.copy(digits = "") else entry).type(key), isFresh = false)
 
     fun erase() = copy(entry = if (isFresh) entry.copy(digits = "") else entry.erase(), isFresh = false)
 
