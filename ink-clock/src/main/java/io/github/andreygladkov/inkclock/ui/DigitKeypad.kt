@@ -31,9 +31,10 @@ class DigitKeypad(context: Context, private val onDigit: (Char) -> Unit, private
                 contentDescription = context.getString(R.string.erase)
                 setOnClickListener { onErase() }
             }
-            BLANK -> {
-                isBordered = false
-                isEnabled = false
+            DOUBLE_ZERO -> {
+                text = "00"
+                textScale = InkStyle.TITLE_SCALE
+                setOnClickListener { repeat(2) { onDigit('0') } }
             }
             else -> {
                 text = key.toString()
@@ -46,7 +47,7 @@ class DigitKeypad(context: Context, private val onDigit: (Char) -> Unit, private
     private companion object {
         const val GAP_DP = 6f
         const val ERASE = '<'
-        const val BLANK = ' '
-        val ROWS = listOf("123", "456", "789", " 0<")
+        const val DOUBLE_ZERO = 'Z'
+        val ROWS = listOf("123", "456", "789", "${DOUBLE_ZERO}0$ERASE")
     }
 }

@@ -46,6 +46,12 @@ class AlarmEditActivityTest {
         assertTrue(activity.isFinishing)
     }
 
+    @Test fun theDoubleZeroKeyTypesAWholeHour() {
+        val activity = open(AlarmEditActivity.create(context))
+        listOf("6", "00").forEach { button(activity, it).performClick() }
+        assertTrue("06:00" in texts(activity), "${texts(activity)}")
+    }
+
     @Test fun anImpossibleTimeIsNotSaved() {
         val activity = open(AlarmEditActivity.create(context))
         listOf("9", "7", "5").forEach { button(activity, it).performClick() }

@@ -112,10 +112,11 @@ class TimerScreen(private val activity: Activity) : LinearLayout(activity), TabS
         recent.removeAllViews()
         val durations = store.recent()
         if (durations.isEmpty()) return
-        recent.addView(InkButtonRow(activity, gap, InkStyle.SECONDARY_SCALE).apply {
+        recent.addView(InkButtonRow(activity, gap, InkStyle.SECONDARY_SCALE, isDivided = true).apply {
             durations.forEach { duration ->
                 addButton(InkButton(activity).apply {
                     text = labels.duration(duration)
+                    isBordered = false
                     setPadding(0, paddingTop, 0, paddingBottom)
                     setOnClickListener { start(duration) }
                 })

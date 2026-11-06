@@ -9,6 +9,7 @@ import io.github.andreygladkov.ink.find
 import io.github.andreygladkov.ink.render
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.ink.ui.VerticalDivider
 import io.github.andreygladkov.inkclock.MainActivity
 import io.github.andreygladkov.inkclock.Tab
 import org.junit.runner.RunWith
@@ -32,7 +33,7 @@ class TimerScreenTest {
     @Test fun aTimerIsTypedStartedPausedAndResetInBlackAndWhite() {
         val activity = open()
         assertTrue("00ч 00м 00с" in texts(activity), "${texts(activity)}")
-        listOf("5", "0", "0").forEach { button(activity, it).performClick() }
+        listOf("5", "00").forEach { button(activity, it).performClick() }
         assertTrue("00ч 05м 00с" in texts(activity))
         assertPureBlackAndWhite(render(contentRoot(activity)))
 
@@ -51,10 +52,14 @@ class TimerScreenTest {
         assertTrue(button(activity, "5 мин").isShown)
     }
 
-    @Test fun aRecentDurationStartsAtOnce() {
-        store.remember(90_000)
+    @Test fun recentDurationsAreBorderlessAndDividedAndStartAtOnce() {
+        listOf(5_000L, 55_000L, 60_000L, 90_000L).forEach(store::remember)
         val activity = open()
-        button(activity, "1 мин 30 с").performClick()
+        val recent = listOf("1 мин 30 с", "1 мин", "55 с", "5 с").map { button(activity, it) }
+        assertTrue(recent.none { it.isBordered })
+        assertEquals(3, contentRoot(activity).find<VerticalDivider>().count { it.isShown })
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+        recent.first().performClick()
         assertEquals(90_000, (store.timer() as Timer.Running).durationMs)
     }
 
