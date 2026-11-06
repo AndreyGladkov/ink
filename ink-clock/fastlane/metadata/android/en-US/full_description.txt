@@ -1,0 +1,14 @@
+Ink Clock is a clock app for Android phones with e-ink screens, built for the Hisense A9 as a companion to Ink Phone and Ink Messages.
+
+Every pixel is pure black or white, with no antialiasing and no animations. Nothing redraws faster than once a minute except the stopwatch while it is on screen and the last minute of a timer.
+
+<ul>
+<li>Alarms with repeat days, labels, ringtones and vibration; they ring over the lock screen, even before the first unlock after a reboot. Snooze is the big button, Dismiss is held for a second.</li>
+<li>Timer typed on a keypad, with recent durations, pause and +1 min.</li>
+<li>Stopwatch with laps.</li>
+<li>Pomodoro drawn as a big tomato that work eats and a break fills back, one minute at a time, with a daily goal.</li>
+<li>Desk clock and a charging screensaver with the time, the date and the next alarm, or the pomodoro under way.</li>
+<li>Other apps can set alarms and timers through Android's standard alarm intents.</li>
+</ul>
+
+The app has no internet access.

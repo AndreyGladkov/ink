@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tomato_body" translatable="false">M12,7C6.5,7 3,10.5 3,14.5C3,18.9 7,22 12,22C17,22 21,18.9 21,14.5C21,10.5 17.5,7 12,7Z</string>
+    <string name="tomato_ring" translatable="false">M12,7C6.5,7 3,10.5 3,14.5C3,18.9 7,22 12,22C17,22 21,18.9 21,14.5C21,10.5 17.5,7 12,7ZM12,9C7.6,9 5,11.6 5,14.5C5,17.8 8.2,20 12,20C15.8,20 19,17.8 19,14.5C19,11.6 16.4,9 12,9Z</string>
+    <string name="tomato_calyx" translatable="false">M12,7.5Q8.88,6.86 6.21,8.4Q9.34,9.82 12,7.5ZM12,7.5Q9.28,8.14 8.35,10.56Q11.08,10.28 12,7.5ZM12,7.5Q10.76,8.76 11.91,10.1Q13.15,8.84 12,7.5ZM12,7.5Q12.92,10.28 15.65,10.56Q14.72,8.14 12,7.5ZM12,7.5Q14.66,9.82 17.79,8.4Q15.12,6.86 12,7.5ZM12.6,7.9Q12.4,4.9 13.9,3.1L12.95,2.4Q11.1,4.6 11.4,7.9Z</string>
+    <string name="tomato_calyx_icon" translatable="false">M11,2h2v3.2l3.5,-1.7 0.9,1.8 -4.4,2.2h-2L6.6,5.3 7.5,3.5 11,5.2Z</string>
+</resources>
