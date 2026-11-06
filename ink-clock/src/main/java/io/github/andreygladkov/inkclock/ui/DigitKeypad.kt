@@ -8,18 +8,12 @@ import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.inkclock.R
 import kotlin.math.roundToInt
 
-class DigitKeypad(
-    context: Context,
-    private val onDigit: (Char) -> Unit,
-    private val onErase: () -> Unit,
-    hasDoubleZero: Boolean = false,
-) : LinearLayout(context) {
+class DigitKeypad(context: Context, private val onDigit: (Char) -> Unit, private val onErase: () -> Unit) : LinearLayout(context) {
     init {
         orientation = VERTICAL
         val density = resources.displayMetrics.density
         val gap = (GAP_DP * density).roundToInt()
-        val rows = DIGIT_ROWS + "${if (hasDoubleZero) DOUBLE_ZERO else BLANK}0$ERASE"
-        rows.forEachIndexed { rowIndex, row ->
+        ROWS.forEachIndexed { rowIndex, row ->
             addView(LinearLayout(context).apply {
                 orientation = HORIZONTAL
                 row.forEachIndexed { index, key ->
@@ -37,10 +31,6 @@ class DigitKeypad(
                 contentDescription = context.getString(R.string.erase)
                 setOnClickListener { onErase() }
             }
-            BLANK -> {
-                isBordered = false
-                isEnabled = false
-            }
             DOUBLE_ZERO -> {
                 text = "00"
                 textScale = InkStyle.TITLE_SCALE
@@ -57,8 +47,7 @@ class DigitKeypad(
     private companion object {
         const val GAP_DP = 6f
         const val ERASE = '<'
-        const val BLANK = ' '
         const val DOUBLE_ZERO = 'Z'
-        val DIGIT_ROWS = listOf("123", "456", "789")
+        val ROWS = listOf("123", "456", "789", "${DOUBLE_ZERO}0$ERASE")
     }
 }
