@@ -52,7 +52,6 @@ class StopwatchScreen(private val activity: Activity) : LinearLayout(activity), 
         val now = now()
         val ms = stopwatch.elapsed(now)
         elapsed.text = StopwatchLabels.elapsed(ms, tenths = !stopwatch.isRunning)
-        (primaryAction.layoutParams as MarginLayoutParams).marginStart = if (stopwatch.isIdle) 0 else padding / 2
         when {
             stopwatch.isIdle -> {
                 secondaryAction.visibility = GONE
