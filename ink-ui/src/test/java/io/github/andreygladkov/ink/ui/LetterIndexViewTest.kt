@@ -11,6 +11,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
@@ -19,6 +20,13 @@ import kotlin.test.assertTrue
 class LetterIndexViewTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val density = context.resources.displayMetrics.density
+
+    @Test fun aLabelFilesUnderItsFirstLetterAndDigitsUnderOther() {
+        assertEquals("Т", LetterIndexView.letterOf("«телеграм»"))
+        assertEquals("G", LetterIndexView.letterOf("gmail"))
+        assertEquals(LetterIndexView.OTHER, LetterIndexView.letterOf("2ГИС"))
+        assertEquals(LetterIndexView.OTHER, LetterIndexView.letterOf("…"))
+    }
 
     @Test fun indexIsSeparatedBySpaceNotByLine() {
         val index = LetterIndexView(context) {}.apply {

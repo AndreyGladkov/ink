@@ -8,7 +8,11 @@ import androidx.core.view.WindowCompat
 import io.github.andreygladkov.ink.eink.InkStyle
 
 object InkWindow {
-    fun setContent(activity: Activity, root: View) {
+    /**
+     * With [padForKeyboard] off the root keeps its size when the keyboard opens, and the views that take text
+     * move up on their own: a screen that cannot afford a full-panel redraw for that does it this way.
+     */
+    fun setContent(activity: Activity, root: View, padForKeyboard: Boolean = true) {
         val style = InkStyle.of(activity)
         val window = activity.window
         window.setBackgroundDrawable(style.background.toDrawable())
@@ -21,7 +25,8 @@ object InkWindow {
         val right = root.paddingRight
         val bottom = root.paddingBottom
         root.setOnApplyWindowInsetsListener { view, insets ->
-            val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.ime())
+            val types = if (padForKeyboard) WindowInsets.Type.systemBars() or WindowInsets.Type.ime() else WindowInsets.Type.systemBars()
+            val bars = insets.getInsets(types)
             view.setPadding(left + bars.left, top + bars.top, right + bars.right, bottom + bars.bottom)
             insets
         }

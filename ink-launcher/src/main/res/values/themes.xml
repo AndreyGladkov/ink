@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Base.Theme.InkLauncher" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:colorControlHighlight">@android:color/transparent</item>
+        <item name="android:windowShowWallpaper">false</item>
+    </style>
+
+    <style name="Theme.InkLauncher" parent="Base.Theme.InkLauncher" />
+</resources>

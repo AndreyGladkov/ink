@@ -82,9 +82,16 @@ class LetterIndexView(context: Context, private val onPick: (String) -> Unit) : 
         return true
     }
 
-    private companion object {
-        const val WIDTH_DP = 48f
-        const val MIN_SLOT_DP = 24f
-        const val MAX_TEXT_TO_SLOT = 0.8f
+    companion object {
+        private const val WIDTH_DP = 48f
+        private const val MIN_SLOT_DP = 24f
+        private const val MAX_TEXT_TO_SLOT = 0.8f
+        const val OTHER = "#"
+
+        /** The index entry a label files under: its first letter, or [OTHER] for digits and symbols. */
+        fun letterOf(label: String): String {
+            val first = label.firstOrNull { it.isLetterOrDigit() } ?: return OTHER
+            return if (first.isDigit()) OTHER else first.uppercase()
+        }
     }
 }

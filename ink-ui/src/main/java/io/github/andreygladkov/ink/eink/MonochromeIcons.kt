@@ -25,11 +25,16 @@ object MonochromeIcons {
         val bitmap = createBitmap(sizePx, sizePx)
         icon.setBounds(0, 0, sizePx, sizePx)
         icon.draw(Canvas(bitmap))
-        val pixels = IntArray(sizePx * sizePx)
-        bitmap.getPixels(pixels, 0, sizePx, 0, 0, sizePx, sizePx)
+        return silhouette(bitmap, color)
+    }
+
+    /** Turns [bitmap] in place into [color] wherever it is at least half covered, and clear elsewhere. */
+    fun silhouette(bitmap: Bitmap, @ColorInt color: Int = Color.BLACK): Bitmap {
+        val pixels = IntArray(bitmap.width * bitmap.height)
+        bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
         val opaque = color or 0xFF000000.toInt()
         for (i in pixels.indices) pixels[i] = if (Color.alpha(pixels[i]) >= ALPHA_THRESHOLD) opaque else Color.TRANSPARENT
-        bitmap.setPixels(pixels, 0, sizePx, 0, 0, sizePx, sizePx)
+        bitmap.setPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
         // Already sized in pixels: a canvas of another density would rescale it with filtering and add grey edges.
         bitmap.density = Bitmap.DENSITY_NONE
         return bitmap
