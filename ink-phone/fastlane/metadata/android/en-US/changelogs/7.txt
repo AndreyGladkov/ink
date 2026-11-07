@@ -1,0 +1,1 @@
+SMS next to calling: the contact card, recents and favorites show the call and SMS buttons as one block. An incoming call can be declined with an SMS, a ready reply or your own text; the replies are edited in Settings → Calls. Other apps, such as Ink Messages, can open, add and edit contacts in Ink Phone.
