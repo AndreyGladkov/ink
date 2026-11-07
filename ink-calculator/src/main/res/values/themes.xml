@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Base.Theme.InkCalculator" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:colorControlHighlight">@android:color/transparent</item>
+    </style>
+
+    <style name="Theme.InkCalculator" parent="Base.Theme.InkCalculator" />
+</resources>

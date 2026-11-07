@@ -13,6 +13,7 @@ jobs:
       phone: ${{ steps.filter.outputs.phone }}
       messages: ${{ steps.filter.outputs.messages }}
       clock: ${{ steps.filter.outputs.clock }}
+      calculator: ${{ steps.filter.outputs.calculator }}
     steps:
       - uses: actions/checkout@v4
 
@@ -37,6 +38,9 @@ jobs:
             clock:
               - *ui
               - 'ink-clock/**'
+            calculator:
+              - *ui
+              - 'ink-calculator/**'
 
   ui:
     needs: changes
@@ -169,3 +173,38 @@ jobs:
         with:
           name: clock-reports
           path: ink-clock/build/reports
+
+  calculator:
+    needs: changes
+    if: ${{ needs.changes.outputs.calculator == 'true' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - uses: gradle/actions/setup-gradle@v3
+
+      - name: Unit tests
+        run: ./gradlew :ink-calculator:testDebugUnitTest
+
+      - name: Lint
+        run: ./gradlew :ink-calculator:lintRelease
+
+      - name: Build release APK
+        run: ./gradlew :ink-calculator:assembleRelease
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: InkCalculator-unsigned
+          path: ink-calculator/build/outputs/apk/release/*.apk
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: calculator-reports
+          path: ink-calculator/build/reports

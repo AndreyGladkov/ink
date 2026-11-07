@@ -30,6 +30,8 @@ open class InkTextView @JvmOverloads constructor(
             applyStyle()
         }
 
+    val drawnWeight: Int get() = if (isBold) maxOf(style.weight, InkStyle.BOLD_WEIGHT) else style.weight
+
     protected open val textColor: Int get() = style.foreground
 
     // TextView's constructor already calls overridable state callbacks, before this class's fields exist.
@@ -44,8 +46,7 @@ open class InkTextView @JvmOverloads constructor(
     private fun applyStyle() {
         setTextSize(TypedValue.COMPLEX_UNIT_SP, style.textSizeSp * textScale)
         paint.isAntiAlias = false
-        val weight = if (isBold) maxOf(style.weight, InkStyle.BOLD_WEIGHT) else style.weight
-        typeface = StemFit.typeface(textSize, weight)
+        typeface = StemFit.typeface(textSize, drawnWeight)
         refreshTextColor()
     }
 

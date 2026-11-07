@@ -3,6 +3,7 @@ package io.github.andreygladkov.ink.ui
 import android.content.Context
 import android.graphics.drawable.InsetDrawable
 import android.widget.LinearLayout
+import androidx.core.widget.doAfterTextChanged
 
 class InkButtonRow(
     context: Context,
@@ -11,7 +12,7 @@ class InkButtonRow(
     isDivided: Boolean = false,
 ) : LinearLayout(context) {
     private val buttons = mutableListOf<InkButton>()
-    private var fittedForWidth = -1
+    private var fittedFor: List<Any>? = null
     private val betweenPx: Int
     private val marginPx: Int
 
@@ -29,7 +30,8 @@ class InkButtonRow(
         button.maxLines = 1
         addView(button, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f).apply { if (buttons.isNotEmpty()) marginStart = marginPx })
         buttons += button
-        fittedForWidth = -1
+        // A button keeps its size when its label changes, so TextView does not ask the row to measure again.
+        button.doAfterTextChanged { requestLayout() }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -38,10 +40,12 @@ class InkButtonRow(
     }
 
     private fun fitLabels(widthPx: Int) {
-        if (buttons.isEmpty() || widthPx <= 0 || widthPx == fittedForWidth) return
-        fittedForWidth = widthPx
-        val buttonWidth = (widthPx - paddingLeft - paddingRight - betweenPx * (buttons.size - 1)) / buttons.size
-        val scale = fittedLabelScale(buttons, buttonWidth, maxLabelScale)
+        val shown = buttons.filter { it.visibility != GONE }
+        val key = listOf(widthPx) + shown.map { it.text.toString() }
+        if (shown.isEmpty() || widthPx <= 0 || key == fittedFor) return
+        fittedFor = key
+        val buttonWidth = (widthPx - paddingLeft - paddingRight - betweenPx * (shown.size - 1)) / shown.size
+        val scale = fittedLabelScale(shown, buttonWidth, maxLabelScale)
         buttons.forEach { it.textScale = scale }
     }
 }
