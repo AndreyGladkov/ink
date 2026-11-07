@@ -17,6 +17,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import kotlin.math.roundToInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -50,6 +51,17 @@ class StopwatchScreenTest {
         assertEquals(Stopwatch(), store.stopwatch())
         assertTrue(titles().isEmpty())
         assertTrue("00:00.0" in texts(activity))
+    }
+
+    @Test fun lapAndPauseKeepTheirGapWhenTheTabOpensFirst() {
+        val activity = open()
+        render(contentRoot(activity))
+        button(activity, "Старт").performClick()
+        render(contentRoot(activity))
+        val lap = button(activity, "Круг")
+        val pause = button(activity, "Пауза")
+        val gap = (8 * context.resources.displayMetrics.density).roundToInt()
+        assertEquals(gap, pause.left - lap.right)
     }
 
     private fun open() = Robolectric.buildActivity(MainActivity::class.java, MainActivity.intent(context, Tab.STOPWATCH)).setup().get()

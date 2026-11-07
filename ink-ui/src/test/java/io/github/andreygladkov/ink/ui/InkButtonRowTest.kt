@@ -50,6 +50,23 @@ class InkButtonRowTest {
         assertFits(main)
     }
 
+    @Test fun theGapIsKeptBetweenShownButtonsOnly() {
+        val lap = button("Круг")
+        val pause = button("Пауза")
+        val row = row(lap, pause)
+        repeat(2) {
+            lap.visibility = View.GONE
+            render(row, width = width, height = 200)
+            assertEquals(0, pause.left)
+            assertEquals(width, pause.right)
+
+            lap.visibility = View.VISIBLE
+            render(row, width = width, height = 200)
+            assertEquals(0, lap.left)
+            assertEquals(8, pause.left - lap.right)
+        }
+    }
+
     private fun assertFits(button: InkButton) {
         val available = button.width - button.paddingLeft - button.paddingRight
         assertTrue(button.paint.measureText(button.text.toString()) <= available, "'${button.text}' overflows $available px")

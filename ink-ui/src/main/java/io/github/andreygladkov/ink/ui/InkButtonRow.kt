@@ -28,15 +28,34 @@ class InkButtonRow(
 
     fun addButton(button: InkButton) {
         button.maxLines = 1
-        addView(button, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f).apply { if (buttons.isNotEmpty()) marginStart = marginPx })
+        addView(button, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
         buttons += button
         // A button keeps its size when its label changes, so TextView does not ask the row to measure again.
         button.doAfterTextChanged { requestLayout() }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        spaceShownButtons()
         fitLabels(MeasureSpec.getSize(widthMeasureSpec))
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
+
+    /**
+     * Only a button with a shown one before it gets the gap, so a row with one button left is centred. A start
+     * margin set on laid-out params is not resolved into the left margin LinearLayout reads until the params are
+     * resolved again, so it is resolved here at once.
+     */
+    private fun spaceShownButtons() {
+        var seenShown = false
+        buttons.forEach { button ->
+            val params = button.layoutParams as LayoutParams
+            val margin = if (seenShown) marginPx else 0
+            if (params.marginStart != margin) {
+                params.marginStart = margin
+                params.resolveLayoutDirection(layoutDirection)
+            }
+            if (button.visibility != GONE) seenShown = true
+        }
     }
 
     private fun fitLabels(widthPx: Int) {
