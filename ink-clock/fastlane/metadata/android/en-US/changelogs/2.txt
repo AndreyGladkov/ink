@@ -1,0 +1,1 @@
+Stopwatch buttons no longer stick together: Lap and Pause, Reset and Resume keep their gap again, even when the app opens straight on the stopwatch.
