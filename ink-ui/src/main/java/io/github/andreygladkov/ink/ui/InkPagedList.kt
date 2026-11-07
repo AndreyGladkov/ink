@@ -14,6 +14,7 @@ import android.widget.AbsListView
 import android.widget.BaseAdapter
 import android.widget.LinearLayout
 import android.widget.ListView
+import android.widget.Space
 import io.github.andreygladkov.ink.R
 import io.github.andreygladkov.ink.eink.A9Panel
 import io.github.andreygladkov.ink.eink.InkStyle
@@ -49,6 +50,7 @@ class InkPagedList(
         gravity = Gravity.CENTER
         textScale = InkStyle.SECONDARY_SCALE
     }
+    private var footer: LinearLayout? = null
     private val heights = HashMap<Long, Int>()
     private var heightsWidth = -1
     private var adapter: Adapter? = null
@@ -90,12 +92,46 @@ class InkPagedList(
     }
 
     private fun addPager() {
-        addView(LinearLayout(context).apply {
+        footer = LinearLayout(context).apply {
             orientation = HORIZONTAL
             addView(prev, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
             addView(label, LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
             addView(next, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
-        }, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+        }.also { addView(it, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)) }
+    }
+
+    /**
+     * Puts [view] at an end of the row with the page buttons, past a short line, so a screen's own way out sits
+     * where the thumb already is. A scrolling list gets a row of its own for it.
+     */
+    fun addFooterView(view: View, atStart: Boolean = false) {
+        val row = footer ?: LinearLayout(context).apply {
+            orientation = HORIZONTAL
+            addView(Space(context), LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
+        }.also {
+            footer = it
+            addView(it, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+        }
+        val divider = FooterDivider(context).takeIf { scrollList == null }
+        val parts = listOfNotNull(divider, view).let { if (atStart) it.reversed() else it }
+        parts.forEachIndexed { index, part ->
+            row.addView(part, if (atStart) index else row.childCount, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
+        }
+    }
+
+    /**
+     * Takes the row's height without adding to it: a plain View asks for all the height offered, and a fixed
+     * height makes the row's LinearLayout size every match-parent button to that line instead of the buttons.
+     */
+    private class FooterDivider(context: Context) : View(context) {
+        init {
+            background = VerticalLineDrawable(context)
+        }
+
+        override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+            val height = if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY) MeasureSpec.getSize(heightMeasureSpec) else 0
+            setMeasuredDimension(background.intrinsicWidth, height)
+        }
     }
 
     fun setAdapter(adapter: Adapter, position: Int = 0) {

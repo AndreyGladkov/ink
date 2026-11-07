@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="back">Назад</string>
+    <string name="home">Главный экран</string>
+    <string name="settings">Настройки</string>
+    <string name="cancel">Отмена</string>
+    <string name="done">Готово</string>
+
+    <string name="move_hint">Нажмите, куда положить</string>
+    <string name="all_apps">Все приложения</string>
+    <string name="search_apps">Поиск по названию</string>
+    <string name="search_widgets">Поиск по виджету или приложению</string>
+    <string name="search_icons">Поиск по иконке или приложению</string>
+    <string name="loading">Загрузка…</string>
+    <string name="pack_for_app">Для «%1$s»</string>
+    <string name="pack_installed">Приложения на телефоне</string>
+    <string name="pack_all">Все иконки</string>
+    <string name="pack_group">%1$s · %2$d</string>
+    <string name="close_search">Закрыть поиск</string>
+    <string name="nothing_found">Ничего не найдено</string>
+    <string name="pick_app">Выберите приложение</string>
+    <string name="pick_widget">Выберите виджет</string>
+    <string name="widget_line">%1$s · %2$d×%3$d</string>
+    <string name="widget">Виджет</string>
+    <string name="widget_missing">Виджет недоступен</string>
+    <string name="folder_default_name">Папка</string>
+
+    <string name="add_app">Приложение…</string>
+    <string name="add_widget">Виджет…</string>
+    <string name="add_folder">Папка</string>
+    <string name="new_page">Новая страница</string>
+    <string name="launcher_settings">Настройки лаунчера</string>
+    <string name="add_to_home">На главный экран</string>
+    <string name="app_info">О приложении</string>
+    <string name="uninstall">Удалить</string>
+    <string name="rename">Переименовать</string>
+    <string name="original_name">Исходное название</string>
+    <string name="change_icon">Иконка…</string>
+    <string name="hide_label">Скрыть подпись</string>
+    <string name="show_label">Показать подпись</string>
+    <string name="move">Переместить</string>
+    <string name="into_folder">В папку…</string>
+    <string name="new_folder">Новая папка</string>
+    <string name="remove_from_home">Убрать с главного экрана</string>
+    <string name="take_out_of_folder">Вынуть из папки</string>
+    <string name="remove_from_folder">Убрать из папки</string>
+    <string name="delete_folder">Удалить папку</string>
+    <string name="delete_folder_confirm">Нажмите ещё раз: приложения из неё уйдут с экрана</string>
+    <string name="remove_widget_confirm">Нажмите ещё раз, чтобы убрать виджет</string>
+    <string name="widget_size">Размер…</string>
+    <string name="widget_size_title">Размер</string>
+    <string name="widget_width">Ширина</string>
+    <string name="widget_height">Высота</string>
+    <string name="icon_from_pack">Из набора иконок…</string>
+    <string name="icon_picture">Картинка…</string>
+    <string name="icon_text">Текст…</string>
+    <string name="icon_reset">Как было</string>
+
+    <string name="notifications">Уведомления</string>
+    <string name="clear_all">Очистить всё</string>
+    <string name="dismiss">Закрыть</string>
+    <string name="notifications_empty">Уведомлений нет</string>
+    <string name="notification_access_needed">Чтобы показывать здесь уведомления, Ink Launcher нужен доступ к ним.</string>
+    <string name="notification_access_on">Уведомления показываются на экране слева от первой страницы.</string>
+    <string name="grant_notification_access">Разрешить доступ</string>
+    <string name="notification_access_change">Доступ к уведомлениям</string>
+
+    <string name="settings_default">Лаунчер</string>
+    <string name="make_default">Сделать лаунчером по умолчанию</string>
+    <string name="settings_grid">Главный экран</string>
+    <string name="grid_columns">Колонки</string>
+    <string name="grid_rows">Ряды</string>
+    <string name="grid_pinned_top">Закреплённые ряды сверху, общие для всех страниц</string>
+    <string name="grid_pinned_bottom">Закреплённые ряды снизу</string>
+    <string name="settings_labels">Подписи под иконками</string>
+    <string name="settings_icons">Иконки</string>
+    <string name="no_icon_packs">Наборы иконок не установлены. Подойдёт любой, совместимый с ADW или Nova.</string>
+    <string name="icon_frame">Обводка вокруг иконок</string>
+    <string name="find_icon_packs">Найти наборы иконок</string>
+    <string name="icon_pack">Набор иконок</string>
+    <string name="icon_pack_none">Иконки приложений</string>
+    <string name="icon_pack_invert">Инвертировать иконки набора</string>
+    <string name="icon_pack_invert_hint">Для наборов белых иконок, которые пропадают на белом экране.</string>
+
+    <string name="about">О приложении</string>
+    <string name="about_version">Версия %1$s</string>
+    <string name="about_license">Ink Launcher — свободная программа под лицензией GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Launcher не выходит в интернет: у него нет разрешения INTERNET.</string>
+    <string name="about_gpl">GNU General Public License v3</string>
+    <string name="about_source">Исходный код</string>
+    <string name="about_components">Компоненты</string>
+    <string name="about_noto">Шрифт Noto Emoji — SIL Open Font License 1.1</string>
+    <string name="about_material">Иконки Material — Apache License 2.0</string>
+</resources>

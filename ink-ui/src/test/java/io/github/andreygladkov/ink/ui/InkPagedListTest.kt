@@ -4,9 +4,15 @@ import android.app.Activity
 import android.os.Looper
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import io.github.andreygladkov.ink.A9_QUALIFIERS
+import io.github.andreygladkov.ink.R
+import io.github.andreygladkov.ink.A9_HEIGHT
+import io.github.andreygladkov.ink.A9_WIDTH
 import io.github.andreygladkov.ink.find
+import io.github.andreygladkov.ink.render
+import io.github.andreygladkov.ink.inkPrefs
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -14,6 +20,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = A9_QUALIFIERS)
@@ -36,6 +43,30 @@ class InkPagedListTest {
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals("item 39", shown(list).last())
         assertEquals(0, list.page)
+    }
+
+    @Test fun aFooterViewSitsBesideThePageButtonsOrAloneWhenScrolling() {
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        val paged = InkPagedList(activity)
+        val home = InkButton(activity).apply { icon = R.drawable.ic_page_down }
+        paged.addFooterView(home)
+        val row = home.parent as LinearLayout
+        assertEquals(home, row.getChildAt(row.childCount - 1))
+        assertTrue(row.getChildAt(row.childCount - 2).background is VerticalLineDrawable)
+        val next = row.find<InkButton>().single { it.contentDescription == activity.getString(R.string.page_next) }
+        render(paged, A9_WIDTH, A9_HEIGHT)
+        assertEquals(next.minHeight, row.height)
+        assertEquals(row.height, home.height)
+
+        activity.inkPrefs().edit().putBoolean(InkPagedList.PREF_SCROLL, true).commit()
+        val scrolling = InkPagedList(activity)
+        val back = InkButton(activity).apply { icon = R.drawable.ic_page_down }
+        scrolling.addFooterView(back, atStart = true)
+        val own = back.parent as LinearLayout
+        assertEquals(back, own.getChildAt(0))
+        assertEquals(2, own.childCount)
+        render(scrolling, A9_WIDTH, A9_HEIGHT)
+        assertEquals(back.minHeight, own.height)
     }
 
     private fun shown(list: InkPagedList) = list.find<TextView>().filter { it.text.startsWith("item") }.map { it.text.toString() }
