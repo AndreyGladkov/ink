@@ -58,6 +58,7 @@ object LayoutJson {
         is AppTile -> labeled(tile, JSONObject().put("type", "app").put("app", tile.app.flatten()))
         is FolderTile -> labeled(tile, JSONObject().put("type", "folder").put("apps", JSONArray(tile.apps.map(::tile))))
         is WidgetTile -> JSONObject().put("type", "widget").put("id", tile.id).put("widgetId", tile.widgetId).put("provider", tile.provider.flatten())
+        is ScreenTimeTile -> JSONObject().put("type", "screen_time").put("id", tile.id)
     }
 
     private fun labeled(tile: LabeledTile, into: JSONObject): JSONObject = into
@@ -78,6 +79,7 @@ object LayoutJson {
                 FolderTile(id, label.orEmpty(), (0 until apps.length()).mapNotNull { tile(apps.getJSONObject(it)) as? AppTile }, icon, hidden)
             }
             "widget" -> AppKey.unflatten(json.getString("provider"))?.let { WidgetTile(id, json.getInt("widgetId"), it) }
+            "screen_time" -> ScreenTimeTile(id)
             else -> null
         }
     }

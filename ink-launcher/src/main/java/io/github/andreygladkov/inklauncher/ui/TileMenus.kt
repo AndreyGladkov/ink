@@ -16,6 +16,7 @@ import io.github.andreygladkov.inklauncher.home.CustomIcon
 import io.github.andreygladkov.inklauncher.home.FolderTile
 import io.github.andreygladkov.inklauncher.home.LabeledTile
 import io.github.andreygladkov.inklauncher.home.Placed
+import io.github.andreygladkov.inklauncher.home.ScreenTimeTile
 import io.github.andreygladkov.inklauncher.home.Spot
 import io.github.andreygladkov.inklauncher.home.WidgetTile
 import io.github.andreygladkov.inklauncher.home.renamed
@@ -28,6 +29,7 @@ class TileMenus(private val activity: HomeActivity) {
         is AppTile -> homeApp(tile)
         is FolderTile -> folder(tile)
         is WidgetTile -> widget(tile)
+        is ScreenTimeTile -> screenTime(tile)
     }
 
     fun emptyCell(spot: Spot) = sheet(null) {
@@ -52,6 +54,7 @@ class TileMenus(private val activity: HomeActivity) {
             activity.dismissSheet()
             activity.addToHome(app.key)
         }
+        driftingAction(app.key.packageName)
         action(R.string.app_info) { activity.catalog.openDetails(app.key.packageName) }
         action(R.string.uninstall) { activity.catalog.uninstall(app.key.packageName) }
     }
@@ -66,6 +69,7 @@ class TileMenus(private val activity: HomeActivity) {
             activity.dismissSheet()
             activity.update { it.remove(app.id) }
         }
+        driftingAction(app.app.packageName)
         action(R.string.app_info) { activity.catalog.openDetails(app.app.packageName) }
     }
 
@@ -77,6 +81,7 @@ class TileMenus(private val activity: HomeActivity) {
             activity.dismissSheet()
             activity.update { it.remove(app.id) }
         }
+        driftingAction(app.app.packageName)
         action(R.string.app_info) { activity.catalog.openDetails(app.app.packageName) }
     }
 
@@ -90,12 +95,29 @@ class TileMenus(private val activity: HomeActivity) {
     }
 
     private fun widget(widget: WidgetTile) = sheet(activity.widgets.info(widget.widgetId)?.loadLabel(activity.packageManager) ?: string(R.string.widget)) {
-        action(R.string.widget_size) { widgetSize(widget) }
+        action(R.string.widget_size) { size(widget.id) }
         moveAction(widget.id)
         action(R.string.remove_from_home) {}.confirmBeforeAction(R.string.remove_widget_confirm) {
             activity.dismissSheet()
             activity.update { it.remove(widget.id) }
             activity.widgets.remove(widget.widgetId)
+        }
+    }
+
+    private fun screenTime(tile: ScreenTimeTile) = sheet(string(R.string.screen_time)) {
+        action(R.string.widget_size) { size(tile.id) }
+        moveAction(tile.id)
+        action(R.string.remove_from_home) {}.confirmBeforeAction(R.string.remove_widget_confirm) {
+            activity.dismissSheet()
+            activity.update { it.remove(tile.id) }
+        }
+    }
+
+    private fun ActionSheet.driftingAction(packageName: String) {
+        val drifting = activity.screenTime.isDrifting(packageName)
+        action(if (drifting) R.string.unmark_drifting else R.string.mark_drifting) {
+            activity.dismissSheet()
+            activity.setDrifting(packageName, !drifting)
         }
     }
 
@@ -159,15 +181,15 @@ class TileMenus(private val activity: HomeActivity) {
         }
     }
 
-    private fun widgetSize(widget: WidgetTile) = sheet(string(R.string.widget_size_title)) {
+    private fun size(id: Long) = sheet(string(R.string.widget_size_title)) {
         val columns = sizeRow(R.string.widget_width)
         val rows = sizeRow(R.string.widget_height)
         fun show() {
-            val spot = activity.layout.find(widget.id)?.spot ?: return
+            val spot = activity.layout.find(id)?.spot ?: return
             fun resize(width: Int, height: Int): (() -> Unit)? {
-                if (activity.layout.resized(widget.id, width, height) == null) return null
+                if (activity.layout.resized(id, width, height) == null) return null
                 return {
-                    activity.update { it.resized(widget.id, width, height) }
+                    activity.update { it.resized(id, width, height) }
                     show()
                 }
             }

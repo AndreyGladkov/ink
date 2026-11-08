@@ -18,6 +18,7 @@ class LayoutJsonTest {
                 )),
                 Spot(Sheet.Page(1), 2, 0),
             )
+            .place(ScreenTimeTile(6), Spot(Sheet.Page(0), 0, 0, 2, 1))
         assertEquals(layout, LayoutJson.read(LayoutJson.write(layout)))
     }
 

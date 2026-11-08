@@ -65,6 +65,30 @@
     <string name="grant_notification_access">Разрешить доступ</string>
     <string name="notification_access_change">Доступ к уведомлениям</string>
 
+    <string name="screen_time">Экранное время</string>
+    <string name="drifting">Залип</string>
+    <string name="on_purpose">По делу</string>
+    <string name="duration_hours_minutes">%1$d ч %2$02d мин</string>
+    <string name="duration_minutes">%1$d мин</string>
+    <string name="duration_short">%1$d ч %2$02d</string>
+    <plurals name="unlocks">
+        <item quantity="one">%d разблокировка</item>
+        <item quantity="few">%d разблокировки</item>
+        <item quantity="many">%d разблокировок</item>
+        <item quantity="other">%d разблокировки</item>
+    </plurals>
+    <string name="today">Сегодня</string>
+    <string name="yesterday">Вчера</string>
+    <string name="by_day">По дням</string>
+    <string name="by_app">По приложениям</string>
+    <string name="marked">Отмечено</string>
+    <string name="not_marked">Не отмечено</string>
+    <string name="mark_drifting">Отметить как «Залип»</string>
+    <string name="unmark_drifting">Снять отметку «Залип»</string>
+    <string name="screen_time_tap_for_access">Нажмите, чтобы разрешить доступ к статистике</string>
+    <string name="screen_time_access_needed">Чтобы считать экранное время, Ink Launcher нужен доступ к истории использования.</string>
+    <string name="grant_screen_time_access">Разрешить доступ</string>
+
     <string name="settings_default">Лаунчер</string>
     <string name="make_default">Сделать лаунчером по умолчанию</string>
     <string name="settings_grid">Главный экран</string>

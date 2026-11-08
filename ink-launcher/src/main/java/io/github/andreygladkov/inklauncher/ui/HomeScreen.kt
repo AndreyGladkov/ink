@@ -11,6 +11,7 @@ import io.github.andreygladkov.inklauncher.home.GridSpec
 import io.github.andreygladkov.inklauncher.home.HomeLayout
 import io.github.andreygladkov.inklauncher.home.LabeledTile
 import io.github.andreygladkov.inklauncher.home.Placed
+import io.github.andreygladkov.inklauncher.home.ScreenTimeTile
 import io.github.andreygladkov.inklauncher.home.Sheet
 import io.github.andreygladkov.inklauncher.home.Spot
 import io.github.andreygladkov.inklauncher.home.WidgetTile
@@ -145,21 +146,21 @@ class HomeScreen(private val activity: HomeActivity) : LinearLayout(activity) {
     }
 
     private fun view(placed: Placed): View = when (val tile = placed.tile) {
-        is LabeledTile -> activity.tileView(tile).apply {
-            isSelected = tile.id == movingId
-            setOnClickListener { tapped(placed) }
-            setOnLongClickListener {
-                if (movingId == null) activity.menus.tile(placed)
-                true
-            }
+        is LabeledTile -> activity.tileView(tile).apply { isSelected = tile.id == movingId }.withMenu(placed)
+        is WidgetTile -> activity.widgets.view(tile.widgetId) ?: activity.missingWidget(tile).withMenu(placed)
+        is ScreenTimeTile -> activity.screenTimeView().apply { isSelected = tile.id == movingId }.withMenu(placed)
+    }
+
+    private fun View.withMenu(placed: Placed) = apply {
+        setOnClickListener { tapped(placed) }
+        setOnLongClickListener {
+            if (movingId == null) activity.menus.tile(placed)
+            true
         }
-        is WidgetTile -> activity.widgets.view(tile.widgetId) ?: activity.missingWidget(tile).apply {
-            setOnClickListener { tapped(placed) }
-            setOnLongClickListener {
-                if (movingId == null) activity.menus.tile(placed)
-                true
-            }
-        }
+    }
+
+    fun screenTimeViews(): List<ScreenTimeView> = listOfNotNull(top, paged, bottom).flatMap { grid ->
+        (0 until grid.childCount).mapNotNull { grid.getChildAt(it) as? ScreenTimeView }
     }
 
     private fun tapped(placed: Placed) {
@@ -174,6 +175,7 @@ class HomeScreen(private val activity: HomeActivity) : LinearLayout(activity) {
         when (val tile = placed.tile) {
             is AppTile -> activity.launch(tile.app)
             is FolderTile -> activity.openFolder(tile.id)
+            is ScreenTimeTile -> activity.openScreenTime()
             is WidgetTile -> Unit
         }
     }

@@ -100,7 +100,7 @@ data class HomeLayout(
             when (val tile = placed.tile) {
                 is AppTile -> placed.copy(tile = relink(tile))
                 is FolderTile -> placed.copy(tile = tile.copy(apps = tile.apps.map(::relink)))
-                is WidgetTile -> placed
+                is WidgetTile, is ScreenTimeTile -> placed
             }
         })
     }
@@ -125,7 +125,7 @@ data class HomeLayout(
                 }
             })
             is FolderTile -> copy(placed = placed.filter { it.tile.id != movingId }).replace(tile.copy(apps = tile.apps + moving))
-            is WidgetTile -> null
+            is WidgetTile, is ScreenTimeTile -> null
         }
     }
 
@@ -150,6 +150,7 @@ data class HomeLayout(
             is AppTile -> placed.takeIf { tile.app.packageName != packageName }
             is WidgetTile -> placed.takeIf { tile.provider.packageName != packageName }
             is FolderTile -> Placed(tile.copy(apps = tile.apps.filter { it.app.packageName != packageName }), placed.spot)
+            is ScreenTimeTile -> placed
         }
     })
 
