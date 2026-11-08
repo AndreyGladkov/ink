@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <!-- Granted by the user in the system's usage access settings, not by an install-time grant. -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
 
     <queries>
         <intent>
@@ -10,6 +15,10 @@
         </intent>
         <intent>
             <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME" />
         </intent>
         <intent>
             <action android:name="org.adw.launcher.THEMES" />

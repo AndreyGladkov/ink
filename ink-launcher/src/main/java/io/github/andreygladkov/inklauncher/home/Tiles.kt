@@ -52,6 +52,13 @@ data class FolderTile(
 
 data class WidgetTile(override val id: Long, val widgetId: Int, val provider: AppKey) : Tile
 
+data class ScreenTimeTile(override val id: Long) : Tile {
+    companion object {
+        const val COLUMNS = 2
+        const val ROWS = 1
+    }
+}
+
 fun LabeledTile.renamed(label: String?): LabeledTile = when (this) {
     is AppTile -> copy(label = label?.takeIf { it.isNotBlank() })
     is FolderTile -> copy(name = label?.takeIf { it.isNotBlank() } ?: name)

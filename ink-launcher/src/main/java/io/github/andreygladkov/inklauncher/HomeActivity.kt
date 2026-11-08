@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.inkPrefs
@@ -24,8 +25,10 @@ import io.github.andreygladkov.inklauncher.home.FolderTile
 import io.github.andreygladkov.inklauncher.home.HomeLayout
 import io.github.andreygladkov.inklauncher.home.LabeledTile
 import io.github.andreygladkov.inklauncher.home.LayoutStore
+import io.github.andreygladkov.inklauncher.home.ScreenTimeTile
 import io.github.andreygladkov.inklauncher.home.Sheet
 import io.github.andreygladkov.inklauncher.home.Spot
+import io.github.andreygladkov.inklauncher.home.Tile
 import io.github.andreygladkov.inklauncher.home.WidgetTile
 import io.github.andreygladkov.inklauncher.home.withIcon
 import io.github.andreygladkov.inklauncher.icons.CustomPictures
@@ -33,6 +36,10 @@ import io.github.andreygladkov.inklauncher.icons.IconPack
 import io.github.andreygladkov.inklauncher.icons.IconPackInfo
 import io.github.andreygladkov.inklauncher.icons.IconRepository
 import io.github.andreygladkov.inklauncher.notify.NotificationFeed
+import io.github.andreygladkov.inklauncher.screentime.DayUsage
+import io.github.andreygladkov.inklauncher.screentime.ScreenTimeKeeper
+import io.github.andreygladkov.inklauncher.screentime.ScreenTimeText
+import io.github.andreygladkov.inklauncher.screentime.UsagePeriod
 import io.github.andreygladkov.inklauncher.settings.SettingsActivity
 import io.github.andreygladkov.inklauncher.ui.ActionSheet
 import io.github.andreygladkov.inklauncher.ui.AllAppsScreen
@@ -40,6 +47,8 @@ import io.github.andreygladkov.inklauncher.ui.FolderScreen
 import io.github.andreygladkov.inklauncher.ui.HomeScreen
 import io.github.andreygladkov.inklauncher.ui.NotificationsScreen
 import io.github.andreygladkov.inklauncher.ui.PackIconsScreen
+import io.github.andreygladkov.inklauncher.ui.ScreenTimeScreen
+import io.github.andreygladkov.inklauncher.ui.ScreenTimeView
 import io.github.andreygladkov.inklauncher.ui.SideScreen
 import io.github.andreygladkov.inklauncher.ui.SwipeFrame
 import io.github.andreygladkov.inklauncher.ui.TileMenus
@@ -47,6 +56,7 @@ import io.github.andreygladkov.inklauncher.ui.TileView
 import io.github.andreygladkov.inklauncher.ui.WidgetPickerScreen
 import io.github.andreygladkov.inklauncher.ui.keepAboveKeyboard
 import io.github.andreygladkov.inklauncher.widgets.InkWidgetHost
+import java.time.Clock
 
 class HomeActivity : Activity() {
     lateinit var catalog: AppCatalog
@@ -56,6 +66,8 @@ class HomeActivity : Activity() {
     lateinit var widgets: InkWidgetHost
         private set
     lateinit var home: HomeScreen
+        private set
+    lateinit var screenTime: ScreenTimeKeeper
         private set
     val menus = TileMenus(this)
 
@@ -72,6 +84,11 @@ class HomeActivity : Activity() {
     private var appearance = ""
     private var pendingWidget: Pair<Int, Spot>? = null
     private var pendingIconTile: Long? = null
+    private var todayLog: UsagePeriod? = null
+    private var today: DayUsage? = null
+
+    @VisibleForTesting
+    var clock: () -> Clock = Clock::systemDefaultZone
 
     private val onNotifications: () -> Unit = {
         home.updateBar()
@@ -107,6 +124,7 @@ class HomeActivity : Activity() {
             }
         }
         widgets = InkWidgetHost(this).apply { onLongPress = ::widgetLongPressed }
+        screenTime = ScreenTimeKeeper(this, clock)
         store = LayoutStore(this)
         val stored = store.load()
         layout = (stored ?: firstLayout()).relinked(launchable())
@@ -157,6 +175,8 @@ class HomeActivity : Activity() {
             refresh()
         }
         home.updateBar()
+        refreshScreenTime()
+        (side as? ScreenTimeScreen)?.reload()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -233,6 +253,41 @@ class HomeActivity : Activity() {
 
     fun missingWidget(tile: WidgetTile): TileView =
         TileView(this, getString(R.string.widget_missing)) { size -> icons.text("?", size, style) }.apply { contentDescription = tile.provider.packageName }
+
+    fun screenTimeView(): ScreenTimeView = ScreenTimeView(this).also(::showScreenTime)
+
+    fun refreshScreenTime() {
+        if (layout.placed.none { it.tile is ScreenTimeTile }) return
+        todayLog = screenTime.period(1)
+        retallyScreenTime()
+    }
+
+    private fun retallyScreenTime() {
+        today = todayLog?.report(screenTime.drifting)?.days?.single()
+        home.screenTimeViews().forEach(::showScreenTime)
+    }
+
+    private fun showScreenTime(view: ScreenTimeView) {
+        val usage = today ?: return view.showMessage(getString(R.string.screen_time_tap_for_access))
+        val total = usage.drifting + usage.onPurpose
+        view.showUsage(ScreenTimeView.Usage(
+            drifting = ScreenTimeText.shortDuration(this, usage.drifting),
+            onPurpose = ScreenTimeText.shortDuration(this, usage.onPurpose),
+            driftingShare = if (total > 0) usage.drifting.toFloat() / total else 0f,
+            unlocks = usage.unlocks,
+        ))
+    }
+
+    fun openScreenTime() {
+        if (!screenTime.isGranted) return screenTime.requestAccess()
+        showScreen(ScreenTimeScreen(this)) {}
+    }
+
+    fun setDrifting(packageName: String, drifting: Boolean) {
+        screenTime.setDrifting(packageName, drifting)
+        retallyScreenTime()
+        side?.refresh()
+    }
 
     fun launch(app: AppKey) {
         catalog.launch(app)
@@ -331,18 +386,26 @@ class HomeActivity : Activity() {
         }
     }
 
+    fun addScreenTime(target: Spot) {
+        placeSized(ScreenTimeTile(layout.nextId()), target, ScreenTimeTile.COLUMNS.coerceAtMost(layout.spec.columns), ScreenTimeTile.ROWS)
+        refreshScreenTime()
+    }
+
     private fun placeWidget() {
         val (id, target) = pendingWidget ?: return
         pendingWidget = null
         val info = widgets.info(id) ?: return widgets.remove(id)
         val (cellWidth, cellHeight) = home.cellSize()
         val spec = layout.spec
-        val rows = spec.rowsOf(target.sheet)
         val width = InkWidgetHost.span(info.minWidth, cellWidth, spec.columns)
-        val height = InkWidgetHost.span(info.minHeight, cellHeight, rows)
-        val tile = WidgetTile(layout.nextId(), id, InkWidgetHost.key(info))
+        val height = InkWidgetHost.span(info.minHeight, cellHeight, spec.rowsOf(target.sheet))
+        placeSized(WidgetTile(layout.nextId(), id, InkWidgetHost.key(info)), target, width, height)
+    }
+
+    private fun placeSized(tile: Tile, target: Spot, width: Int, height: Int) {
+        val rows = layout.spec.rowsOf(target.sheet)
         val shifted = target.copy(
-            column = target.column.coerceAtMost(spec.columns - width),
+            column = target.column.coerceAtMost(layout.spec.columns - width),
             row = target.row.coerceAtMost(rows - height).coerceAtLeast(0),
             width = width,
             height = height,
@@ -413,7 +476,7 @@ class HomeActivity : Activity() {
         when (val tile = placed.tile) {
             is AppTile -> listOf(tile.icon)
             is FolderTile -> listOf(tile.icon) + tile.apps.map { it.icon }
-            is WidgetTile -> emptyList()
+            is WidgetTile, is ScreenTimeTile -> emptyList()
         }
     }.mapNotNull { (it as? CustomIcon.Picture)?.file }.toSet()
 

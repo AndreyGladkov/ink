@@ -1,6 +1,10 @@
 package io.github.andreygladkov.inklauncher
 
+import android.Manifest
+import android.app.AppOpsManager
 import android.app.Application
+import android.app.usage.UsageEvents
+import android.app.usage.UsageStatsManager
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Intent
@@ -13,6 +17,8 @@ import android.content.pm.PackageInfo
 import android.graphics.Insets
 import android.graphics.Rect
 import android.os.Looper
+import android.os.Process
+import android.provider.Settings
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsets
@@ -31,6 +37,7 @@ import io.github.andreygladkov.inklauncher.home.GridSpec
 import io.github.andreygladkov.inklauncher.home.FolderTile
 import io.github.andreygladkov.inklauncher.home.HomeLayout
 import io.github.andreygladkov.inklauncher.home.LayoutStore
+import io.github.andreygladkov.inklauncher.home.ScreenTimeTile
 import io.github.andreygladkov.inklauncher.home.Sheet
 import io.github.andreygladkov.inklauncher.home.Spot
 import io.github.andreygladkov.inklauncher.notify.InkNotification
@@ -40,9 +47,12 @@ import io.github.andreygladkov.inklauncher.ui.ActionSheet
 import io.github.andreygladkov.inklauncher.ui.AllAppsScreen
 import io.github.andreygladkov.inklauncher.ui.AppRow
 import io.github.andreygladkov.inklauncher.ui.CellGrid
+import io.github.andreygladkov.inklauncher.ui.DriftingMark
 import io.github.andreygladkov.inklauncher.ui.FolderScreen
 import io.github.andreygladkov.inklauncher.ui.HomeScreen
 import io.github.andreygladkov.inklauncher.ui.NotificationsScreen
+import io.github.andreygladkov.inklauncher.ui.ScreenTimeScreen
+import io.github.andreygladkov.inklauncher.ui.ScreenTimeView
 import io.github.andreygladkov.inklauncher.ui.TileView
 import io.github.andreygladkov.inklauncher.ui.WidgetPickerScreen
 import org.junit.After
@@ -53,9 +63,13 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.time.Clock
 import java.time.Duration
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -69,11 +83,15 @@ class HomeActivityTest {
     private val mail = AppKey("com.mail", "com.mail.Inbox")
     private val chat = AppKey("com.chat", "com.chat.Main")
     private val maps = AppKey("org.maps", "org.maps.Map")
+    private val reader = AppKey("org.koreader.launcher", "org.koreader.launcher.MainActivity")
+    private val noon = LocalDate.of(2026, 11, 8).atTime(12, 0).atZone(ZoneId.systemDefault())
+    private val now = noon.toInstant().toEpochMilli()
 
     @Before fun installApps() {
         install(mail, "Почта")
         install(chat, "Чат")
         install(maps, "Карты")
+        install(reader, "Читалка")
     }
 
     @After fun clearNotifications() = NotificationFeed.publish(emptyList())
@@ -423,6 +441,122 @@ class HomeActivityTest {
         assertTrue(contentRoot(activity).find<AllAppsScreen>().isEmpty())
     }
 
+    @Test fun theScreenTimeTileAsksForUsageAccessUntilItIsGiven() {
+        seed(HomeLayout().place(ScreenTimeTile(1), Spot(Sheet.Page(0), 0, 0, 2, 1)))
+        usageAccess(AppOpsManager.MODE_DEFAULT)
+        shadowOf(context).denyPermissions(Manifest.permission.PACKAGE_USAGE_STATS)
+        val activity = open()
+        val tile = screenTimeTile(activity)
+        assertEquals("Нажмите, чтобы разрешить доступ к статистике", tile.message)
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+        tile.performClick()
+        assertEquals(Settings.ACTION_USAGE_ACCESS_SETTINGS, shadowOf(activity).nextStartedActivity.action)
+    }
+
+    @Test fun withoutAUsageAccessScreenTappingTheTileLeavesTheLauncherRunning() {
+        seed(HomeLayout().place(ScreenTimeTile(1), Spot(Sheet.Page(0), 0, 0, 2, 1)))
+        usageAccess(AppOpsManager.MODE_DEFAULT)
+        shadowOf(context).denyPermissions(Manifest.permission.PACKAGE_USAGE_STATS)
+        shadowOf(context).checkActivities(true)
+        val activity = open()
+        screenTimeTile(activity).performClick()
+        assertNull(shadowOf(activity).nextStartedActivity)
+        assertFalse(activity.isFinishing)
+    }
+
+    @Test fun theScreenTimeTileShowsTodayAndMovesAnAppsTimeWhenItIsMarked() {
+        seed(HomeLayout()
+            .place(ScreenTimeTile(1), Spot(Sheet.Page(0), 0, 0, 2, 1))
+            .place(AppTile(2, reader), Spot(Sheet.Page(0), 2, 0)))
+        grantUsageAccess()
+        usage(reader.packageName, now - 50 * MINUTE, now - 10 * MINUTE)
+        usage(maps.packageName, now - 10 * MINUTE, now - 5 * MINUTE)
+        unlock(now - 55 * MINUTE)
+        unlock(now - 30 * MINUTE)
+        val activity = openAtNoon()
+        assertEquals(ScreenTimeView.Usage("0 мин", "45 мин", 0f, 2), screenTimeTile(activity).usage)
+        assertTrue(!screenTimeTile(activity).isCompact)
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+
+        tile(activity, "Читалка").performLongClick()
+        button(activity, "Отметить как «Залип»").performClick()
+        val marked = screenTimeTile(activity).usage!!
+        assertEquals(listOf("40 мин", "5 мин", "2"), listOf(marked.drifting, marked.onPurpose, marked.unlocks.toString()))
+        assertEquals(40f / 45, marked.driftingShare, 0.001f)
+        tile(activity, "Читалка").performLongClick()
+        assertNotNull(button(activity, "Снять отметку «Залип»"))
+    }
+
+    @Test fun inOneCellTheScreenTimeTileStacksTheTimesWithoutNames() {
+        seed(HomeLayout().place(ScreenTimeTile(1), Spot(Sheet.Page(0), 0, 0)))
+        grantUsageAccess()
+        usage(maps.packageName, now - 50 * MINUTE, now - 5 * MINUTE)
+        val activity = openAtNoon()
+        render(contentRoot(activity))
+        val tile = screenTimeTile(activity)
+        assertTrue(tile.isCompact)
+        assertEquals("45 мин", tile.usage!!.onPurpose)
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+    }
+
+    @Test fun theWidgetListOffersScreenTimeFirstAndPutsItOnTwoCells() {
+        addWidget(mail, "Входящие")
+        val activity = open()
+        activity.showWidgetPicker(Spot(Sheet.Page(0), 3, 1))
+        laidOut(activity)
+        val screen = contentRoot(activity).find<WidgetPickerScreen>().single()
+        val names = screen.find<InkTextView>().map { it.text.toString() }.filter { it in setOf("Экранное время", "Входящие") }
+        assertEquals(listOf("Экранное время", "Входящие"), names)
+        (screen.find<InkTextView>().first { it.text.toString() == "Экранное время" }.parent as View).performClick()
+        val placed = store.load()!!.placed.single()
+        assertEquals(ScreenTimeTile(placed.tile.id), placed.tile)
+        assertEquals(Spot(Sheet.Page(0), 2, 1, 2, 1), placed.spot)
+        assertNotNull(screenTimeTile(activity))
+    }
+
+    @Test fun theScreenTimeScreenListsDaysAndAppsAndMarksAnApp() {
+        seed(HomeLayout().place(ScreenTimeTile(1), Spot(Sheet.Page(0), 0, 0, 2, 1)))
+        grantUsageAccess()
+        usage(reader.packageName, now - 50 * MINUTE, now - 10 * MINUTE)
+        usage(maps.packageName, now - 10 * MINUTE, now - 9 * MINUTE)
+        usage(chat.packageName, now - 9 * MINUTE, now - 9 * MINUTE + 30_000)
+        val activity = openAtNoon()
+        screenTimeTile(activity).performClick()
+        val screen = contentRoot(activity).find<ScreenTimeScreen>().single()
+        laidOut(activity)
+        val texts = screen.find<InkTextView>().map { it.text.toString() }
+        assertTrue("Сегодня" in texts && "Вчера" in texts, "$texts")
+        assertTrue("Залип 0 мин · По делу 41 мин\n0 разблокировок" in texts, "$texts")
+
+        screen.find<InkButton>().single { it.text.toString() == "По приложениям" }.performClick()
+        laidOut(activity)
+        val apps = screen.find<InkTextView>().map { it.text.toString() }
+        assertEquals(listOf("Читалка", "40 мин", "Карты", "1 мин"), apps.filter { it in setOf("Читалка", "Карты", "Чат", "40 мин", "1 мин") })
+        assertEquals(listOf(false, false), screen.find<DriftingMark>().map { it.isDrifting })
+        (screen.find<DriftingMark>().first().parent as View).performClick()
+        laidOut(activity)
+        assertTrue(activity.screenTime.isDrifting(reader.packageName))
+        assertEquals(listOf(true, false), screen.find<DriftingMark>().map { it.isDrifting })
+        assertEquals("40 мин", screenTimeTile(activity).usage!!.drifting)
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+    }
+
+    private fun grantUsageAccess() = usageAccess(AppOpsManager.MODE_ALLOWED)
+
+    private fun usageAccess(mode: Int) = shadowOf(context.getSystemService(AppOpsManager::class.java))
+        .setMode(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), context.packageName, mode)
+
+    private fun usage(packageName: String, from: Long, to: Long) {
+        val stats = shadowOf(context.getSystemService(UsageStatsManager::class.java))
+        stats.addEvent(packageName, from, UsageEvents.Event.ACTIVITY_RESUMED)
+        stats.addEvent(packageName, to, UsageEvents.Event.ACTIVITY_PAUSED)
+    }
+
+    private fun unlock(at: Long) =
+        shadowOf(context.getSystemService(UsageStatsManager::class.java)).addEvent("android", at, UsageEvents.Event.KEYGUARD_HIDDEN)
+
+    private fun screenTimeTile(activity: HomeActivity) = contentRoot(activity).find<ScreenTimeView>().single()
+
     private fun homeButton(screen: View) = screen.find<InkButton>().single { it.contentDescription == "Главный экран" }
 
     private fun install(key: AppKey, label: String) {
@@ -449,6 +583,10 @@ class HomeActivityTest {
 
     private fun open(): HomeActivity = Robolectric.buildActivity(HomeActivity::class.java).setup().get()
 
+    private fun openAtNoon(): HomeActivity = Robolectric.buildActivity(HomeActivity::class.java)
+        .apply { get().clock = { Clock.fixed(noon.toInstant(), noon.zone) } }
+        .setup().get()
+
     private fun tiles(activity: HomeActivity) = contentRoot(activity).find<TileView>()
 
     private fun tile(activity: HomeActivity, label: String) = tiles(activity).single { it.label == label }
@@ -470,5 +608,6 @@ class HomeActivityTest {
 
     private companion object {
         const val LONG_PRESS_MS = 1000L
+        const val MINUTE = 60_000L
     }
 }
