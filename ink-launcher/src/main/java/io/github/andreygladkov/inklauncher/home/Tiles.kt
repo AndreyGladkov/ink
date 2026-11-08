@@ -50,7 +50,7 @@ data class FolderTile(
     override val label: String get() = name
 }
 
-data class WidgetTile(override val id: Long, val widgetId: Int, val provider: AppKey) : Tile
+data class WidgetTile(override val id: Long, val widgetId: Int, val provider: AppKey, val monochrome: Boolean = false) : Tile
 
 data class ScreenTimeTile(override val id: Long) : Tile {
     companion object {

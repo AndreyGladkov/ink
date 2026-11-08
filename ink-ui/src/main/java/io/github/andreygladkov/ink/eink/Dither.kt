@@ -6,7 +6,10 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
 
 object Dither {
-    private const val THRESHOLD = 128
+    internal const val THRESHOLD = 128
+    internal const val RED = 299
+    internal const val GREEN = 587
+    internal const val BLUE = 114
 
     /**
      * Atkinson error diffusion: spreads only 6/8 of the error, which keeps highlights and shadows clean on a
@@ -49,7 +52,7 @@ object Dither {
     /** Rec. 601 luma over a white background, since transparent areas of a picture show the page behind. */
     fun luminance(argb: Int): Int {
         val alpha = Color.alpha(argb)
-        val luma = (299 * Color.red(argb) + 587 * Color.green(argb) + 114 * Color.blue(argb)) / 1000
+        val luma = (RED * Color.red(argb) + GREEN * Color.green(argb) + BLUE * Color.blue(argb)) / 1000
         return (luma * alpha + 255 * (255 - alpha)) / 255
     }
 

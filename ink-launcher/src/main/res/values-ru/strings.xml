@@ -49,6 +49,8 @@
     <string name="remove_widget_confirm">Нажмите ещё раз, чтобы убрать виджет</string>
     <string name="widget_size">Размер…</string>
     <string name="widget_size_title">Размер</string>
+    <string name="widget_monochrome">Чёрно-белый</string>
+    <string name="widget_original_colors">Исходные цвета</string>
     <string name="widget_width">Ширина</string>
     <string name="widget_height">Высота</string>
     <string name="icon_from_pack">Из набора иконок…</string>

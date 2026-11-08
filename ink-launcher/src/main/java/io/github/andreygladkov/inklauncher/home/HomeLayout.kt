@@ -83,8 +83,8 @@ data class HomeLayout(
     })
 
     /** Changes the tile as it is now, so a menu opened before another change does not undo it. */
-    fun changed(id: Long, change: (LabeledTile) -> LabeledTile): HomeLayout? {
-        val current = find(id)?.tile as? LabeledTile ?: app(id) ?: return null
+    inline fun <reified T : Tile> changed(id: Long, change: (T) -> T): HomeLayout? {
+        val current = (find(id)?.tile ?: app(id)) as? T ?: return null
         return replace(change(current))
     }
 

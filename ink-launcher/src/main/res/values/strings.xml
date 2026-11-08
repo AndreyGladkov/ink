@@ -51,6 +51,8 @@
     <string name="remove_widget_confirm">Tap again to remove the widget</string>
     <string name="widget_size">Size…</string>
     <string name="widget_size_title">Size</string>
+    <string name="widget_monochrome">Black and white</string>
+    <string name="widget_original_colors">Original colors</string>
     <string name="widget_width">Width</string>
     <string name="widget_height">Height</string>
     <string name="icon_from_pack">From an icon pack…</string>
