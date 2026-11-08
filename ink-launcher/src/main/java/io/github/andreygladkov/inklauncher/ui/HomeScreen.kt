@@ -147,7 +147,7 @@ class HomeScreen(private val activity: HomeActivity) : LinearLayout(activity) {
 
     private fun view(placed: Placed): View = when (val tile = placed.tile) {
         is LabeledTile -> activity.tileView(tile).apply { isSelected = tile.id == movingId }.withMenu(placed)
-        is WidgetTile -> activity.widgets.view(tile.widgetId) ?: activity.missingWidget(tile).withMenu(placed)
+        is WidgetTile -> activity.widgets.view(tile.widgetId)?.apply { monochrome = tile.monochrome } ?: activity.missingWidget(tile).withMenu(placed)
         is ScreenTimeTile -> activity.screenTimeView().apply { isSelected = tile.id == movingId }.withMenu(placed)
     }
 

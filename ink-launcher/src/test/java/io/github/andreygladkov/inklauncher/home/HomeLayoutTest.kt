@@ -110,10 +110,17 @@ class HomeLayoutTest {
     @Test fun aChangeAppliesToTheTileAsItIsNowNotAsItWasWhenTheMenuOpened() {
         val opened = HomeLayout(spec).place(FolderTile(1, "Folder", listOf(app(2), app(3))), Spot(page(0), 0, 0))
         val now = opened.withoutPackage("pkg.app3")
-        val renamed = now.changed(1) { it.renamed("Work") }!!
+        val renamed = now.changed<LabeledTile>(1) { it.renamed("Work") }!!
         assertEquals(FolderTile(1, "Work", listOf(app(2))), renamed.find(1)!!.tile)
-        assertEquals("Mail", (renamed.changed(2) { it.renamed("Mail") }!!.app(2))!!.label)
-        assertNull(now.changed(3) { it.renamed("Gone") })
+        assertEquals("Mail", (renamed.changed<LabeledTile>(2) { it.renamed("Mail") }!!.app(2))!!.label)
+        assertNull(now.changed<LabeledTile>(3) { it.renamed("Gone") })
+    }
+
+    @Test fun aWidgetIsChangedOnlyAsAWidget() {
+        val layout = HomeLayout(spec).place(WidgetTile(1, 5, AppKey("w", "w.W")), Spot(page(0), 0, 0)).place(app(2), Spot(page(0), 1, 0))
+        assertEquals(WidgetTile(1, 5, AppKey("w", "w.W"), monochrome = true), layout.changed<WidgetTile>(1) { it.copy(monochrome = true) }!!.find(1)!!.tile)
+        assertNull(layout.changed<WidgetTile>(2) { it.copy(monochrome = true) })
+        assertNull(layout.changed<LabeledTile>(1) { it.renamed("Clock") })
     }
 
     @Test fun tilesFollowTheirAppToItsNewLauncherActivity() {

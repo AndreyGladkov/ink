@@ -350,7 +350,7 @@ class HomeActivity : Activity() {
 
     fun setIcon(tileId: Long, icon: CustomIcon?) {
         dismissSheet()
-        update { layout -> layout.changed(tileId) { it.withIcon(icon) } }
+        update { layout -> layout.changed<LabeledTile>(tileId) { it.withIcon(icon) } }
         if (side is PackIconsScreen) showHome()
     }
 

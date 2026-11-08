@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.util.SizeF
 import android.view.MotionEvent
 import android.view.ViewConfiguration
+import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.eink.MonochromeEffect
 import io.github.andreygladkov.ink.haptics.HapticChannel
 import io.github.andreygladkov.ink.haptics.Haptics
 import kotlin.math.abs
@@ -17,6 +19,15 @@ class InkWidgetView(context: Context, private val onLongPress: () -> Unit) : App
     private var downX = 0f
     private var downY = 0f
     private var fired = false
+
+    var monochrome = false
+        set(value) {
+            if (field == value) return
+            field = value
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                setRenderEffect(if (value) MonochromeEffect.renderEffect(InkStyle.of(context).foreground) else null)
+            }
+        }
     private val longPress = Runnable {
         fired = true
         Haptics.of(context).perform(HapticChannel.BUTTONS)

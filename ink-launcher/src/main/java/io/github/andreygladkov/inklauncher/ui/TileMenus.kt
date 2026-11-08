@@ -1,5 +1,6 @@
 package io.github.andreygladkov.inklauncher.ui
 
+import android.os.Build
 import android.view.Gravity
 import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout
@@ -96,6 +97,12 @@ class TileMenus(private val activity: HomeActivity) {
 
     private fun widget(widget: WidgetTile) = sheet(activity.widgets.info(widget.widgetId)?.loadLabel(activity.packageManager) ?: string(R.string.widget)) {
         action(R.string.widget_size) { size(widget.id) }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            action(if (widget.monochrome) R.string.widget_original_colors else R.string.widget_monochrome) {
+                activity.dismissSheet()
+                activity.update { layout -> layout.changed<WidgetTile>(widget.id) { it.copy(monochrome = !widget.monochrome) } }
+            }
+        }
         moveAction(widget.id)
         action(R.string.remove_from_home) {}.confirmBeforeAction(R.string.remove_widget_confirm) {
             activity.dismissSheet()
@@ -126,7 +133,7 @@ class TileMenus(private val activity: HomeActivity) {
         action(R.string.change_icon) { icon(tile) }
         action(if (tile.labelHidden) R.string.show_label else R.string.hide_label) {
             activity.dismissSheet()
-            activity.update { layout -> layout.changed(tile.id) { it.withLabelHidden(!it.labelHidden) } }
+            activity.update { layout -> layout.changed<LabeledTile>(tile.id) { it.withLabelHidden(!it.labelHidden) } }
         }
     }
 
@@ -136,12 +143,12 @@ class TileMenus(private val activity: HomeActivity) {
     }
 
     private fun rename(tile: LabeledTile) = textSheet(R.string.rename, activity.labelOf(tile)) { text ->
-        activity.update { layout -> layout.changed(tile.id) { it.renamed(text) } }
+        activity.update { layout -> layout.changed<LabeledTile>(tile.id) { it.renamed(text) } }
     }.apply {
         if (tile is AppTile && tile.label != null) {
             action(R.string.original_name) {
                 activity.dismissSheet()
-                activity.update { layout -> layout.changed(tile.id) { it.renamed(null) } }
+                activity.update { layout -> layout.changed<LabeledTile>(tile.id) { it.renamed(null) } }
             }
         }
     }
