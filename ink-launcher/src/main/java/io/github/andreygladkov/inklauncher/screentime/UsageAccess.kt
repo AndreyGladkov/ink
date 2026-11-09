@@ -46,6 +46,7 @@ class UsageAccess(private val context: Context) {
                 UsageEvents.Event.ACTIVITY_PAUSED -> UsageKind.BACKGROUND
                 UsageEvents.Event.SCREEN_NON_INTERACTIVE, UsageEvents.Event.DEVICE_SHUTDOWN -> UsageKind.SCREEN_OFF
                 UsageEvents.Event.KEYGUARD_HIDDEN -> UsageKind.UNLOCK
+                UsageEvents.Event.DEVICE_STARTUP -> UsageKind.STARTUP
                 else -> continue
             }
             events += UsageEvent(event.timeStamp, kind, event.packageName)

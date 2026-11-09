@@ -3,6 +3,7 @@ package io.github.andreygladkov.inklauncher.screentime
 import io.github.andreygladkov.inklauncher.screentime.UsageKind.BACKGROUND
 import io.github.andreygladkov.inklauncher.screentime.UsageKind.FOREGROUND
 import io.github.andreygladkov.inklauncher.screentime.UsageKind.SCREEN_OFF
+import io.github.andreygladkov.inklauncher.screentime.UsageKind.STARTUP
 import io.github.andreygladkov.inklauncher.screentime.UsageKind.UNLOCK
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -133,6 +134,51 @@ class ScreenTimeTest {
             until = at(8, 12, 0),
         )
         assertEquals(20 * MINUTE, report.days[0].drifting)
+    }
+
+    @Test fun aPhoneThatRestartsWithoutShuttingDownWentDarkAfterItsLastEvent() {
+        val boot = at(8, 10, 0)
+        val settings = "com.android.settings"
+        val report = tally(
+            event(8, 9, 0, FOREGROUND, maps),
+            event(8, 9, 1, BACKGROUND, maps),
+            event(8, 9, 1, FOREGROUND, reader),
+            UsageEvent(boot, FOREGROUND, settings),
+            UsageEvent(boot, BACKGROUND, settings),
+            UsageEvent(boot, FOREGROUND, settings),
+            UsageEvent(boot + 52, STARTUP),
+            UsageEvent(boot + 211, SCREEN_OFF),
+            event(8, 10, 5, FOREGROUND, maps),
+            event(8, 10, 6, BACKGROUND, maps),
+            until = at(8, 12, 0),
+        )
+        assertEquals(0, report.days[0].drifting)
+        assertEquals(null, report.byApp[reader])
+        assertEquals(2 * MINUTE, report.byApp[maps])
+    }
+
+    @Test fun anAppOpenedSecondsBeforeARestartIsNotTakenForPartOfTheBoot() {
+        val boot = at(8, 10, 0)
+        val report = tally(
+            event(8, 9, 0, FOREGROUND, maps),
+            event(8, 9, 1, BACKGROUND, maps),
+            UsageEvent(boot - 5_000, FOREGROUND, reader),
+            UsageEvent(boot, STARTUP),
+            event(8, 10, 5, FOREGROUND, maps),
+            event(8, 10, 6, BACKGROUND, maps),
+            until = at(8, 12, 0),
+        )
+        assertEquals(0, report.days[0].drifting)
+    }
+
+    @Test fun aRestartFirstInTheLogEndsWhatWasInFrontBeforeIt() {
+        val report = tally(
+            event(8, 0, 10, STARTUP),
+            event(8, 0, 20, BACKGROUND, reader),
+            since = at(7, 23, 0),
+            until = at(8, 12, 0),
+        )
+        assertEquals(listOf(0L, 0L), report.days.map { it.drifting })
     }
 
     @Test fun unlocksAreCountedOnTheDayTheyHappen() {
