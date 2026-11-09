@@ -3,6 +3,7 @@
     <string name="ink_prefs_file" translatable="false">ink_launcher</string>
     <string name="app_name" translatable="false">Ink Launcher</string>
     <string name="back">Back</string>
+    <string name="close">Close</string>
     <string name="home">Home screen</string>
     <string name="settings">Settings</string>
     <string name="cancel">Cancel</string>

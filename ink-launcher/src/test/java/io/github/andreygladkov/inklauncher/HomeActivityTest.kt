@@ -28,6 +28,7 @@ import io.github.andreygladkov.ink.assertPureBlackAndWhite
 import io.github.andreygladkov.ink.contentRoot
 import io.github.andreygladkov.ink.find
 import io.github.andreygladkov.ink.render
+import io.github.andreygladkov.ink.ui.DottedDrawable
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkEditText
 import io.github.andreygladkov.ink.ui.InkTextView
@@ -54,6 +55,7 @@ import io.github.andreygladkov.inklauncher.ui.HomeScreen
 import io.github.andreygladkov.inklauncher.ui.NotificationsScreen
 import io.github.andreygladkov.inklauncher.ui.ScreenTimeScreen
 import io.github.andreygladkov.inklauncher.ui.ScreenTimeView
+import io.github.andreygladkov.inklauncher.ui.SheetAction
 import io.github.andreygladkov.inklauncher.ui.TileView
 import io.github.andreygladkov.inklauncher.ui.WidgetPickerScreen
 import org.junit.After
@@ -481,7 +483,9 @@ class HomeActivityTest {
 
         tile(activity, "Читалка").performLongClick()
         button(activity, "Экранное время: По делу").performClick()
-        assertTrue(button(activity, "По делу").isSelected)
+        assertEquals(listOf(false, true, false), listOf("Залип", "По делу", "Не считать").map { (button(activity, it) as SheetAction).isChecked })
+        val node = button(activity, "По делу").createAccessibilityNodeInfo()
+        assertTrue(node.isCheckable && node.isChecked)
         button(activity, "Залип").performClick()
         val marked = screenTimeTile(activity).usage!!
         assertEquals(listOf("40 мин", "5 мин", "2"), listOf(marked.drifting, marked.onPurpose, marked.unlocks.toString()))
@@ -502,6 +506,33 @@ class HomeActivityTest {
         assertEquals("5 мин", screenTimeTile(activity).usage!!.onPurpose)
         activity.setCategory(context.packageName, AppCategory.ON_PURPOSE)
         assertEquals("45 мин", screenTimeTile(activity).usage!!.onPurpose)
+    }
+
+    @Test fun aTileMenuListsItsActionsAsRowsBetweenDottedLinesAndItsArrowClosesIt() {
+        seed(HomeLayout().place(AppTile(1, mail), Spot(Sheet.Page(0), 0, 0)))
+        val activity = open()
+        tile(activity, "Почта").performLongClick()
+        val sheet = contentRoot(activity).find<ActionSheet>().single()
+        val rows = sheet.find<SheetAction>()
+        val lines = sheet.find<View>().filter { it.background is DottedDrawable }
+        assertTrue(rows.size > 1 && rows.none { it.isBordered })
+        assertEquals(rows.size - 1, lines.size)
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+        val arrow = sheet.find<ActionSheet.CloseArrow>().single()
+        arrow.isPressed = true
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+        arrow.isPressed = false
+        arrow.performClick()
+        assertTrue(contentRoot(activity).find<ActionSheet>().isEmpty())
+    }
+
+    @Test fun anActionUnderAFieldKeepsAGapFromIt() {
+        seed(HomeLayout().place(AppTile(1, mail), Spot(Sheet.Page(0), 0, 0)))
+        val activity = open()
+        tile(activity, "Почта").performLongClick()
+        button(activity, "Переименовать").performClick()
+        val done = button(activity, "Готово")
+        assertTrue((done.layoutParams as android.widget.LinearLayout.LayoutParams).topMargin > 0)
     }
 
     @Test fun choosingTheDefaultCategoryForgetsTheChoice() {

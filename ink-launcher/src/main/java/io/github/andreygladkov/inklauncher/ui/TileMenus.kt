@@ -128,7 +128,7 @@ class TileMenus(private val activity: HomeActivity) {
             action(ScreenTimeText.category(activity, category)) {
                 activity.dismissSheet()
                 activity.setCategory(packageName, category)
-            }.isSelected = category == current
+            }.isChecked = category == current
         }
     }
 
