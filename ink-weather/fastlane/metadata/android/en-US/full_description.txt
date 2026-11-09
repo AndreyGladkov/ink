@@ -1,4 +1,4 @@
-Ink Weather is a weather app with a home screen widget for Android phones with e-ink screens, built for the Hisense A9 as a companion to the other Ink apps. The forecast comes from MET Norway; cities are found with Open-Meteo.
+Ink Weather is a weather app with a home screen widget for Android phones with e-ink screens, built for the Hisense A9 as a companion to the other Ink apps. The forecast comes from MET Norway or Open-Meteo, as chosen in the settings; cities are found with Open-Meteo.
 
 Every pixel is pure black or white, with no antialiasing and no animations. The whole forecast fits one screen, so nothing scrolls.
 

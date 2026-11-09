@@ -4,7 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import io.github.andreygladkov.inkweather.R
 
-/** MET Norway's weather symbol, such as "lightrainshowers_day", read into what the app draws and says. */
 data class Symbol(val sky: Sky, val isDay: Boolean, @param:StringRes val description: Int, val thunder: Boolean = false) {
     @get:DrawableRes
     val icon: Int get() = sky.icon(isDay)
@@ -33,6 +32,32 @@ data class Symbol(val sky: Sky, val isDay: Boolean, @param:StringRes val descrip
             "cloudy" to (Sky.OVERCAST to R.string.weather_cloudy),
             "fog" to (Sky.FOG to R.string.weather_fog),
         )
+
+        /** Open-Meteo's WMO weather codes, as its documentation lists them; it sends no others. */
+        fun ofWmo(code: Int, isDay: Boolean): Symbol = when (code) {
+            0 -> Symbol(Sky.CLEAR, isDay, R.string.weather_clear)
+            1 -> Symbol(Sky.PARTLY_CLOUDY, isDay, R.string.weather_fair)
+            2 -> Symbol(Sky.PARTLY_CLOUDY, isDay, R.string.weather_partly_cloudy)
+            3 -> Symbol(Sky.OVERCAST, isDay, R.string.weather_cloudy)
+            45, 48 -> Symbol(Sky.FOG, isDay, R.string.weather_fog)
+            51, 53, 55 -> Symbol(Sky.DRIZZLE, isDay, R.string.drizzle)
+            56, 57 -> Symbol(Sky.DRIZZLE, isDay, R.string.freezing_drizzle)
+            66, 67 -> Symbol(Sky.RAIN, isDay, R.string.freezing_rain)
+            61 -> Symbol(Sky.DRIZZLE, isDay, R.string.rain_light)
+            63 -> Symbol(Sky.RAIN, isDay, R.string.rain)
+            65 -> Symbol(Sky.RAIN, isDay, R.string.rain_heavy)
+            71, 77 -> Symbol(Sky.SNOW, isDay, R.string.snow_light)
+            73 -> Symbol(Sky.SNOW, isDay, R.string.snow)
+            75 -> Symbol(Sky.SNOW, isDay, R.string.snow_heavy)
+            80 -> Symbol(Sky.DRIZZLE, isDay, R.string.rain_showers_light)
+            81 -> Symbol(Sky.RAIN, isDay, R.string.rain_showers)
+            82 -> Symbol(Sky.RAIN, isDay, R.string.rain_showers_heavy)
+            85 -> Symbol(Sky.SNOW, isDay, R.string.snow_showers_light)
+            86 -> Symbol(Sky.SNOW, isDay, R.string.snow_showers_heavy)
+            95 -> Symbol(Sky.THUNDERSTORM, isDay, R.string.thunderstorm)
+            96, 99 -> Symbol(Sky.THUNDERSTORM, isDay, R.string.thunderstorm_hail)
+            else -> Symbol(Sky.OVERCAST, isDay, R.string.weather_unknown)
+        }
 
         /** "_polartwilight" counts as night: the sun stays below the horizon. */
         fun of(code: String): Symbol {

@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.inkweather.Fixtures
 import io.github.andreygladkov.inkweather.forecast.ForecastCache
 import io.github.andreygladkov.inkweather.forecast.Place
+import io.github.andreygladkov.inkweather.forecast.Source
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import kotlin.test.Test
@@ -46,7 +47,7 @@ class PlaceStoreTest {
 
     @Test fun aWidgetKeepsShowingAPlaceDeletedFromTheList() {
         store.add(Fixtures.MOSCOW)
-        cache.save(Fixtures.MOSCOW.id, Fixtures.forecast(), Fixtures.NOW)
+        cache.save(Fixtures.MOSCOW.id, Fixtures.forecast(), Fixtures.NOW, Source.MET_NO)
         store.bind(7, Fixtures.MOSCOW)
         store.remove(Fixtures.MOSCOW.id)
         assertEquals(emptyList(), store.places)
@@ -60,7 +61,7 @@ class PlaceStoreTest {
 
     @Test fun aForecastStaysWhileItsPlaceIsListedOrShownByAnotherWidget() {
         store.add(Fixtures.MOSCOW)
-        cache.save(Fixtures.MOSCOW.id, Fixtures.forecast(), Fixtures.NOW)
+        cache.save(Fixtures.MOSCOW.id, Fixtures.forecast(), Fixtures.NOW, Source.MET_NO)
         store.bind(7, Fixtures.MOSCOW)
         store.bind(8, Fixtures.MOSCOW)
         store.unbind(intArrayOf(7))
@@ -72,12 +73,12 @@ class PlaceStoreTest {
     }
 
     @Test fun aWidgetMovedToAnotherCityForgetsTheOldOnesForecast() {
-        cache.save(Fixtures.MOSCOW.id, Fixtures.forecast(), Fixtures.NOW)
+        cache.save(Fixtures.MOSCOW.id, Fixtures.forecast(), Fixtures.NOW, Source.MET_NO)
         store.bind(7, Fixtures.MOSCOW)
         store.bind(7, Fixtures.PARIS)
         assertNull(cache.load(Fixtures.MOSCOW))
         store.add(Fixtures.PARIS)
-        cache.save(Fixtures.PARIS.id, Fixtures.forecast(), Fixtures.NOW)
+        cache.save(Fixtures.PARIS.id, Fixtures.forecast(), Fixtures.NOW, Source.MET_NO)
         store.bind(7, Fixtures.MOSCOW)
         assertNotNull(cache.load(Fixtures.PARIS))
     }

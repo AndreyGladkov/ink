@@ -26,7 +26,9 @@
     <string name="updated_at">Обновлено в %1$s</string>
     <string name="updated_on">Обновлено %1$s</string>
     <string name="millimetres">%1$s мм</string>
-    <string name="attribution">Данные: MET Norway, Open-Meteo</string>
+    <string name="source_failed">%1$s не ответил, показан прогноз %2$s</string>
+    <string name="attribution_met_no">Данные: MET Norway, Open-Meteo</string>
+    <string name="attribution_open_meteo">Данные: Open-Meteo</string>
 
     <string name="today">Сегодня</string>
     <string name="feels_like">Ощущается как %1$s</string>
@@ -69,8 +71,16 @@
     <string name="snow_showers_light">Небольшой снегопад</string>
     <string name="snow_showers">Снегопад</string>
     <string name="snow_showers_heavy">Сильный снегопад</string>
+    <string name="drizzle">Морось</string>
+    <string name="freezing_drizzle">Ледяная морось</string>
+    <string name="freezing_rain">Ледяной дождь</string>
+    <string name="thunderstorm">Гроза</string>
+    <string name="thunderstorm_hail">Гроза с градом</string>
     <string name="with_thunder">%1$s, гроза</string>
     <string name="weather_unknown">Неизвестная погода</string>
+
+    <string name="settings_forecast">Прогноз</string>
+    <string name="settings_source">Источник прогноза</string>
 
     <string name="about">О приложении</string>
     <string name="about_version">Версия %1$s</string>
@@ -80,7 +90,7 @@
     <string name="about_source">Исходный код</string>
     <string name="about_components">Компоненты</string>
     <string name="about_met_no">Прогноз — MET Norway (api.met.no), CC BY 4.0</string>
-    <string name="about_open_meteo">Поиск городов — Open-Meteo.com, CC BY 4.0</string>
+    <string name="about_open_meteo">Прогноз и поиск городов — Open-Meteo.com, CC BY 4.0</string>
     <string name="about_noto">Шрифт Noto Emoji — SIL Open Font License 1.1</string>
     <string name="about_material">Иконки Material — Apache License 2.0</string>
 </resources>

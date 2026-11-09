@@ -6,6 +6,8 @@ import android.app.job.JobScheduler
 import android.app.job.JobService
 import android.content.ComponentName
 import android.content.Context
+import io.github.andreygladkov.inkweather.forecast.ForecastCache
+import io.github.andreygladkov.inkweather.forecast.Source
 import io.github.andreygladkov.inkweather.forecast.Weather
 import io.github.andreygladkov.inkweather.places.PlaceStore
 import java.util.concurrent.TimeUnit
@@ -26,8 +28,11 @@ class RefreshJob : JobService() {
         private const val JOB_ID = 1
         private val PERIOD_MS = TimeUnit.HOURS.toMillis(1)
 
+        /** A city already fresh from the chosen source is skipped, so switching sources back and forth fetches each city once. */
         fun refreshWidgets(context: Context) {
-            PlaceStore.of(context).widgetPlaces().forEach { Weather.refresh(context, it) }
+            val source = Source.of(context)
+            val cache = ForecastCache(context)
+            PlaceStore.of(context).widgetPlaces().filterNot { Weather.isFresh(cache.load(it), source) }.forEach { Weather.refresh(context, it, source) }
             WidgetUpdater.updateAll(context)
         }
 

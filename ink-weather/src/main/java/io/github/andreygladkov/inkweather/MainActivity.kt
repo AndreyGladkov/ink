@@ -12,6 +12,7 @@ import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.inkweather.forecast.ForecastCache
+import io.github.andreygladkov.inkweather.forecast.Source
 import io.github.andreygladkov.inkweather.forecast.Weather
 import io.github.andreygladkov.inkweather.forecast.WeatherFormat
 import io.github.andreygladkov.inkweather.places.PlaceStore
@@ -30,7 +31,7 @@ class MainActivity : Activity() {
     private lateinit var header: LinearLayout
     private lateinit var forecast: ForecastView
     private lateinit var bar: PlaceBar
-    private val loading = HashSet<Long>()
+    private val loading = HashMap<Long, Source>()
     private val failures = HashMap<Long, Weather.Failure>()
     private var askingForFirstPlace = false
 
@@ -95,7 +96,7 @@ class MainActivity : Activity() {
         val places = store.places
         val place = store.current ?: return
         InkHeader.setTitle(header, place.name)
-        forecast.show(cache.load(place), place.id in loading, failures[place.id], Weather.now())
+        forecast.show(cache.load(place), place.id in loading, failures[place.id], Source.of(this), Weather.now())
         bar.show(places.indexOfFirst { it.id == place.id }, places.size)
     }
 
@@ -108,27 +109,32 @@ class MainActivity : Activity() {
     }
 
     /**
-     * A failed refresh over a forecast already shown leaves the screen as it is instead of redrawing the same picture;
-     * a forecast that has run out shows nothing, so it is treated as missing.
+     * A failed refresh over a forecast already shown leaves the screen as it is instead of redrawing the same picture,
+     * unless that forecast is from another source than the one chosen, which the screen then says; a forecast that
+     * has run out shows nothing, so it is treated as missing. A fetch from a source left behind in the settings does
+     * not stop one from the new source.
      */
     private fun refresh(force: Boolean) {
         val place = store.current ?: return
-        if (place.id in loading) return
+        val source = Source.of(this)
+        if (loading[place.id] == source) return
         val shown = cache.load(place)?.takeIf { it.current(Weather.now()) != null }
-        if (!force && Weather.isFresh(shown)) return
-        loading.add(place.id)
+        if (!force && Weather.isFresh(shown, source)) return
+        loading[place.id] = source
         if (shown == null) {
             failures.remove(place.id)
             show()
         }
         val context = applicationContext
         Weather.fetches.execute {
-            val outcome = Weather.refresh(context, place)
+            val outcome = Weather.refresh(context, place, source)
             Weather.drawing.execute { WidgetUpdater.updateFor(context, place.id) }
             main.post {
+                if (loading[place.id] != source) return@post
                 loading.remove(place.id)
                 if (outcome is Weather.Outcome.Failed) failures[place.id] = outcome.failure else failures.remove(place.id)
-                if (!isDestroyed && store.current?.id == place.id && (outcome is Weather.Outcome.Updated || shown == null)) show()
+                if (isDestroyed || store.current?.id != place.id) return@post
+                if (outcome is Weather.Outcome.Updated || shown == null || shown.source != source) show()
             }
         }
     }

@@ -7,7 +7,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import java.util.Locale
 import kotlin.math.abs
 
 /** MET Norway's Locationforecast 2.0: hourly for about two and a half days, then six-hourly up to ten days, all in UTC. */
@@ -17,14 +16,13 @@ object MetNo {
     private const val WET_DAY_MM = 1.0
     private val SIX_HOURS: Duration = Duration.ofHours(6)
 
-    /** MET Norway's terms ask for at most four decimals; longer coordinates are refused. */
-    fun forecastUrl(place: Place) = "$FORECAST?lat=${coordinate(place.latitude)}&lon=${coordinate(place.longitude)}"
+    fun forecastUrl(place: Place) = "$FORECAST?lat=${place.latitudeText}&lon=${place.longitudeText}"
 
-    fun forecast(body: String, fetchedAt: Instant, zone: ZoneId): Forecast {
+    fun forecast(body: String, fetchedAt: Instant, zone: ZoneId, source: Source): Forecast {
         val series = JSONObject(body).getJSONObject("properties").getJSONArray("timeseries")
         val steps = (0 until series.length()).map { Step.of(series.getJSONObject(it), zone) }
         val hours = steps.mapIndexedNotNull { index, step -> step.hour(steps.getOrNull(index + 1)) }
-        return Forecast(fetchedAt, zone, hours, days(steps, hours, zone))
+        return Forecast(fetchedAt, zone, hours, days(steps, hours, zone), source)
     }
 
     private class Step(val instant: Instant, val time: LocalDateTime, val now: JSONObject, val next1: JSONObject?, val next6: JSONObject?, val next12: JSONObject?) {
@@ -80,8 +78,6 @@ object MetNo {
         }
 
     private fun distanceFromNoon(date: LocalDate, time: LocalDateTime) = abs(Duration.between(date.atTime(NOON), time).toMinutes())
-
-    private fun coordinate(value: Double) = String.format(Locale.ROOT, "%.4f", value)
 
     private fun JSONObject.number(name: String): Double? = if (isNull(name)) null else optDouble(name).takeUnless { it.isNaN() }
 }

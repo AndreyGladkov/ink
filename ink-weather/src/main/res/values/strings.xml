@@ -28,7 +28,9 @@
     <string name="updated_at">Updated at %1$s</string>
     <string name="updated_on">Updated %1$s</string>
     <string name="millimetres">%1$s mm</string>
-    <string name="attribution">Data: MET Norway, Open-Meteo</string>
+    <string name="source_failed">%1$s did not answer; this is %2$s\'s forecast</string>
+    <string name="attribution_met_no">Data: MET Norway, Open-Meteo</string>
+    <string name="attribution_open_meteo">Data: Open-Meteo</string>
 
     <string name="today">Today</string>
     <string name="feels_like">Feels like %1$s</string>
@@ -71,8 +73,16 @@
     <string name="snow_showers_light">Light snow showers</string>
     <string name="snow_showers">Snow showers</string>
     <string name="snow_showers_heavy">Heavy snow showers</string>
+    <string name="drizzle">Drizzle</string>
+    <string name="freezing_drizzle">Freezing drizzle</string>
+    <string name="freezing_rain">Freezing rain</string>
+    <string name="thunderstorm">Thunderstorm</string>
+    <string name="thunderstorm_hail">Thunderstorm with hail</string>
     <string name="with_thunder">%1$s and thunder</string>
     <string name="weather_unknown">Unknown weather</string>
+
+    <string name="settings_forecast">Forecast</string>
+    <string name="settings_source">Forecast source</string>
 
     <string name="about">About</string>
     <string name="about_version">Version %1$s</string>
@@ -82,7 +92,7 @@
     <string name="about_source">Source code</string>
     <string name="about_components">Components</string>
     <string name="about_met_no">Forecast — MET Norway (api.met.no), CC BY 4.0</string>
-    <string name="about_open_meteo">City search — Open-Meteo.com, CC BY 4.0</string>
+    <string name="about_open_meteo">Forecast and city search — Open-Meteo.com, CC BY 4.0</string>
     <string name="about_noto">Noto Emoji font — SIL Open Font License 1.1</string>
     <string name="about_material">Material icons — Apache License 2.0</string>
 </resources>

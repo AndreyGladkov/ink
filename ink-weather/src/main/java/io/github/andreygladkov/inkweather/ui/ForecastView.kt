@@ -13,6 +13,7 @@ import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkweather.R
 import io.github.andreygladkov.inkweather.forecast.Forecast
+import io.github.andreygladkov.inkweather.forecast.Source
 import io.github.andreygladkov.inkweather.forecast.Weather
 import io.github.andreygladkov.inkweather.forecast.WeatherFormat
 import java.time.Instant
@@ -29,18 +30,18 @@ class ForecastView(context: Context, private val format: WeatherFormat, private 
         setPadding(padding, 0, padding, dp(GAP_DP))
     }
 
-    fun show(forecast: Forecast?, loading: Boolean, failure: Weather.Failure?, now: Instant) {
+    fun show(forecast: Forecast?, loading: Boolean, failure: Weather.Failure?, chosen: Source, now: Instant) {
         removeAllViews()
         val current = forecast?.current(now)
         gravity = if (current == null) Gravity.CENTER else Gravity.TOP
         if (forecast == null || current == null) return showMessage(loading, failure)
         addView(current(current))
-        addView(details(forecast, current, now), wide().apply { bottomMargin = dp(SECTION_GAP_DP) })
+        addView(details(forecast, current, failure.takeIf { forecast.source != chosen }?.let { chosen }, now), wide().apply { bottomMargin = dp(SECTION_GAP_DP) })
         addView(InkHeader.line(context))
         addView(hours(forecast, now), wide().apply { topMargin = dp(GAP_DP); bottomMargin = dp(GAP_DP) })
         addView(InkHeader.line(context))
         addView(days(forecast, now), LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
-        addView(text(context.getString(R.string.attribution), ATTRIBUTION_SCALE).apply { gravity = Gravity.CENTER_HORIZONTAL }, wide())
+        addView(text(context.getString(forecast.source.attribution), ATTRIBUTION_SCALE).apply { gravity = Gravity.CENTER_HORIZONTAL }, wide())
     }
 
     private fun showMessage(loading: Boolean, failure: Weather.Failure?) {
@@ -73,9 +74,10 @@ class ForecastView(context: Context, private val format: WeatherFormat, private 
         })
     }
 
-    private fun details(forecast: Forecast, current: Forecast.Hour, now: Instant) = LinearLayout(context).apply {
+    private fun details(forecast: Forecast, current: Forecast.Hour, unanswered: Source?, now: Instant) = LinearLayout(context).apply {
         orientation = VERTICAL
         listOfNotNull(
+            unanswered?.let { context.getString(R.string.source_failed, it.title, forecast.source.title) },
             current.feelsLike?.let(format::feelsLike),
             current.windSpeed?.let { format.wind(it, current.windDegrees) },
             current.pressureHpa?.let(format::pressure),

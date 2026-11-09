@@ -16,15 +16,16 @@ class ForecastCache(context: Context) {
         synchronized(parsed) { parsed[place.id]?.takeIf { it.first == stamp }?.let { return it.second } }
         val forecast = runCatching {
             val saved = JSONObject(file.readText())
-            MetNo.forecast(saved.getString("body"), Instant.ofEpochMilli(saved.getLong("fetchedAt")), place.zone)
+            val source = Source.byKey(saved.optString("source")) ?: Source.MET_NO
+            source.forecast(saved.getString("body"), Instant.ofEpochMilli(saved.getLong("fetchedAt")), place.zone)
         }.getOrNull() ?: return null
         synchronized(parsed) { parsed[place.id] = stamp to forecast }
         return forecast
     }
 
-    fun save(placeId: Long, body: String, fetchedAt: Instant) {
+    fun save(placeId: Long, body: String, fetchedAt: Instant, source: Source) {
         dir.mkdirs()
-        val saved = JSONObject().put("fetchedAt", fetchedAt.toEpochMilli()).put("body", body).toString()
+        val saved = JSONObject().put("fetchedAt", fetchedAt.toEpochMilli()).put("source", source.key).put("body", body).toString()
         val partial = File(dir, "$placeId.tmp")
         partial.writeText(saved)
         if (!partial.renameTo(file(placeId))) throw IOException("could not replace the forecast of $placeId")

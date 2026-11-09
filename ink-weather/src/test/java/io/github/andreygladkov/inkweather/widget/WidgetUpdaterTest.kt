@@ -19,6 +19,7 @@ import io.github.andreygladkov.inkweather.forecast.HttpTransport
 import io.github.andreygladkov.inkweather.forecast.Place
 import io.github.andreygladkov.inkweather.forecast.Weather
 import io.github.andreygladkov.inkweather.places.PlaceStore
+import io.github.andreygladkov.inkweather.forecast.Source
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -48,7 +49,7 @@ class WidgetUpdaterTest {
 
     @Before fun seed() {
         Weather.clock = Clock.fixed(Fixtures.NOW, ZoneOffset.UTC)
-        ForecastCache(context).save(Fixtures.MOSCOW.id, Fixtures.forecast(), Fixtures.NOW)
+        ForecastCache(context).save(Fixtures.MOSCOW.id, Fixtures.forecast(), Fixtures.NOW, Source.MET_NO)
     }
 
     @After fun restore() {
@@ -92,7 +93,7 @@ class WidgetUpdaterTest {
         WidgetUpdater.updateAll(context, force = true)
         val moscowBefore = bitmap(moscow)
         val parisBefore = bitmap(paris)
-        listOf(Fixtures.MOSCOW, Fixtures.PARIS).forEach { ForecastCache(context).save(it.id, Fixtures.forecast(current = 12.0), Fixtures.NOW) }
+        listOf(Fixtures.MOSCOW, Fixtures.PARIS).forEach { ForecastCache(context).save(it.id, Fixtures.forecast(current = 12.0), Fixtures.NOW, Source.MET_NO) }
         WidgetUpdater.updateFor(context, Fixtures.MOSCOW.id)
         assertNotSame(moscowBefore, bitmap(moscow))
         assertSame(parisBefore, bitmap(paris))

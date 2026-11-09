@@ -7,6 +7,7 @@ import android.os.Bundle
 import io.github.andreygladkov.inkweather.R
 import io.github.andreygladkov.inkweather.forecast.ForecastCache
 import io.github.andreygladkov.inkweather.forecast.Place
+import io.github.andreygladkov.inkweather.forecast.Source
 import io.github.andreygladkov.inkweather.forecast.Weather
 import io.github.andreygladkov.inkweather.places.PlaceList
 import io.github.andreygladkov.inkweather.places.PlaceStore
@@ -51,9 +52,10 @@ class WidgetConfigActivity : Activity() {
         val context = applicationContext
         val ids = intArrayOf(widgetId)
         Weather.drawing.execute { WidgetUpdater.update(context, ids, force = true) }
+        val source = Source.of(this)
         Weather.fetches.execute {
-            if (Weather.isFresh(ForecastCache(context).load(place))) return@execute
-            Weather.refresh(context, place)
+            if (Weather.isFresh(ForecastCache(context).load(place), source)) return@execute
+            Weather.refresh(context, place, source)
             Weather.drawing.execute { WidgetUpdater.update(context, ids, force = false) }
         }
         setResult(RESULT_OK, result())

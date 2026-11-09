@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.inkweather.Fixtures
 import io.github.andreygladkov.inkweather.R
-import io.github.andreygladkov.inkweather.forecast.MetNo
 import io.github.andreygladkov.inkweather.forecast.WeatherFormat
+import io.github.andreygladkov.inkweather.forecast.Source
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -20,7 +20,7 @@ import kotlin.test.assertNull
 class WidgetContentTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val format = WeatherFormat(context, fahrenheit = false, zone = ZoneOffset.ofHours(3))
-    private val forecast = MetNo.forecast(Fixtures.forecast(), Fixtures.NOW, Fixtures.MOSCOW.zone)
+    private val forecast = Source.MET_NO.forecast(Fixtures.forecast(), Fixtures.NOW, Fixtures.MOSCOW.zone)
 
     @Test fun aWidgetShowsNowTodaysRangeTheNextHoursAndTheFollowingDays() {
         val content = WidgetContent.of(Fixtures.MOSCOW, forecast, Fixtures.NOW, format)
@@ -46,7 +46,7 @@ class WidgetContentTest {
     }
 
     @Test fun equalForecastsGiveEqualContent() {
-        val again = MetNo.forecast(Fixtures.forecast(), Fixtures.NOW, Fixtures.MOSCOW.zone)
+        val again = Source.MET_NO.forecast(Fixtures.forecast(), Fixtures.NOW, Fixtures.MOSCOW.zone)
         assertEquals(WidgetContent.of(Fixtures.MOSCOW, forecast, Fixtures.NOW, format), WidgetContent.of(Fixtures.MOSCOW, again, Fixtures.NOW, format))
     }
 }

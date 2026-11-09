@@ -2,6 +2,7 @@ package io.github.andreygladkov.inkweather.forecast
 
 import org.json.JSONObject
 import java.time.ZoneId
+import java.util.Locale
 
 data class Place(
     val id: Long,
@@ -15,6 +16,13 @@ data class Place(
     /** A place the geocoder gave no time zone is shown in the phone's own. */
     val zone: ZoneId get() = runCatching { ZoneId.of(timezone) }.getOrDefault(ZoneId.systemDefault())
 
+    /**
+     * MET Norway refuses coordinates with more than four decimals, and four (about 10 m) are finer than either
+     * service's grid, so both get the same short form, never scientific notation.
+     */
+    val latitudeText: String get() = coordinate(latitude)
+    val longitudeText: String get() = coordinate(longitude)
+
     val area: String get() = listOf(region, country).filter { it.isNotBlank() && it != name }.distinct().joinToString(", ")
 
     fun toJson(): JSONObject = JSONObject()
@@ -27,6 +35,8 @@ data class Place(
         .put("timezone", timezone)
 
     companion object {
+        private fun coordinate(value: Double) = String.format(Locale.ROOT, "%.4f", value)
+
         fun fromJson(json: JSONObject) = Place(
             id = json.getLong("id"),
             name = json.getString("name"),

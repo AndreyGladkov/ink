@@ -40,6 +40,32 @@ object Fixtures {
         return metNo(hourly + sixHourly)
     }
 
+    /** Open-Meteo's answer for Moscow: hourly from midnight UTC for eight days, each hour's precipitation being the hour before's. */
+    fun openMeteo(current: Double = -3.4): String {
+        val hours = (0 until 8 * 24)
+        val days = (0 until 8)
+        fun local(i: Int) = (i + MOSCOW_OFFSET_HOURS) % 24
+        return JSONObject()
+            .put("utc_offset_seconds", MOSCOW_OFFSET_HOURS * 3600)
+            .put("hourly", JSONObject()
+                .put("time", JSONArray(hours.map { START.epochSecond + it * 3600L }))
+                .put("temperature_2m", JSONArray(hours.map { if (it == 11) current else -5.0 + local(it) }))
+                .put("apparent_temperature", JSONArray(hours.map { -9.0 + local(it) }))
+                .put("weather_code", JSONArray(hours.map { if (it == 11) 3 else listOf(0, 2, 61, 71)[it % 4] }))
+                .put("is_day", JSONArray(hours.map { if (local(it) in 8..16) 1 else 0 }))
+                .put("precipitation", JSONArray(hours.map { it % 10 / 10.0 }))
+                .put("pressure_msl", JSONArray(hours.map { 1013.2 }))
+                .put("wind_speed_10m", JSONArray(hours.map { 4.4 }))
+                .put("wind_direction_10m", JSONArray(hours.map { 315 })))
+            .put("daily", JSONObject()
+                .put("time", JSONArray(days.map { START.epochSecond - MOSCOW_OFFSET_HOURS * 3600L + it * 86400L }))
+                .put("weather_code", JSONArray(days.map { listOf(3, 61, 0, 71, 95, 45, 2, 82)[it] }))
+                .put("temperature_2m_max", JSONArray(days.map { 2.0 + it }))
+                .put("temperature_2m_min", JSONArray(days.map { -6.0 + it }))
+                .put("precipitation_sum", JSONArray(days.map { it * 1.5 })))
+            .toString()
+    }
+
     fun step(
         time: Instant,
         temperature: Double?,

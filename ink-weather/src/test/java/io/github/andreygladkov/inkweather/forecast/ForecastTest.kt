@@ -15,7 +15,7 @@ import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
 class ForecastTest {
-    private val forecast = MetNo.forecast(Fixtures.forecast(), Fixtures.NOW, Fixtures.MOSCOW.zone)
+    private val forecast = Source.MET_NO.forecast(Fixtures.forecast(), Fixtures.NOW, Fixtures.MOSCOW.zone)
 
     @Test fun hoursStartAtTheNextFullHourInTheCitysTimeAndStepByThree() {
         assertEquals(listOf(15, 18, 21, 0, 3, 6, 9, 12), forecast.hoursAfter(Fixtures.NOW, 8, 3).map { it.time.hour })
@@ -23,17 +23,17 @@ class ForecastTest {
     }
 
     @Test fun theSameMomentGivesOtherHoursInAnotherTimeZone() {
-        val paris = MetNo.forecast(Fixtures.forecast(), Fixtures.NOW, Fixtures.PARIS.zone)
+        val paris = Source.MET_NO.forecast(Fixtures.forecast(), Fixtures.NOW, Fixtures.PARIS.zone)
         assertEquals(listOf(13, 16), paris.hoursAfter(Fixtures.NOW, 2, 3).map { it.time.hour })
     }
 
     @Test fun aZoneHalfAnHourOffStillHasItsHours() {
-        val kolkata = MetNo.forecast(Fixtures.forecast(), Fixtures.NOW, ZoneId.of("Asia/Kolkata"))
+        val kolkata = Source.MET_NO.forecast(Fixtures.forecast(), Fixtures.NOW, ZoneId.of("Asia/Kolkata"))
         assertEquals(listOf("17:30", "20:30", "23:30"), kolkata.hoursAfter(Fixtures.NOW, 3, 3).map { "${it.time.hour}:${it.time.minute}" })
     }
 
     @Test fun hoursRepeatedWhenTheClocksGoBackAreBothKept() {
-        val paris = MetNo.forecast(Fixtures.metNo((0 until 6).map {
+        val paris = Source.MET_NO.forecast(Fixtures.metNo((0 until 6).map {
             Fixtures.step(Instant.parse("2026-10-25T00:00:00Z").plusSeconds(it * 3600L), it.toDouble(), "cloudy", hourMm = 0.0)
         }), Fixtures.NOW, ZoneId.of("Europe/Paris"))
         val hours = paris.hoursAfter(Instant.parse("2026-10-24T23:30:00Z"), 6, 1)

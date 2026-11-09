@@ -27,7 +27,7 @@ class MetNoTest {
     }
 
     @Test fun hoursAreReadInTheCitysTime() {
-        val forecast = MetNo.forecast(Fixtures.forecast(), Fixtures.NOW, moscow)
+        val forecast = Source.MET_NO.forecast(Fixtures.forecast(), Fixtures.NOW, moscow)
         assertEquals(Fixtures.NOW, forecast.fetchedAt)
         val now = forecast.hours.single { it.time == LocalDateTime.of(2026, 11, 9, 14, 0) }
         assertEquals(Forecast.Hour(Instant.parse("2026-11-09T11:00:00Z"), LocalDateTime.of(2026, 11, 9, 14, 0), -3.4, -7.6, Symbol.of("cloudy"), 0.4, 1013.2, 4.4, 315.0), now)
@@ -40,13 +40,13 @@ class MetNoTest {
             Fixtures.step(Instant.parse("2026-11-11T17:00:00Z"), 1.0, "rain", hourMm = 0.5, span = Fixtures.Span("rain", 2.0, 0.0, 2.5)),
             Fixtures.step(Instant.parse("2026-11-11T23:00:00Z"), 1.0, "rain", span = Fixtures.Span("rain", 2.0, 0.0, 4.0)),
         )
-        val hours = MetNo.forecast(Fixtures.metNo(series), Fixtures.NOW, ZoneOffset.UTC).hours
+        val hours = Source.MET_NO.forecast(Fixtures.metNo(series), Fixtures.NOW, ZoneOffset.UTC).hours
         assertEquals(listOf(0.3, 2.5, 4.0), hours.map { it.precipitationMm })
     }
 
     @Test fun aClockChangeDoesNotTurnAnHourlyStepIntoASixHourOne() {
         val series = (0 until 4).map { Fixtures.step(Instant.parse("2026-03-29T00:00:00Z").plusSeconds(it * 3600L), 1.0, "rain", hourMm = 0.5, span = Fixtures.Span("rain", 2.0, 0.0, 3.0)) }
-        val hours = MetNo.forecast(Fixtures.metNo(series), Fixtures.NOW, ZoneId.of("Europe/Paris")).hours
+        val hours = Source.MET_NO.forecast(Fixtures.metNo(series), Fixtures.NOW, ZoneId.of("Europe/Paris")).hours
         assertEquals(listOf(1, 3, 4, 5), hours.map { it.time.hour })
         assertEquals(listOf(0.5, 0.5, 0.5, 0.5), hours.map { it.precipitationMm })
     }
@@ -60,7 +60,7 @@ class MetNoTest {
             Fixtures.step(Instant.parse("2026-11-10T16:00:00Z"), 3.0, "cloudy", span = Fixtures.Span("fog", 4.0, -2.0, 0.5)),
             Fixtures.step(Instant.parse("2026-11-10T22:00:00Z"), 0.0, "cloudy", span = Fixtures.Span("fog", 1.0, -1.0, 0.0)),
         )
-        val days = MetNo.forecast(Fixtures.metNo(series), Fixtures.NOW, ZoneOffset.UTC).days
+        val days = Source.MET_NO.forecast(Fixtures.metNo(series), Fixtures.NOW, ZoneOffset.UTC).days
         assertEquals(listOf(LocalDate.of(2026, 11, 9), LocalDate.of(2026, 11, 10)), days.map { it.date })
         assertEquals(1.0 to 1.0, days[0].max to days[0].min)
         val tuesday = days[1]
@@ -70,7 +70,7 @@ class MetNoTest {
     }
 
     @Test fun aWetDayShowsItsWettestSixHoursAndADryOneItsNoon() {
-        fun day(evening: Double) = MetNo.forecast(Fixtures.metNo(listOf(
+        fun day(evening: Double) = Source.MET_NO.forecast(Fixtures.metNo(listOf(
             Fixtures.step(Instant.parse("2026-11-10T03:00:00Z"), 1.0, "cloudy", span = Fixtures.Span("lightsleet", 2.0, 0.0, 0.2)),
             Fixtures.step(Instant.parse("2026-11-10T09:00:00Z"), 1.0, "cloudy", span = Fixtures.Span("cloudy", 2.0, 0.0, 0.0)),
             Fixtures.step(Instant.parse("2026-11-10T15:00:00Z"), 1.0, "cloudy", span = Fixtures.Span("rain", 2.0, 0.0, evening)),
@@ -81,11 +81,11 @@ class MetNoTest {
     }
 
     @Test fun stepsWithoutATemperatureOrASymbolAreLeftOut() {
-        assertEquals(30, MetNo.forecast(Fixtures.forecast(temperatures = false), Fixtures.NOW, moscow).hours.size)
+        assertEquals(30, Source.MET_NO.forecast(Fixtures.forecast(temperatures = false), Fixtures.NOW, moscow).hours.size)
         val bare = JSONObject(Fixtures.metNo(listOf(Fixtures.step(Fixtures.NOW, 1.0, "cloudy")))).apply {
             getJSONObject("properties").getJSONArray("timeseries").getJSONObject(0).getJSONObject("data").remove("next_12_hours")
         }.toString()
-        assertTrue(MetNo.forecast(bare, Fixtures.NOW, moscow).hours.isEmpty())
+        assertTrue(Source.MET_NO.forecast(bare, Fixtures.NOW, moscow).hours.isEmpty())
     }
 
     @Test fun missingOptionalValuesStayEmpty() {
@@ -94,13 +94,13 @@ class MetNoTest {
             getJSONObject("properties").getJSONArray("timeseries").getJSONObject(0).getJSONObject("data").getJSONObject("instant").getJSONObject("details")
                 .put("air_pressure_at_sea_level", JSONObject.NULL).remove("wind_from_direction")
         }.toString()
-        val hour = MetNo.forecast(body, Fixtures.NOW, moscow).hours.single()
+        val hour = Source.MET_NO.forecast(body, Fixtures.NOW, moscow).hours.single()
         assertNull(hour.pressureHpa)
         assertNull(hour.windDegrees)
         assertNull(hour.feelsLike)
     }
 
     @Test fun aBodyWithoutAForecastIsRejected() {
-        assertFailsWith<Exception> { MetNo.forecast("""{"type":"Feature","geometry":{}}""", Fixtures.NOW, moscow) }
+        assertFailsWith<Exception> { Source.MET_NO.forecast("""{"type":"Feature","geometry":{}}""", Fixtures.NOW, moscow) }
     }
 }

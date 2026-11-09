@@ -12,6 +12,7 @@ import io.github.andreygladkov.inkweather.forecast.HttpTransport
 import io.github.andreygladkov.inkweather.forecast.Weather
 import io.github.andreygladkov.inkweather.forecast.WeatherFormat
 import io.github.andreygladkov.inkweather.places.PlaceStore
+import io.github.andreygladkov.inkweather.forecast.Source
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -74,7 +75,7 @@ class RefreshJobTest {
 
     @Test fun offlineTheWidgetStillMovesOnAndSaysHowOldItsForecastIs() {
         Weather.transport = Fixtures.offline()
-        ForecastCache(context).save(Fixtures.MOSCOW.id, Fixtures.forecast(), Fixtures.NOW)
+        ForecastCache(context).save(Fixtures.MOSCOW.id, Fixtures.forecast(), Fixtures.NOW, Source.MET_NO)
         shadowOf(AppWidgetManager.getInstance(context)).bindAppWidgetId(3, ComponentName(context, WeatherWidget::class.java))
         store.bind(3, Fixtures.MOSCOW)
         RefreshJob.refreshWidgets(context)
@@ -96,6 +97,20 @@ class RefreshJobTest {
         assertNotNull(ForecastCache(context).load(Fixtures.MOSCOW))
         assertNull(ForecastCache(context).load(Fixtures.PARIS))
         assertNotNull(store.drawn(3))
+    }
+
+    @Test fun aCityAlreadyFreshFromTheChosenSourceIsNotFetchedAgain() {
+        val transport = Fixtures.FakeTransport { Fixtures.openMeteo() }
+        Weather.transport = transport
+        ForecastCache(context).save(Fixtures.MOSCOW.id, Fixtures.forecast(), Fixtures.NOW, Source.MET_NO)
+        shadowOf(AppWidgetManager.getInstance(context)).bindAppWidgetId(3, ComponentName(context, WeatherWidget::class.java))
+        store.bind(3, Fixtures.MOSCOW)
+        RefreshJob.refreshWidgets(context)
+        assertTrue(transport.asked.isEmpty())
+        Source.choose(context, Source.OPEN_METEO)
+        RefreshJob.refreshWidgets(context)
+        RefreshJob.refreshWidgets(context)
+        assertEquals(1, transport.asked.size)
     }
 
     @Test fun aRemovedWidgetForgetsItsPlace() {

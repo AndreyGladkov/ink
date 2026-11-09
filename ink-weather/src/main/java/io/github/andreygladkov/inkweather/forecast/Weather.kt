@@ -34,17 +34,17 @@ object Weather {
 
     fun now(): Instant = clock.instant()
 
-    fun isFresh(forecast: Forecast?): Boolean = forecast != null && forecast.age(now()) < FRESH_FOR
+    fun isFresh(forecast: Forecast?, source: Source): Boolean = forecast != null && forecast.source == source && forecast.age(now()) < FRESH_FOR
 
-    fun refresh(context: Context, place: Place): Outcome {
+    fun refresh(context: Context, place: Place, source: Source): Outcome {
         val fetchedAt = now()
-        val body = when (val fetched = fetch(MetNo.forecastUrl(place))) {
+        val body = when (val fetched = fetch(source.url(place))) {
             is Fetched.Body -> fetched.text
             is Fetched.Error -> return Outcome.Failed(fetched.failure)
         }
-        val forecast = runCatching { MetNo.forecast(body, fetchedAt, place.zone) }.getOrNull() ?: return Outcome.Failed(Failure.SERVICE)
+        val forecast = runCatching { source.forecast(body, fetchedAt, place.zone) }.getOrNull() ?: return Outcome.Failed(Failure.SERVICE)
         try {
-            ForecastCache(context).save(place.id, body, fetchedAt)
+            ForecastCache(context).save(place.id, body, fetchedAt, source)
         } catch (_: IOException) {
             return Outcome.Failed(Failure.STORAGE)
         }

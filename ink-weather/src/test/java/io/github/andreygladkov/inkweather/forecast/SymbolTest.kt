@@ -24,6 +24,17 @@ class SymbolTest {
         assertEquals(R.string.weather_unknown, Symbol.of("hail").description)
     }
 
+    @Test fun everyDocumentedWmoCodeIsUnderstood() {
+        listOf(0, 1, 2, 3, 45, 48, 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99)
+            .forEach { assertNotEquals(R.string.weather_unknown, Symbol.ofWmo(it, true).description, "code $it") }
+        assertEquals(R.string.weather_unknown, Symbol.ofWmo(4, true).description)
+        assertEquals(Symbol(Sky.PARTLY_CLOUDY, false, R.string.weather_partly_cloudy), Symbol.ofWmo(2, false))
+        assertEquals(Sky.THUNDERSTORM, Symbol.ofWmo(99, true).sky)
+        assertEquals(Sky.DRIZZLE, Symbol.ofWmo(61, true).sky)
+        assertEquals(R.string.freezing_drizzle, Symbol.ofWmo(56, true).description)
+        assertEquals(R.string.freezing_rain, Symbol.ofWmo(67, true).description)
+    }
+
     @Test fun theSuffixTellsDayFromNight() {
         assertTrue(Symbol.of("clearsky_day").isDay)
         assertFalse(Symbol.of("clearsky_night").isDay)

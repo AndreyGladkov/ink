@@ -9,8 +9,8 @@ import io.github.andreygladkov.ink.assertPureBlackAndWhite
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.pixels
 import io.github.andreygladkov.inkweather.Fixtures
-import io.github.andreygladkov.inkweather.forecast.MetNo
 import io.github.andreygladkov.inkweather.forecast.WeatherFormat
+import io.github.andreygladkov.inkweather.forecast.Source
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -28,7 +28,7 @@ import kotlin.test.assertTrue
 class WidgetPainterTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val format = WeatherFormat(context, fahrenheit = false, zone = ZoneOffset.ofHours(3))
-    private val forecast = MetNo.forecast(Fixtures.forecast(), Fixtures.NOW, Fixtures.MOSCOW.zone)
+    private val forecast = Source.MET_NO.forecast(Fixtures.forecast(), Fixtures.NOW, Fixtures.MOSCOW.zone)
     private val content = WidgetContent.of(Fixtures.MOSCOW, forecast, Fixtures.NOW, format)
     private val density = context.resources.displayMetrics.density
 

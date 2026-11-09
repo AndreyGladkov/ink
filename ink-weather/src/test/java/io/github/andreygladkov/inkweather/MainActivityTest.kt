@@ -19,6 +19,7 @@ import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkweather.forecast.ForecastCache
 import io.github.andreygladkov.inkweather.forecast.HttpTransport
 import io.github.andreygladkov.inkweather.forecast.Place
+import io.github.andreygladkov.inkweather.forecast.Source
 import io.github.andreygladkov.inkweather.forecast.Weather
 import io.github.andreygladkov.inkweather.places.PlaceStore
 import io.github.andreygladkov.inkweather.places.SearchActivity
@@ -34,6 +35,7 @@ import org.robolectric.annotation.GraphicsMode
 import java.time.Clock
 import java.time.Duration
 import java.time.ZoneOffset
+import java.util.concurrent.CountDownLatch
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -141,11 +143,48 @@ class MainActivityTest {
 
     @Test fun aTapOnTheWidgetOfACityDeletedFromTheListPutsItBack() {
         seed(Fixtures.MOSCOW)
-        cache.save(Fixtures.PARIS.id, Fixtures.forecast(), Fixtures.NOW)
+        cache.save(Fixtures.PARIS.id, Fixtures.forecast(), Fixtures.NOW, Source.MET_NO)
         store.bind(4, Fixtures.PARIS)
         val activity = Robolectric.buildActivity(MainActivity::class.java, MainActivity.intent(context, Fixtures.PARIS.id, 4)).setup().get()
         assertTrue("Париж" in texts(activity))
         assertEquals(listOf(Fixtures.MOSCOW, Fixtures.PARIS), store.places)
+    }
+
+    @Test fun aSwitchedSourceFetchesAnewAndNamesItself() {
+        seed(Fixtures.MOSCOW)
+        Source.choose(context, Source.OPEN_METEO)
+        Weather.transport = Fixtures.FakeTransport { Fixtures.openMeteo(current = 12.0) }
+        val activity = open()
+        idleUntil { "12°" in texts(activity) && "Данные: Open-Meteo" in texts(activity) }
+    }
+
+    @Test fun aSourceThatDoesNotAnswerIsSaidOverTheOtherSourcesForecast() {
+        seed(Fixtures.MOSCOW)
+        Source.choose(context, Source.OPEN_METEO)
+        val activity = open()
+        idleUntil { "Open-Meteo не ответил, показан прогноз MET Norway" in texts(activity) }
+        assertTrue("Данные: MET Norway, Open-Meteo" in texts(activity))
+    }
+
+    @Test fun switchingSourcesDuringAFetchStillFetchesFromTheNewOne() {
+        seed(Fixtures.MOSCOW)
+        Weather.clock = Clock.fixed(Fixtures.NOW.plus(Duration.ofHours(1)), ZoneOffset.UTC)
+        val metStarted = CountDownLatch(1)
+        val metMayFinish = CountDownLatch(1)
+        Weather.transport = Fixtures.FakeTransport { url ->
+            if ("met.no" in url) {
+                metStarted.countDown()
+                metMayFinish.await()
+                Fixtures.forecast()
+            } else Fixtures.openMeteo(current = 12.0)
+        }
+        val controller = Robolectric.buildActivity(MainActivity::class.java).setup()
+        metStarted.await()
+        controller.pause()
+        Source.choose(context, Source.OPEN_METEO)
+        controller.resume()
+        metMayFinish.countDown()
+        idleUntil { "Данные: Open-Meteo" in texts(controller.get()) }
     }
 
     @Test fun anIntentNamingAPlaceShowsIt() {
@@ -176,7 +215,7 @@ class MainActivityTest {
 
     private fun seed(place: Place) {
         store.add(place)
-        cache.save(place.id, Fixtures.forecast(), Fixtures.NOW)
+        cache.save(place.id, Fixtures.forecast(), Fixtures.NOW, Source.MET_NO)
     }
 
     private fun open(): MainActivity = Robolectric.buildActivity(MainActivity::class.java).setup().get()
