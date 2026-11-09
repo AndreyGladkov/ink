@@ -21,6 +21,7 @@ import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkChoiceRow
 import io.github.andreygladkov.ink.ui.InkEditText
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkSettings
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
@@ -52,11 +53,6 @@ class SettingsActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             setPadding(padding, 0, padding, padding)
         }
-        body.addView(InkTextView(this).apply {
-            setText(R.string.settings)
-            textScale = InkStyle.TITLE_SCALE
-            isBold = true
-        })
         addDisplay(body)
         addHaptics(body)
         addCalls(body)
@@ -66,12 +62,7 @@ class SettingsActivity : Activity() {
         addAbout(body)
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(InkButton(this@SettingsActivity).apply {
-                icon = R.drawable.ic_arrow_back
-                contentDescription = getString(R.string.back)
-                isBordered = false
-                setOnClickListener { finish() }
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            addView(InkHeader.of(this@SettingsActivity, getString(R.string.settings), ::finish))
             addView(ScrollView(this@SettingsActivity).apply {
                 isVerticalScrollBarEnabled = false
                 overScrollMode = View.OVER_SCROLL_NEVER

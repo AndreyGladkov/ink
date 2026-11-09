@@ -8,6 +8,7 @@ import android.graphics.Insets
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.edit
 import androidx.test.core.app.ApplicationProvider
@@ -20,9 +21,11 @@ import io.github.andreygladkov.ink.idleUntil
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.pixels
 import io.github.andreygladkov.ink.render
+import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkEditText
 import io.github.andreygladkov.ink.ui.InkSegments
 import io.github.andreygladkov.ink.ui.InkTabBar
+import kotlin.test.assertFalse
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -147,7 +150,7 @@ class MainActivityRenderingTest {
     @Test fun switchingTabsReusesScreensAndShowsOnlyOne() {
         val root = contentRoot(launch())
         val bar = tabBar(root)
-        val content = root.getChildAt(0) as ViewGroup
+        val content = content(root)
         bar.select(Tab.CONTACTS)
         val contacts = content.find<io.github.andreygladkov.inkphone.contacts.ContactsScreen>().single()
         bar.select(Tab.DIALER)
@@ -159,7 +162,7 @@ class MainActivityRenderingTest {
     @Test fun tappedTabIsSelectedBeforeItsContentIsBuilt() {
         val root = contentRoot(launch())
         val bar = tabBar(root)
-        val content = root.getChildAt(0) as ViewGroup
+        val content = content(root)
         bar.getChildAt(Tab.FAVORITES.ordinal).performClick()
         assertEquals(Tab.FAVORITES, bar.selected)
         assertTrue(content.find<io.github.andreygladkov.inkphone.favorites.FavoritesScreen>().none { it.visibility == View.VISIBLE })
@@ -168,9 +171,33 @@ class MainActivityRenderingTest {
 
     @Test fun otherTabsArePreparedInBackground() {
         val root = contentRoot(launch())
-        val content = root.getChildAt(0) as ViewGroup
+        val content = content(root)
         idleUntil { content.childCount == Tab.entries.size }
         assertEquals(1, (0 until content.childCount).count { content.getChildAt(it).visibility == View.VISIBLE })
+    }
+
+    @Test fun everyListTabEndsItsTopRowWithSettings() {
+        val root = contentRoot(launch())
+        val bar = tabBar(root)
+        listOf(Tab.CALL_LOG, Tab.FAVORITES, Tab.CONTACTS).forEach { tab ->
+            bar.getChildAt(tab.ordinal).performClick()
+            idleUntil { root.find<InkButton>().any { it.isShown && it.contentDescription == "Настройки" } }
+            val gear = root.find<InkButton>().single { it.isShown && it.contentDescription == "Настройки" }
+            val row = gear.parent as ViewGroup
+            assertTrue(row.getChildAt(row.childCount - 1) === gear, "$tab")
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test fun backReturnsToTheTabTheAppOpenedOnBeforeClosing() {
+        val activity = launch()
+        val bar = tabBar(contentRoot(activity))
+        bar.select(Tab.FAVORITES)
+        activity.onBackPressed()
+        assertEquals(Tab.DIALER, bar.selected)
+        assertFalse(activity.isFinishing)
+        activity.onBackPressed()
+        assertTrue(activity.isFinishing)
     }
 
     @Test fun opensOnKeypadByDefault() {
@@ -193,6 +220,8 @@ class MainActivityRenderingTest {
     }
 
     private fun launch(): Activity = Robolectric.buildActivity(MainActivity::class.java).setup().get()
+
+    private fun content(root: ViewGroup): ViewGroup = (0 until root.childCount).map(root::getChildAt).filterIsInstance<FrameLayout>().single()
 
     private fun tabBar(root: ViewGroup): InkTabBar<Tab> = (0 until root.childCount).map(root::getChildAt).filterIsInstance<InkTabBar<Tab>>().single()
 

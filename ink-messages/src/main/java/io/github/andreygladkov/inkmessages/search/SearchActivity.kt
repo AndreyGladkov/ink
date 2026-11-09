@@ -16,10 +16,10 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkEditText
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
-import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkmessages.Labels
 import io.github.andreygladkov.inkmessages.MessageDates
 import io.github.andreygladkov.inkmessages.R
@@ -69,7 +69,6 @@ class SearchActivity : Activity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             addView(header())
-            addView(line())
             addView(FrameLayout(this@SearchActivity).apply {
                 addView(list)
                 addView(nothing)
@@ -138,13 +137,10 @@ class SearchActivity : Activity() {
         setPadding(dp(PADDING_DP), dp(SECTION_GAP_DP), dp(PADDING_DP), dp(TITLE_GAP_DP))
     }
 
-    private fun header() = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        setPadding(0, 0, dp(PADDING_DP), dp(TITLE_GAP_DP))
-        addView(iconButton(this@SearchActivity, R.drawable.ic_arrow_back, getString(R.string.back)).apply { setOnClickListener { finish() } })
-        addView(field, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-    }
+    private fun header() = InkHeader.of(this, FrameLayout(this).apply {
+        setPadding(0, 0, dp(PADDING_DP), 0)
+        addView(field)
+    }, InkHeader.back(this, ::finish))
 
     private fun line() = View(this).apply {
         setBackgroundColor(InkStyle.of(this@SearchActivity).foreground)

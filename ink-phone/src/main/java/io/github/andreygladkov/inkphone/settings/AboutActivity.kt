@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.addSection
@@ -30,12 +31,7 @@ class AboutActivity : Activity() {
         if (license != null) showLicense(body, license) else showAbout(body)
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(InkButton(this@AboutActivity).apply {
-                icon = R.drawable.ic_arrow_back
-                contentDescription = getString(R.string.back)
-                isBordered = false
-                setOnClickListener { finish() }
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            addView(InkHeader.of(this@AboutActivity, getString(R.string.about), ::finish))
             addView(ScrollView(this@AboutActivity).apply {
                 isVerticalScrollBarEnabled = false
                 overScrollMode = View.OVER_SCROLL_NEVER

@@ -2,6 +2,8 @@
 <resources>
     <string name="grant_access">Разрешить доступ</string>
     <string name="open_settings">Открыть настройки</string>
+    <string name="back">Назад</string>
+    <string name="settings">Настройки</string>
     <string name="page_prev">Предыдущая страница</string>
     <string name="page_next">Следующая страница</string>
     <string name="selected">Выбрано</string>

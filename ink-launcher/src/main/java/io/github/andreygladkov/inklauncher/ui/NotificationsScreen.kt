@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.iconButton
@@ -52,7 +53,7 @@ class NotificationsScreen(private val activity: HomeActivity) : LinearLayout(act
 
     init {
         orientation = VERTICAL
-        addView(screenHeader(activity, activity.getString(R.string.notifications), null, clearAll))
+        addView(InkHeader.of(activity, activity.getString(R.string.notifications), null, clearAll))
         list.addFooterView(footerButton(activity, R.drawable.ic_chevron_right, R.string.home) { activity.showHome() })
         addView(FrameLayout(activity).apply {
             addView(list)

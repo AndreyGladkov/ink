@@ -30,11 +30,11 @@ import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkButtonRow
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.confirmBeforeAction
-import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkmessages.Labels
 import io.github.andreygladkov.inkmessages.MessageDates
 import io.github.andreygladkov.inkmessages.R
@@ -115,7 +115,6 @@ class ThreadActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             addView(header())
             addView(menuSlot, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-            addView(line())
             addView(FrameLayout(this@ThreadActivity).apply {
                 addView(list)
                 addView(empty)
@@ -470,23 +469,18 @@ class ThreadActivity : Activity() {
         layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(InkStyle.LINE_DP).coerceAtLeast(1))
     }
 
-    private fun header() = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        addView(iconButton(this@ThreadActivity, R.drawable.ic_arrow_back, getString(R.string.back)).apply { setOnClickListener { finish() } })
-        title = InkTextView(this@ThreadActivity).apply {
+    private fun header(): View {
+        title = InkTextView(this).apply {
             isBold = true
             maxLines = 2
             ellipsize = TextUtils.TruncateAt.END
             setOnClickListener { openContact() }
         }
-        addView(title, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-        callButton = iconButton(this@ThreadActivity, R.drawable.ic_call, getString(R.string.call)).apply {
-            visibility = View.GONE
-            setOnClickListener { recipient?.let { startActivity(Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", it, null))) } }
-        }
-        addView(callButton)
-        addView(iconButton(this@ThreadActivity, R.drawable.ic_more, getString(R.string.more)).apply { setOnClickListener { toggleMenu() } })
+        callButton = InkHeader.button(this, R.drawable.ic_call, getString(R.string.call)) {
+            recipient?.let { startActivity(Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", it, null))) }
+        }.apply { visibility = View.GONE }
+        return InkHeader.of(this, title, InkHeader.back(this, ::finish), callButton,
+            InkHeader.button(this, R.drawable.ic_more, getString(R.string.more)) { toggleMenu() })
     }
 
     private fun dp(value: Float) = (value * resources.displayMetrics.density).roundToInt()

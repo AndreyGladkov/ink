@@ -9,6 +9,7 @@ import io.github.andreygladkov.ink.contentRoot
 import io.github.andreygladkov.ink.find
 import io.github.andreygladkov.ink.render
 import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkTabBar
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkclock.alarm.Alarm
 import io.github.andreygladkov.inkclock.alarm.AlarmActions
@@ -47,10 +48,48 @@ class MainActivityTest {
         assertPureBlackAndWhite(render(contentRoot(activity)))
     }
 
-    @Test fun withoutAlarmsSaysSo() {
+    @Test fun aLineSeparatesTheTopBarOnlyWhileNewAlarmIsThere() {
+        val activity = open()
+        val root = contentRoot(activity)
+        val newAlarm = root.find<InkButton>().single { it.text.toString() == "Новый будильник" }
+        val column = newAlarm.parent.parent as android.view.ViewGroup
+        val line = column.getChildAt(column.indexOfChild(newAlarm.parent as android.view.View) + 1)
+        assertTrue(line.isShown && line.height in 1..10 && line.width == column.width, "${line.width}x${line.height}")
+        root.find<InkTabBar<Tab>>().single().select(Tab.TIMER)
+        assertFalse(line.isShown)
+    }
+
+    @Test fun newAlarmShowsOnlyOnTheAlarmsTab() {
+        val activity = open()
+        val tabs = contentRoot(activity).find<InkTabBar<Tab>>().single()
+        tabs.select(Tab.TIMER)
+        assertTrue(contentRoot(activity).find<InkButton>().none { it.isShown && it.text.toString() == "Новый будильник" })
+        tabs.select(Tab.ALARMS)
+        assertTrue(contentRoot(activity).find<InkButton>().single { it.text.toString() == "Новый будильник" }.isShown)
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+    }
+
+    @Suppress("DEPRECATION")
+    @Test fun backReturnsToTheTabTheAppOpenedOnBeforeClosing() {
+        val activity = open()
+        val tabs = contentRoot(activity).find<InkTabBar<Tab>>().single()
+        tabs.select(Tab.STOPWATCH)
+        activity.onBackPressed()
+        assertEquals(Tab.ALARMS, tabs.selected)
+        assertFalse(activity.isFinishing)
+        activity.onBackPressed()
+        assertTrue(activity.isFinishing)
+    }
+
+    @Test fun withoutAlarmsSaysSoOnce() {
         val texts = texts(open())
         assertTrue("Будильников нет" in texts)
-        assertTrue("Будильники не заведены" in texts)
+        assertFalse("Будильники не заведены" in texts)
+    }
+
+    @Test fun withEveryAlarmOffSaysNoneIsSet() {
+        store.save(Alarm(1, 7, 0, isEnabled = false))
+        assertTrue("Будильники не заведены" in texts(open()))
     }
 
     @Test fun theToggleTurnsAnAlarmOnAndOff() {

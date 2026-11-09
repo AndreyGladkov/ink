@@ -16,8 +16,8 @@ import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkEditText
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkPagedList
-import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.canReadContacts
@@ -58,21 +58,7 @@ class ContactPickActivity : Activity() {
         }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(LinearLayout(context).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                addView(InkButton(context).apply {
-                    icon = R.drawable.ic_arrow_back
-                    contentDescription = getString(R.string.back)
-                    isBordered = false
-                    setOnClickListener { finish() }
-                })
-                addView(InkTextView(context).apply {
-                    setText(R.string.export_selected)
-                    textScale = InkStyle.TITLE_SCALE
-                    isBold = true
-                })
-            })
+            addView(InkHeader.of(context, getString(R.string.export_selected), ::finish))
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL

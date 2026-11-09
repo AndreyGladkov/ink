@@ -1,6 +1,7 @@
 package io.github.andreygladkov.inkclock
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.NotificationManager
 import android.content.Context
@@ -19,7 +20,9 @@ import androidx.core.content.edit
 import androidx.core.view.isVisible
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.ink.ui.BackToStart
 import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkTabBar
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
@@ -50,6 +53,10 @@ class MainActivity : Activity() {
     private lateinit var bannerText: InkTextView
     private lateinit var bannerAction: InkButton
 
+    private var startTab = Tab.ALARMS
+    private lateinit var topLine: View
+    private val backToStart = BackToStart(this) { tabBar.select(startTab) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         screens = mapOf(Tab.ALARMS to AlarmListScreen(this), Tab.TIMER to TimerScreen(this), Tab.STOPWATCH to StopwatchScreen(this),
@@ -59,16 +66,28 @@ class MainActivity : Activity() {
         InkWindow.setContent(this, LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             addView(topBar(), LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+            topLine = InkHeader.line(this@MainActivity)
+            addView(topLine)
             addView(banner(), LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
             addView(content, LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f))
             addView(tabBar, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
         })
-        tabBar.select(requestedTab(intent) ?: lastTab())
+        startTab = requestedTab(intent) ?: lastTab()
+        tabBar.select(startTab)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        requestedTab(intent)?.let { tabBar.select(it) }
+        requestedTab(intent)?.let {
+            startTab = it
+            tabBar.select(it)
+        }
+    }
+
+    @SuppressLint("GestureBackNavigation")
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (!backToStart.onBackPressed()) @Suppress("DEPRECATION") super.onBackPressed()
     }
 
     override fun onResume() {
@@ -101,6 +120,8 @@ class MainActivity : Activity() {
     private fun showTab(tab: Tab) {
         inkPrefs().edit { putString(PREF_LAST_TAB, tab.name) }
         newAlarm.visibility = if (tab == Tab.ALARMS) View.VISIBLE else View.INVISIBLE
+        topLine.visibility = newAlarm.visibility
+        backToStart.isAway = tab != startTab
         screens.forEach { (t, screen) ->
             val shown = t == tab
             if (!shown && screen.isVisible) (screen as? TabScreen)?.onPause()
@@ -163,9 +184,7 @@ class MainActivity : Activity() {
         addView(iconButton(this@MainActivity, R.drawable.ic_desk_clock, getString(R.string.desk_clock)).apply {
             setOnClickListener { startActivity(DeskClockActivity.intent(this@MainActivity)) }
         })
-        addView(iconButton(this@MainActivity, R.drawable.ic_settings, getString(R.string.settings)).apply {
-            setOnClickListener { startActivity(SettingsActivity.intent(this@MainActivity)) }
-        })
+        addView(InkHeader.settings(this@MainActivity) { startActivity(SettingsActivity.intent(this@MainActivity)) })
     }
 
     private fun dp(value: Float) = (value * resources.displayMetrics.density).roundToInt()

@@ -48,6 +48,7 @@ class AlarmListScreen(private val activity: Activity) : LinearLayout(activity), 
     private fun load() {
         alarms = AlarmStore.of(activity).all()
         empty.visibility = if (alarms.isEmpty()) VISIBLE else GONE
+        next.visibility = if (alarms.isEmpty()) GONE else VISIBLE
         list.visibility = if (alarms.isEmpty()) INVISIBLE else VISIBLE
         list.setAdapter(object : InkPagedList.Adapter {
             override val count get() = alarms.size

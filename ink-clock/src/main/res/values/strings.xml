@@ -3,7 +3,6 @@
     <string name="ink_prefs_file" translatable="false">ink_clock</string>
     <string name="app_name" translatable="false">Ink Clock</string>
     <string name="launcher_label">Clock</string>
-    <string name="back">Back</string>
     <string name="settings">Settings</string>
 
     <string name="tab_alarms">Alarms</string>

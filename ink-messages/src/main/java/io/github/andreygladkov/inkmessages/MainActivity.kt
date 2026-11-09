@@ -1,6 +1,7 @@
 package io.github.andreygladkov.inkmessages
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -19,7 +20,9 @@ import android.widget.LinearLayout
 import androidx.core.content.edit
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.ink.ui.BackToStart
 import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkTabBar
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
@@ -49,6 +52,7 @@ class MainActivity : Activity() {
     private lateinit var stateAction: InkButton
     private lateinit var roleBanner: View
     private lateinit var composeButton: InkButton
+    private lateinit var topLine: View
     private var conversations: List<Conversation>? = null
     private var drafts: Map<Long, String>? = null
     private val reload = Runnable { load() }
@@ -58,6 +62,9 @@ class MainActivity : Activity() {
             main.postDelayed(reload, RELOAD_DEBOUNCE_MS)
         }
     }
+
+    private var startCategory = Category.entries.first()
+    private val backToStart = BackToStart(this) { tabBar.select(startCategory) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,12 +81,21 @@ class MainActivity : Activity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             addView(topBar(), LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+            topLine = InkHeader.line(this@MainActivity)
+            addView(topLine)
             addView(roleBanner(), LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
             addView(content, LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f))
             addView(tabBar, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
         }
         InkWindow.setContent(this, root)
-        tabBar.select(StartCategory.resolve(inkPrefs()))
+        startCategory = StartCategory.resolve(inkPrefs())
+        tabBar.select(startCategory)
+    }
+
+    @SuppressLint("GestureBackNavigation")
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (!backToStart.onBackPressed()) @Suppress("DEPRECATION") super.onBackPressed()
     }
 
     override fun onResume() {
@@ -109,6 +125,7 @@ class MainActivity : Activity() {
         val isDefault = SmsRole.isDefault(this)
         roleBanner.visibility = if (isDefault) View.GONE else View.VISIBLE
         composeButton.visibility = if (isDefault) View.VISIBLE else View.GONE
+        topLine.visibility = if (isDefault) View.VISIBLE else View.INVISIBLE
         if (!gate.isGranted) {
             state.visibility = View.VISIBLE
             gate.bind(stateAction)
@@ -144,6 +161,7 @@ class MainActivity : Activity() {
         inkPrefs().edit { putString(StartCategory.PREF_LAST_OPENED, category.name) }
         // Hidden lists stay INVISIBLE rather than GONE so they are still laid out and their pages are ready.
         screens.forEach { (c, screen) -> screen.visibility = if (c == category) View.VISIBLE else View.INVISIBLE }
+        backToStart.isAway = category != startCategory
     }
 
     private fun requestDefaultAppPermissions() {
@@ -187,9 +205,7 @@ class MainActivity : Activity() {
         addView(iconButton(this@MainActivity, R.drawable.ic_search, getString(R.string.search)).apply {
             setOnClickListener { startActivity(SearchActivity.intent(this@MainActivity)) }
         })
-        addView(iconButton(this@MainActivity, R.drawable.ic_settings, getString(R.string.settings)).apply {
-            setOnClickListener { startActivity(SettingsActivity.intent(this@MainActivity)) }
-        })
+        addView(InkHeader.settings(this@MainActivity) { startActivity(SettingsActivity.intent(this@MainActivity)) })
     }
 
     private fun stateView(): View {

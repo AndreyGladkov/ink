@@ -16,6 +16,7 @@ import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkChoiceRow
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
@@ -47,12 +48,7 @@ class ImportActivity : Activity() {
         }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(InkButton(this@ImportActivity).apply {
-                icon = R.drawable.ic_arrow_back
-                contentDescription = getString(R.string.back)
-                isBordered = false
-                setOnClickListener { finish() }
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            addView(InkHeader.of(this@ImportActivity, getString(R.string.import_title), ::finish))
             addView(body, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         }
         InkWindow.setContent(this, root)
@@ -108,11 +104,6 @@ class ImportActivity : Activity() {
         val remembered = inkPrefs().getString(ContactWriter.PREF_DEFAULT_ACCOUNT, null)?.let(AccountRef::decode)
         account = remembered?.takeIf { it in writable } ?: writable.first()
         body.removeAllViews()
-        body.addView(InkTextView(this).apply {
-            setText(R.string.import_title)
-            textScale = InkStyle.TITLE_SCALE
-            isBold = true
-        })
         body.addView(InkTextView(this).apply {
             text = getString(R.string.import_found, matched.size, matched.count { it.match != null })
             textScale = InkStyle.SECONDARY_SCALE

@@ -216,6 +216,16 @@ class HomeActivityTest {
         assertFalse(prev.isLayoutRequested)
     }
 
+    @Test fun allAppsOpensTheLauncherSettingsButNotWhilePickingAnApp() {
+        val activity = open()
+        arrow(activity, "Следующая страница").performClick()
+        val gear = contentRoot(activity).find<AllAppsScreen>().single().find<InkButton>().single { it.contentDescription == "Настройки" }
+        gear.performClick()
+        assertEquals(SettingsActivity::class.java.name, shadowOf(activity).nextStartedActivity.component?.className)
+        activity.showAllApps(target = Spot(Sheet.Page(0), 0, 0))
+        assertTrue(contentRoot(activity).find<AllAppsScreen>().single().find<InkButton>().none { it.contentDescription == "Настройки" })
+    }
+
     @Test fun theRightArrowOnTheLastPageOpensAllAppsInOrder() {
         val activity = open()
         arrow(activity, "Следующая страница").performClick()

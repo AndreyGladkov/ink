@@ -15,11 +15,11 @@ import io.github.andreygladkov.ink.haptics.HapticChannel
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkChoiceRow
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkSettings
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.addSection
-import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inklauncher.LauncherPrefs
 import io.github.andreygladkov.inklauncher.R
 import io.github.andreygladkov.inklauncher.home.GridSpec
@@ -161,16 +161,7 @@ class SettingsActivity : Activity() {
         layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(GAP_DP) }
     }
 
-    private fun header() = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        addView(iconButton(this@SettingsActivity, R.drawable.ic_arrow_back, getString(R.string.back)).apply { setOnClickListener { finish() } })
-        addView(InkTextView(this@SettingsActivity).apply {
-            setText(R.string.settings)
-            textScale = InkStyle.TITLE_SCALE
-            isBold = true
-        })
-    }
+    private fun header() = InkHeader.of(this, getString(R.string.settings), ::finish)
 
     private fun dp(value: Float) = (value * resources.displayMetrics.density).roundToInt()
 

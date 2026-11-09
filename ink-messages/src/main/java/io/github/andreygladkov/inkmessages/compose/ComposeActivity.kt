@@ -17,10 +17,10 @@ import android.widget.LinearLayout
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkEditText
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
-import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.ink.ui.twoLines
 import io.github.andreygladkov.inkmessages.Labels
 import io.github.andreygladkov.inkmessages.R
@@ -122,16 +122,7 @@ class ComposeActivity : Activity() {
         }
     }
 
-    private fun header() = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        addView(iconButton(this@ComposeActivity, R.drawable.ic_arrow_back, getString(R.string.back)).apply { setOnClickListener { finish() } })
-        addView(InkTextView(this@ComposeActivity).apply {
-            setText(R.string.compose_title)
-            textScale = InkStyle.TITLE_SCALE
-            isBold = true
-        })
-    }
+    private fun header() = InkHeader.of(this, getString(R.string.compose_title), ::finish)
 
     private fun dp(value: Float) = (value * resources.displayMetrics.density).roundToInt()
 

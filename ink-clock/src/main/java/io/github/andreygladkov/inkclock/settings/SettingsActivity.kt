@@ -13,11 +13,11 @@ import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.haptics.HapticChannel
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkChoiceRow
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkSettings
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.addSection
-import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkclock.ClockPrefs
 import io.github.andreygladkov.inkclock.R
 import io.github.andreygladkov.inkclock.desk.ClockDreamSetting
@@ -105,16 +105,7 @@ class SettingsActivity : Activity() {
     private fun countRow(title: Int, choices: List<Int>, current: Int, onChoose: (Int) -> Unit) =
         InkChoiceRow(this, getString(title), choices.map { it to it.toString() }, current, onChoose = onChoose)
 
-    private fun header() = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        addView(iconButton(this@SettingsActivity, R.drawable.ic_arrow_back, getString(R.string.back)).apply { setOnClickListener { finish() } })
-        addView(InkTextView(this@SettingsActivity).apply {
-            setText(R.string.settings)
-            textScale = InkStyle.TITLE_SCALE
-            isBold = true
-        })
-    }
+    private fun header() = InkHeader.of(this, getString(R.string.settings), ::finish)
 
     private fun dp(value: Float) = (value * resources.displayMetrics.density).roundToInt()
 

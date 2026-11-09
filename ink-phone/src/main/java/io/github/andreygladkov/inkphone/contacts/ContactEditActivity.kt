@@ -20,6 +20,7 @@ import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkEditText
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.addSection
@@ -36,6 +37,7 @@ class ContactEditActivity : Activity() {
     private val density get() = resources.displayMetrics.density
     private lateinit var writer: ContactWriter
     private lateinit var body: LinearLayout
+    private lateinit var header: View
     private val phones = ArrayList<PhoneRow>()
     private val emails = ArrayList<EmailRow>()
     private lateinit var phoneList: LinearLayout
@@ -59,12 +61,8 @@ class ContactEditActivity : Activity() {
         }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(InkButton(this@ContactEditActivity).apply {
-                icon = R.drawable.ic_arrow_back
-                contentDescription = getString(R.string.back)
-                isBordered = false
-                setOnClickListener { finish() }
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            header = InkHeader.of(this@ContactEditActivity, "", ::finish)
+            addView(header)
             addView(ScrollView(this@ContactEditActivity).apply {
                 isVerticalScrollBarEnabled = false
                 overScrollMode = View.OVER_SCROLL_NEVER
@@ -108,11 +106,7 @@ class ContactEditActivity : Activity() {
     private fun show(contact: EditableContact?, accounts: List<AccountRef>, number: String?, name: String?) {
         original = contact
         body.removeAllViews()
-        body.addView(InkTextView(this).apply {
-            setText(if (contact == null) R.string.contact_new else R.string.contact_edit)
-            textScale = InkStyle.TITLE_SCALE
-            isBold = true
-        })
+        InkHeader.setTitle(header, getString(if (contact == null) R.string.contact_new else R.string.contact_edit))
         if (contact == null) {
             val remembered = inkPrefs().getString(ContactWriter.PREF_DEFAULT_ACCOUNT, null)?.let(AccountRef::decode)
             account = remembered?.takeIf { it in accounts } ?: accounts.first()

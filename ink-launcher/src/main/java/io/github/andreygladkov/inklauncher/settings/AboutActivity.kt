@@ -12,10 +12,10 @@ import android.widget.ScrollView
 import androidx.core.net.toUri
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.addSection
-import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inklauncher.BuildConfig
 import io.github.andreygladkov.inklauncher.R
 import kotlin.math.roundToInt
@@ -32,8 +32,7 @@ class AboutActivity : Activity() {
         if (license != null) showLicense(body, license) else showAbout(body)
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(iconButton(this@AboutActivity, R.drawable.ic_arrow_back, getString(R.string.back)).apply { setOnClickListener { finish() } },
-                LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            addView(InkHeader.of(this@AboutActivity, getString(R.string.about), ::finish))
             addView(ScrollView(this@AboutActivity).apply {
                 isVerticalScrollBarEnabled = false
                 overScrollMode = View.OVER_SCROLL_NEVER

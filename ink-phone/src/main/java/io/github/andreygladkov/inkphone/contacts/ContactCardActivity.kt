@@ -21,6 +21,7 @@ import io.github.andreygladkov.ink.ui.DottedDrawable
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkButtonRow
 import io.github.andreygladkov.ink.ui.InkChoiceRow
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.addSection
@@ -45,6 +46,7 @@ class ContactCardActivity : Activity() {
     private val density get() = resources.displayMetrics.density
     private val accountLabels by lazy { AccountLabels(this) }
     private lateinit var body: LinearLayout
+    private lateinit var header: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,12 +57,8 @@ class ContactCardActivity : Activity() {
         }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(InkButton(this@ContactCardActivity).apply {
-                icon = R.drawable.ic_arrow_back
-                contentDescription = getString(R.string.back)
-                isBordered = false
-                setOnClickListener { finish() }
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            header = InkHeader.of(this@ContactCardActivity, "", ::finish)
+            addView(header)
             addView(ScrollView(this@ContactCardActivity).apply {
                 isVerticalScrollBarEnabled = false
                 overScrollMode = View.OVER_SCROLL_NEVER
@@ -130,10 +128,7 @@ class ContactCardActivity : Activity() {
             body.addView(text(getString(R.string.contact_not_found)))
             return
         }
-        body.addView(text(details.name).apply {
-            textScale = InkStyle.TITLE_SCALE
-            isBold = true
-        })
+        InkHeader.setTitle(header, details.name)
         body.addView(actions(details))
         if (details.phones.isNotEmpty()) {
             body.addSection(getString(R.string.card_phones))

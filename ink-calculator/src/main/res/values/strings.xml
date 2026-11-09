@@ -3,7 +3,6 @@
     <string name="ink_prefs_file" translatable="false">ink_calculator</string>
     <string name="app_name" translatable="false">Ink Calculator</string>
     <string name="launcher_label">Calculator</string>
-    <string name="back">Back</string>
     <string name="settings">Settings</string>
 
     <string name="erase">Erase</string>

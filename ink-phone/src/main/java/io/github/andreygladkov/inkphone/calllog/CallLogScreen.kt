@@ -25,6 +25,7 @@ import io.github.andreygladkov.inkphone.TabScreen
 import io.github.andreygladkov.inkphone.call.CallLauncher
 import io.github.andreygladkov.inkphone.call.messageAndCallButtons
 import io.github.andreygladkov.inkphone.contacts.ContactCardActivity
+import io.github.andreygladkov.inkphone.settings.settingsButton
 import java.time.ZoneId
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
@@ -64,9 +65,13 @@ class CallLogScreen(private val activity: Activity, private val onMissedRead: ()
 
     init {
         orientation = VERTICAL
-        addView(InkSegments(activity, listOf(R.string.filter_all, R.string.filter_missed)) { index ->
-            missedOnly = index == 1
-            show()
+        addView(LinearLayout(activity).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            addView(InkSegments(activity, listOf(R.string.filter_all, R.string.filter_missed)) { index ->
+                missedOnly = index == 1
+                show()
+            }, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
+            addView(settingsButton(activity))
         })
         addView(View(activity).apply { setBackgroundColor(InkStyle.of(activity).foreground) },
             LayoutParams(LayoutParams.MATCH_PARENT, dp(InkStyle.LINE_DP).coerceAtLeast(1)))

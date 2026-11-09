@@ -1,6 +1,7 @@
 package io.github.andreygladkov.inkphone
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -19,6 +20,7 @@ import android.widget.LinearLayout
 import androidx.core.content.edit
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.ink.ui.BackToStart
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTabBar
 import io.github.andreygladkov.ink.ui.InkWindow
@@ -38,6 +40,8 @@ class MainActivity : Activity() {
     private val screens = HashMap<Tab, View>()
     private var appearance: List<Any>? = null
     private var pendingNumber: String? = null
+    private var startTab = Tab.DIALER
+    private val backToStart = BackToStart(this) { tabBar.select(startTab) }
     private val callLogObserver = object : ContentObserver(main) {
         override fun onChange(selfChange: Boolean) = updateMissedBadge()
     }
@@ -58,13 +62,21 @@ class MainActivity : Activity() {
         }
         InkWindow.setContent(this, root)
         appearance = currentAppearance()
-        tabBar.select(tabFor(intent))
+        startTab = tabFor(intent)
+        tabBar.select(startTab)
+    }
+
+    @SuppressLint("GestureBackNavigation")
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (!backToStart.onBackPressed()) @Suppress("DEPRECATION") super.onBackPressed()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         val tab = tabFor(intent)
+        startTab = tab
         val number = pendingNumber
         if (tab == tabBar.selected) {
             if (number != null) (screen as? DialerScreen)?.setNumber(number)
@@ -138,6 +150,7 @@ class MainActivity : Activity() {
 
     private fun showTab(tab: Tab) {
         inkPrefs().edit { putString(PREF_LAST_TAB, tab.name) }
+        backToStart.isAway = tab != startTab
         val view = ensureScreen(tab)
         // Hidden tabs stay INVISIBLE rather than GONE so they are still laid out and their pages are ready.
         screens.forEach { (t, v) -> v.visibility = if (t == tab) View.VISIBLE else View.INVISIBLE }
