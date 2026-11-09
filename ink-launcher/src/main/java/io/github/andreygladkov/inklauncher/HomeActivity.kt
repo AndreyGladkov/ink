@@ -8,7 +8,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.database.ContentObserver
 import android.os.Bundle
+import android.os.Handler
+import android.provider.Settings
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
@@ -101,6 +104,7 @@ class HomeActivity : Activity() {
             val pkg = intent.data?.schemeSpecificPart ?: return
             val removed = intent.action == Intent.ACTION_PACKAGE_REMOVED && !intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)
             catalog.invalidate()
+            screenTime.forgetDefaults()
             IconPack.forget(pkg)
             icons.forgetMemory()
             if (removed) {
@@ -111,6 +115,12 @@ class HomeActivity : Activity() {
                 update { it.relinked(launchable()) }
                 if (layout === before) refresh()
             }
+        }
+    }
+
+    private val keyboards by lazy {
+        object : ContentObserver(Handler(mainLooper)) {
+            override fun onChange(selfChange: Boolean) = screenTime.forgetDefaults()
         }
     }
 
@@ -144,12 +154,14 @@ class HomeActivity : Activity() {
             addAction(Intent.ACTION_PACKAGE_REPLACED)
             addDataScheme("package")
         }, ContextCompat.RECEIVER_NOT_EXPORTED)
+        contentResolver.registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.ENABLED_INPUT_METHODS), false, keyboards)
         NotificationFeed.observe(onNotifications)
     }
 
     override fun onDestroy() {
         NotificationFeed.stopObserving(onNotifications)
         unregisterReceiver(packages)
+        contentResolver.unregisterContentObserver(keyboards)
         super.onDestroy()
     }
 

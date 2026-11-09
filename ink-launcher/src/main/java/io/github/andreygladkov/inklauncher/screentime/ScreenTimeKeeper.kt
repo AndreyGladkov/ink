@@ -17,6 +17,7 @@ class UsagePeriod(private val days: List<Span>, private val log: UsageLog) {
 class ScreenTimeKeeper(private val context: Context, private val clock: () -> Clock) {
     private val access = UsageAccess(context)
     private val prefs = context.inkPrefs()
+    private var uncountedByDefault: Set<String>? = null
     private val keys = mapOf(
         AppCategory.DRIFTING to LauncherPrefs.DRIFTING_APPS,
         AppCategory.ON_PURPOSE to LauncherPrefs.ON_PURPOSE_APPS,
@@ -29,14 +30,26 @@ class ScreenTimeKeeper(private val context: Context, private val clock: () -> Cl
 
     fun categories(): AppCategories = AppCategories(
         keys.flatMap { (category, key) -> stored(key).map { it to category } }.toMap(),
-        launchers() + keyboards(),
+        uncountedByDefault(),
     )
 
     fun category(packageName: String): AppCategory = categories()[packageName]
 
-    fun setCategory(packageName: String, category: AppCategory) = prefs.edit {
-        keys.forEach { (each, key) -> putStringSet(key, if (each == category) stored(key) + packageName else stored(key) - packageName) }
+    /** Choosing the default forgets the choice, so the app follows the default again and is no longer kept in the list. */
+    fun setCategory(packageName: String, category: AppCategory) {
+        val default = AppCategories(emptyMap(), uncountedByDefault())[packageName]
+        prefs.edit {
+            keys.forEach { (each, key) ->
+                putStringSet(key, if (each == category && category != default) stored(key) + packageName else stored(key) - packageName)
+            }
+        }
     }
+
+    fun forgetDefaults() {
+        uncountedByDefault = null
+    }
+
+    private fun uncountedByDefault(): Set<String> = uncountedByDefault ?: (launchers() + keyboards()).also { uncountedByDefault = it }
 
     private fun stored(key: String): Set<String> = prefs.getStringSet(key, null).orEmpty().toSet()
 
@@ -48,8 +61,10 @@ class ScreenTimeKeeper(private val context: Context, private val clock: () -> Cl
         .map { it.activityInfo.packageName }
         .toSet()
 
+    // Only enabled keyboards: an app such as a password manager may ship a keyboard of its own that the user never
+    // turned on, and the app itself should still count.
     private fun keyboards(): Set<String> =
-        context.getSystemService(InputMethodManager::class.java)?.inputMethodList.orEmpty().map { it.packageName }.toSet()
+        context.getSystemService(InputMethodManager::class.java)?.enabledInputMethodList.orEmpty().map { it.packageName }.toSet()
 
     fun period(dayCount: Int): UsagePeriod? {
         if (!isGranted) return null

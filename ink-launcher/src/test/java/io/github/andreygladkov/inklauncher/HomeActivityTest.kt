@@ -22,6 +22,8 @@ import android.provider.Settings
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsets
+import android.view.inputmethod.InputMethodInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.assertPureBlackAndWhite
@@ -64,6 +66,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.util.ReflectionHelpers
+import org.robolectric.util.ReflectionHelpers.ClassParameter
 import java.time.Clock
 import java.time.Duration
 import java.time.LocalDate
@@ -502,6 +506,35 @@ class HomeActivityTest {
         assertEquals("5 мин", screenTimeTile(activity).usage!!.onPurpose)
         activity.setCategory(context.packageName, AppCategory.ON_PURPOSE)
         assertEquals("45 мин", screenTimeTile(activity).usage!!.onPurpose)
+    }
+
+    @Test fun choosingTheDefaultCategoryForgetsTheChoice() {
+        val activity = open()
+        activity.setCategory(reader.packageName, AppCategory.DRIFTING)
+        activity.setCategory(reader.packageName, AppCategory.ON_PURPOSE)
+        activity.setCategory(context.packageName, AppCategory.UNCOUNTED)
+        assertEquals(emptySet(), activity.screenTime.categories().chosenApps)
+        assertEquals(AppCategory.UNCOUNTED, activity.screenTime.category(context.packageName))
+    }
+
+    @Test fun onlyEnabledKeyboardsAreLeftOutAndOneTurnedOnLaterIsToo() {
+        val vault = AppKey("org.vault", "org.vault.Main")
+        install(vault, "Сейф")
+        val keyboard = ReflectionHelpers.callConstructor(InputMethodInfo::class.java,
+            ClassParameter.from(String::class.java, vault.packageName),
+            ClassParameter.from(String::class.java, "org.vault.Keyboard"),
+            ClassParameter.from(CharSequence::class.java, "Сейф"),
+            ClassParameter.from(String::class.java, null))
+        val keyboards = shadowOf(context.getSystemService(InputMethodManager::class.java))
+        keyboards.setInputMethodInfoList(listOf(keyboard))
+        keyboards.setEnabledInputMethodInfoList(listOf())
+        val activity = open()
+        assertEquals(AppCategory.ON_PURPOSE, activity.screenTime.category(vault.packageName))
+
+        keyboards.setEnabledInputMethodInfoList(listOf(keyboard))
+        context.contentResolver.notifyChange(Settings.Secure.getUriFor(Settings.Secure.ENABLED_INPUT_METHODS), null)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(AppCategory.UNCOUNTED, activity.screenTime.category(vault.packageName))
     }
 
     @Test fun inOneCellTheScreenTimeTileStacksTheTimesWithoutNames() {
