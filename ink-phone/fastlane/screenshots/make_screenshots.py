@@ -162,6 +162,7 @@ class Device:
             self.demo("clock", "-e", "hhmm", "1000")
             self.demo("battery", "-e", "level", "100", "-e", "plugged", "false")
             self.demo("notifications", "-e", "visible", "false")
+            self.demo("status", "-e", "alarm", "hide")
             time.sleep(1.5)
             png = self.adb("exec-out", "screencap", "-p")
             if Image.open(io.BytesIO(png)).convert("L").crop(STATUS_RIGHT).tobytes() == reference:
