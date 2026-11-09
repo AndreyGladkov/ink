@@ -1,0 +1,1 @@
+One header across the Ink apps: the contact card, editing, import, export and settings show a back arrow and a title on top. The settings gear ends the top row of every tab, and Back first returns to the tab the app opened on before closing it.

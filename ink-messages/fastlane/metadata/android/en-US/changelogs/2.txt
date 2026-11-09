@@ -1,0 +1,1 @@
+One header across the Ink apps: a conversation, a new message, search and settings show a back arrow and a title on top. A line separates the Compose · search · settings row, and Back first returns to the category the app opened on.

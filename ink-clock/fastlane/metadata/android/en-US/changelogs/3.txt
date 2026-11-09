@@ -1,0 +1,1 @@
+One header across the Ink apps: an alarm, settings and About show a back arrow and a title on top. New alarm shows only on the alarms tab, an empty list says so once, and Back first returns to the tab the clock opened on.
