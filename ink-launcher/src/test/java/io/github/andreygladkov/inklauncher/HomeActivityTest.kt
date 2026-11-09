@@ -22,14 +22,13 @@ import android.provider.Settings
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsets
-import android.view.inputmethod.InputMethodInfo
-import android.view.inputmethod.InputMethodManager
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.assertPureBlackAndWhite
 import io.github.andreygladkov.ink.contentRoot
 import io.github.andreygladkov.ink.find
 import io.github.andreygladkov.ink.render
+import io.github.andreygladkov.ink.ui.DottedDrawable
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkEditText
 import io.github.andreygladkov.ink.ui.InkTextView
@@ -56,6 +55,7 @@ import io.github.andreygladkov.inklauncher.ui.HomeScreen
 import io.github.andreygladkov.inklauncher.ui.NotificationsScreen
 import io.github.andreygladkov.inklauncher.ui.ScreenTimeScreen
 import io.github.andreygladkov.inklauncher.ui.ScreenTimeView
+import io.github.andreygladkov.inklauncher.ui.SheetAction
 import io.github.andreygladkov.inklauncher.ui.TileView
 import io.github.andreygladkov.inklauncher.ui.WidgetPickerScreen
 import org.junit.After
@@ -66,8 +66,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import org.robolectric.util.ReflectionHelpers
-import org.robolectric.util.ReflectionHelpers.ClassParameter
 import java.time.Clock
 import java.time.Duration
 import java.time.LocalDate
@@ -485,14 +483,16 @@ class HomeActivityTest {
 
         tile(activity, "Читалка").performLongClick()
         button(activity, "Экранное время: По делу").performClick()
-        assertTrue(button(activity, "По делу").isSelected)
+        assertEquals(listOf(false, true, false), listOf("Залип", "По делу", "Не считать").map { (button(activity, it) as SheetAction).isChecked })
+        val node = button(activity, "По делу").createAccessibilityNodeInfo()
+        assertTrue(node.isCheckable && node.isChecked)
         button(activity, "Залип").performClick()
         val marked = screenTimeTile(activity).usage!!
         assertEquals(listOf("40 мин", "5 мин", "2"), listOf(marked.drifting, marked.onPurpose, marked.unlocks.toString()))
         assertEquals(40f / 45, marked.driftingShare, 0.001f)
         tile(activity, "Читалка").performLongClick()
         button(activity, "Экранное время: Залип").performClick()
-        button(activity, "Не выбрано").performClick()
+        button(activity, "Не считать").performClick()
         assertEquals(ScreenTimeView.Usage("0 мин", "5 мин", 0f, 2), screenTimeTile(activity).usage)
     }
 
@@ -508,6 +508,33 @@ class HomeActivityTest {
         assertEquals("45 мин", screenTimeTile(activity).usage!!.onPurpose)
     }
 
+    @Test fun aTileMenuListsItsActionsAsRowsBetweenDottedLinesAndItsArrowClosesIt() {
+        seed(HomeLayout().place(AppTile(1, mail), Spot(Sheet.Page(0), 0, 0)))
+        val activity = open()
+        tile(activity, "Почта").performLongClick()
+        val sheet = contentRoot(activity).find<ActionSheet>().single()
+        val rows = sheet.find<SheetAction>()
+        val lines = sheet.find<View>().filter { it.background is DottedDrawable }
+        assertTrue(rows.size > 1 && rows.none { it.isBordered })
+        assertEquals(rows.size - 1, lines.size)
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+        val arrow = sheet.find<ActionSheet.CloseArrow>().single()
+        arrow.isPressed = true
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+        arrow.isPressed = false
+        arrow.performClick()
+        assertTrue(contentRoot(activity).find<ActionSheet>().isEmpty())
+    }
+
+    @Test fun anActionUnderAFieldKeepsAGapFromIt() {
+        seed(HomeLayout().place(AppTile(1, mail), Spot(Sheet.Page(0), 0, 0)))
+        val activity = open()
+        tile(activity, "Почта").performLongClick()
+        button(activity, "Переименовать").performClick()
+        val done = button(activity, "Готово")
+        assertTrue((done.layoutParams as android.widget.LinearLayout.LayoutParams).topMargin > 0)
+    }
+
     @Test fun choosingTheDefaultCategoryForgetsTheChoice() {
         val activity = open()
         activity.setCategory(reader.packageName, AppCategory.DRIFTING)
@@ -517,24 +544,21 @@ class HomeActivityTest {
         assertEquals(AppCategory.UNCOUNTED, activity.screenTime.category(context.packageName))
     }
 
-    @Test fun onlyEnabledKeyboardsAreLeftOutAndOneTurnedOnLaterIsToo() {
+    @Test fun theKeyboardInUseIsNotCountedAndTheTileFollowsASwitchOfKeyboards() {
         val vault = AppKey("org.vault", "org.vault.Main")
         install(vault, "Сейф")
-        val keyboard = ReflectionHelpers.callConstructor(InputMethodInfo::class.java,
-            ClassParameter.from(String::class.java, vault.packageName),
-            ClassParameter.from(String::class.java, "org.vault.Keyboard"),
-            ClassParameter.from(CharSequence::class.java, "Сейф"),
-            ClassParameter.from(String::class.java, null))
-        val keyboards = shadowOf(context.getSystemService(InputMethodManager::class.java))
-        keyboards.setInputMethodInfoList(listOf(keyboard))
-        keyboards.setEnabledInputMethodInfoList(listOf())
-        val activity = open()
+        seed(HomeLayout().place(ScreenTimeTile(1), Spot(Sheet.Page(0), 0, 0, 2, 1)))
+        grantUsageAccess()
+        usage(vault.packageName, now - 50 * MINUTE, now - 10 * MINUTE)
+        val activity = openAtNoon()
         assertEquals(AppCategory.ON_PURPOSE, activity.screenTime.category(vault.packageName))
+        assertEquals("40 мин", screenTimeTile(activity).usage!!.onPurpose)
 
-        keyboards.setEnabledInputMethodInfoList(listOf(keyboard))
-        context.contentResolver.notifyChange(Settings.Secure.getUriFor(Settings.Secure.ENABLED_INPUT_METHODS), null)
+        Settings.Secure.putString(context.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD, "org.vault/.Keyboard")
+        context.contentResolver.notifyChange(Settings.Secure.getUriFor(Settings.Secure.DEFAULT_INPUT_METHOD), null)
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals(AppCategory.UNCOUNTED, activity.screenTime.category(vault.packageName))
+        assertEquals("0 мин", screenTimeTile(activity).usage!!.onPurpose)
     }
 
     @Test fun inOneCellTheScreenTimeTileStacksTheTimesWithoutNames() {
@@ -591,9 +615,9 @@ class HomeActivityTest {
         assertEquals("40 мин", screenTimeTile(activity).usage!!.drifting)
 
         (screen.find<CategoryMark>()[1].parent as View).performClick()
-        button(activity, "Не выбрано").performClick()
+        button(activity, "Не считать").performClick()
         laidOut(activity)
-        assertTrue("1 мин · Не выбрано" in screen.find<InkTextView>().map { it.text.toString() })
+        assertTrue("1 мин · Не считать" in screen.find<InkTextView>().map { it.text.toString() })
         assertEquals("0 мин", screenTimeTile(activity).usage!!.onPurpose)
         assertPureBlackAndWhite(render(contentRoot(activity)))
     }
