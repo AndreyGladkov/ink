@@ -7,7 +7,9 @@ import android.graphics.Color
 import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ListView
 import androidx.core.graphics.createBitmap
+import io.github.andreygladkov.ink.ui.InkPagedList
 import org.robolectric.Shadows.shadowOf
 import kotlin.test.assertTrue
 
@@ -35,6 +37,25 @@ inline fun <reified T : View> View.find(): List<T> = descendants(this).filterIsI
 
 fun descendants(view: View): List<View> =
     listOf(view) + if (view is ViewGroup) (0 until view.childCount).flatMap { descendants(view.getChildAt(it)) } else emptyList()
+
+/**
+ * Shows each page of the paged list under this view in turn, leaving the list on the last page reached; a view found
+ * on a page is shown while it is used. A scrolling list has only its laid-out rows, so it is refused.
+ */
+fun View.pages(): Sequence<View> = sequence {
+    shadowOf(Looper.getMainLooper()).idle()
+    val list = find<InkPagedList>().single()
+    check(list.find<ListView>().isEmpty()) { "pages() walks a paged list, not a scrolling one" }
+    for (page in 0 until list.pageCount) {
+        list.showPage(page)
+        yield(this@pages)
+    }
+}
+
+inline fun <reified T : View> View.findOnPages(): List<T> = pages().flatMap { it.find<T>() }.toList()
+
+inline fun <reified T : View> View.firstOnPages(crossinline predicate: (T) -> Boolean): T =
+    pages().firstNotNullOf { page -> page.find<T>().firstOrNull(predicate) }
 
 fun idleUntil(timeoutMs: Long = 5000, condition: () -> Boolean) {
     val deadline = System.currentTimeMillis() + timeoutMs

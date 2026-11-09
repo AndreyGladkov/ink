@@ -9,13 +9,6 @@
     <string name="too_large">Слишком большое число</string>
 
     <string name="settings_haptic_keys">Клавиатура</string>
-    <string name="about">О приложении</string>
-    <string name="about_version">Версия %1$s</string>
     <string name="about_license">Ink Calculator — свободная программа под лицензией GNU General Public License v3.</string>
     <string name="about_privacy">Ink Calculator не выходит в интернет: у него нет разрешения INTERNET.</string>
-    <string name="about_gpl">GNU General Public License v3</string>
-    <string name="about_source">Исходный код</string>
-    <string name="about_components">Компоненты</string>
-    <string name="about_noto">Шрифт Noto Emoji — SIL Open Font License 1.1</string>
-    <string name="about_material">Иконки Material — Apache License 2.0</string>
 </resources>

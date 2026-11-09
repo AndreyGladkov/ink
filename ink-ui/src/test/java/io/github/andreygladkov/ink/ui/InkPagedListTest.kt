@@ -69,5 +69,30 @@ class InkPagedListTest {
         assertEquals(back.minHeight, own.height)
     }
 
+    @Test fun aScrollingListKeepsItsOffsetWhenItsRowsAreReplaced() {
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        activity.inkPrefs().edit().putBoolean(InkPagedList.PREF_SCROLL, true).commit()
+        val list = InkPagedList(activity, dividers = false)
+        activity.setContentView(FrameLayout(activity).apply { addView(list, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, 1200)) })
+        list.setAdapter(rows(activity))
+        shadowOf(Looper.getMainLooper()).idle()
+        val scrolling = list.find<android.widget.ListView>().single()
+        scrolling.setSelectionFromTop(5, -40)
+        shadowOf(Looper.getMainLooper()).idle()
+        list.replaceAdapter(rows(activity), list.firstPosition)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(5, scrolling.firstVisiblePosition)
+        assertEquals(-40, scrolling.getChildAt(0).top)
+    }
+
+    private fun rows(activity: Activity) = object : InkPagedList.Adapter {
+        override val count = 40
+        override fun itemId(position: Int) = position.toLong()
+        override fun createView(position: Int): View = TextView(activity).apply {
+            text = "item $position"
+            height = 100
+        }
+    }
+
     private fun shown(list: InkPagedList) = list.find<TextView>().filter { it.text.startsWith("item") }.map { it.text.toString() }
 }

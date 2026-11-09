@@ -4,7 +4,9 @@ import android.provider.Settings
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.assertPureBlackAndWhite
 import io.github.andreygladkov.ink.contentRoot
-import io.github.andreygladkov.ink.find
+import io.github.andreygladkov.ink.pages
+import io.github.andreygladkov.ink.firstOnPages
+import io.github.andreygladkov.ink.findOnPages
 import io.github.andreygladkov.ink.idleUntil
 import io.github.andreygladkov.ink.render
 import io.github.andreygladkov.ink.ui.InkButton
@@ -37,30 +39,29 @@ class SettingsActivityTest {
         val texts = texts(activity)
         listOf("Открывать при запуске", "Отображение", "Вибрация", "Уведомления", "Заблокированные номера", "Приложение для SMS", "О приложении")
             .forEach { assertTrue(it in texts, "missing section $it in $texts") }
-        assertPureBlackAndWhite(render(contentRoot(activity)))
+        contentRoot(activity).pages().forEach { assertPureBlackAndWhite(render(it)) }
     }
 
     @Test fun withoutTheSmsRoleTheBlockListIsUnavailableAndTheRoleIsOffered() {
         val activity = open()
         idleUntil { texts(activity).contains("Список доступен, когда Ink Messages выбрано для SMS.") }
-        assertTrue(contentRoot(activity).find<InkButton>().any { it.text.toString() == "Сделать основным" })
+        assertTrue(contentRoot(activity).findOnPages<InkButton>().any { it.text.toString() == "Сделать основным" })
     }
 
     @Test fun blockedNumbersCanBeUnblocked() {
         TestData.makeDefaultSmsApp()
         FakeBlockedNumberProvider.numbers += "+79001112233"
         val activity = open()
-        idleUntil { contentRoot(activity).find<InkButton>().any { it.text.toString() == "Разблокировать" } }
+        idleUntil { contentRoot(activity).findOnPages<InkButton>().any { it.text.toString() == "Разблокировать" } }
         assertTrue(texts(activity).contains("Ink Messages выбрано для SMS."))
-        contentRoot(activity).find<InkButton>().single { it.text.toString() == "Разблокировать" }.performClick()
+        contentRoot(activity).firstOnPages<InkButton> { it.text.toString() == "Разблокировать" }.performClick()
         idleUntil { texts(activity).contains("Заблокированных номеров нет.") }
         assertTrue(FakeBlockedNumberProvider.numbers.isEmpty())
     }
 
     @Test fun eachCategoryLinksToItsNotificationChannel() {
         val activity = open()
-        val categoryChoice = contentRoot(activity).find<InkButton>().first { it.text.toString() == "Прочие" }
-        contentRoot(activity).find<InkButton>().last { it.text.toString() == "Прочие" && it !== categoryChoice }.performClick()
+        contentRoot(activity).findOnPages<InkButton>().last { it.text.toString() == "Прочие" }.performClick()
         val opened = shadowOf(activity).nextStartedActivity
         assertEquals(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS, opened.action)
         assertEquals("messages_other", opened.getStringExtra(Settings.EXTRA_CHANNEL_ID))
@@ -68,14 +69,14 @@ class SettingsActivityTest {
     }
 
     @Test fun aboutShowsTheVersionAndTheLicenses() {
-        val about = Robolectric.buildActivity(AboutActivity::class.java, AboutActivity.intent(context)).setup().get()
+        val about = Robolectric.buildActivity(AboutActivity::class.java).setup().get()
         assertTrue(texts(about).contains("Версия ${BuildConfig.VERSION_NAME}"))
-        contentRoot(about).find<InkButton>().single { it.text.toString().startsWith("Разбор MMS") }.performClick()
+        contentRoot(about).firstOnPages<InkButton> { it.text.toString().startsWith("Разбор MMS") }.performClick()
         val license = Robolectric.buildActivity(AboutActivity::class.java, shadowOf(about).nextStartedActivity).setup().get()
-        assertTrue(texts(license).any { it.contains("Apache License") && it.length > 1000 })
+        assertTrue(texts(license).joinToString("\n").let { it.contains("Apache License") && it.length > 1000 })
     }
 
     private fun open() = Robolectric.buildActivity(SettingsActivity::class.java, SettingsActivity.intent(context)).setup().get()
 
-    private fun texts(activity: android.app.Activity) = contentRoot(activity).find<InkTextView>().map { it.text.toString() }
+    private fun texts(activity: android.app.Activity) = contentRoot(activity).findOnPages<InkTextView>().map { it.text.toString() }
 }

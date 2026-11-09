@@ -28,6 +28,7 @@ import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.assertPureBlackAndWhite
 import io.github.andreygladkov.ink.contentRoot
 import io.github.andreygladkov.ink.find
+import io.github.andreygladkov.ink.firstOnPages
 import io.github.andreygladkov.ink.render
 import io.github.andreygladkov.ink.ui.DottedDrawable
 import io.github.andreygladkov.ink.ui.InkButton
@@ -769,7 +770,7 @@ class HomeActivityTest {
 
     private fun chooseBadge(label: String) {
         val settings = Robolectric.buildActivity(SettingsActivity::class.java).setup()
-        contentRoot(settings.get()).find<InkButton>().single { it.text.toString() == label }.performClick()
+        contentRoot(settings.get()).firstOnPages<InkButton> { it.text.toString() == label }.performClick()
         settings.pause().stop().destroy()
     }
 

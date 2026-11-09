@@ -114,13 +114,6 @@
     <string name="settings_ring_for">Stop ringing after</string>
     <string name="minutes_short">%1$d min</string>
     <string name="settings_haptic_keys">Keypad</string>
-    <string name="about">About</string>
-    <string name="about_version">Version %1$s</string>
     <string name="about_license">Ink Clock is free software under the GNU General Public License v3.</string>
     <string name="about_privacy">Ink Clock has no internet access: it does not request the INTERNET permission.</string>
-    <string name="about_gpl">GNU General Public License v3</string>
-    <string name="about_source">Source code</string>
-    <string name="about_components">Components</string>
-    <string name="about_noto">Noto Emoji font — SIL Open Font License 1.1</string>
-    <string name="about_material">Material icons — Apache License 2.0</string>
 </resources>

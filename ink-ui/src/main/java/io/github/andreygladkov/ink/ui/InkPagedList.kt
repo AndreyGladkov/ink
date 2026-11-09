@@ -78,7 +78,11 @@ class InkPagedList(
             return current.knownPages
         }
 
-    val firstPosition get() = scrollList?.firstVisiblePosition ?: breaker?.start(page) ?: 0
+    val firstPosition: Int
+        get() {
+            val list = scrollList ?: return breaker?.start(page) ?: pendingPosition
+            return if (list.childCount > 0) list.firstVisiblePosition else pendingPosition
+        }
 
     init {
         orientation = VERTICAL
@@ -136,6 +140,7 @@ class InkPagedList(
 
     fun setAdapter(adapter: Adapter, position: Int = 0) {
         this.adapter = adapter
+        pendingPosition = position
         scrollList?.let { list ->
             list.adapter = ScrollAdapter(adapter)
             list.setSelection(position)
@@ -143,8 +148,15 @@ class InkPagedList(
             return
         }
         heights.clear()
-        pendingPosition = position
         if (repaginate()) showPageOf(pendingPosition)
+    }
+
+    /** Like [setAdapter], but a scrolling list also keeps how far the row at [position] is scrolled past the top. */
+    fun replaceAdapter(adapter: Adapter, position: Int) {
+        val list = scrollList
+        val top = list?.getChildAt(0)?.top
+        setAdapter(adapter, position)
+        if (list != null && top != null) list.setSelectionFromTop(position, top)
     }
 
     fun showPageOf(position: Int) {

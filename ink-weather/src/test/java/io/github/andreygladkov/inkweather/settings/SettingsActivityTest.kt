@@ -8,6 +8,8 @@ import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.assertPureBlackAndWhite
 import io.github.andreygladkov.ink.contentRoot
 import io.github.andreygladkov.ink.find
+import io.github.andreygladkov.ink.pages
+import io.github.andreygladkov.ink.firstOnPages
 import io.github.andreygladkov.ink.idleUntil
 import io.github.andreygladkov.ink.render
 import io.github.andreygladkov.ink.ui.InkButton
@@ -45,7 +47,7 @@ class SettingsActivityTest {
         shadowOf(AppWidgetManager.getInstance(context)).bindAppWidgetId(2, ComponentName(context, WeatherWidget::class.java))
         PlaceStore.of(context).bind(2, Fixtures.MOSCOW)
         val activity = Robolectric.buildActivity(SettingsActivity::class.java).setup().get()
-        contentRoot(activity).find<InkButton>().single { it.text.toString() == "MET Norway" }.performClick()
+        contentRoot(activity).firstOnPages<InkButton> { it.text.toString() == "MET Norway" }.performClick()
         Weather.fetches.submit {}.get()
         assertTrue(transport.asked.isEmpty())
     }
@@ -55,11 +57,11 @@ class SettingsActivityTest {
         shadowOf(AppWidgetManager.getInstance(context)).bindAppWidgetId(2, ComponentName(context, WeatherWidget::class.java))
         PlaceStore.of(context).bind(2, Fixtures.MOSCOW)
         val activity = Robolectric.buildActivity(SettingsActivity::class.java).setup().get()
-        val choices = contentRoot(activity).find<InkButton>().filter { it.text.toString() in Source.entries.map(Source::title) }
+        val choices = contentRoot(activity).pages().first().find<InkButton>().filter { it.text.toString() in Source.entries.map(Source::title) }
         assertEquals(listOf("MET Norway" to true, "Open-Meteo" to false), choices.map { it.text.toString() to it.isSelected })
-        assertPureBlackAndWhite(render(contentRoot(activity)))
+        contentRoot(activity).pages().forEach { assertPureBlackAndWhite(render(it)) }
 
-        choices[1].performClick()
+        contentRoot(activity).firstOnPages<InkButton> { it.text.toString() == "Open-Meteo" }.performClick()
         assertEquals(Source.OPEN_METEO, Source.of(context))
         idleUntil { ForecastCache(context).load(Fixtures.MOSCOW)?.source == Source.OPEN_METEO && PlaceStore.of(context).drawn(2) != null }
     }

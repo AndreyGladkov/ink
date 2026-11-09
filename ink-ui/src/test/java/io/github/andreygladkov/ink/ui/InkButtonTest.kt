@@ -35,5 +35,12 @@ class InkButtonTest {
         assertEquals(Color.BLACK, bitmap.getPixel(150, 2))
     }
 
+    @Test fun aJoinedSideKeepsSquareCorners() {
+        val bitmap = render(pressed { isJoinedEnd = true }, width = 300, height = 150)
+        assertEquals(Color.TRANSPARENT, bitmap.getPixel(0, 0))
+        assertEquals(Color.BLACK, bitmap.getPixel(299, 0))
+        assertEquals(Color.BLACK, bitmap.getPixel(299, 149))
+    }
+
     private fun pressed(setup: InkButton.() -> Unit) = InkButton(context).apply(setup).apply { isPressed = true }
 }

@@ -81,16 +81,8 @@
 
     <string name="settings_forecast">Прогноз</string>
     <string name="settings_source">Источник прогноза</string>
-
-    <string name="about">О приложении</string>
-    <string name="about_version">Версия %1$s</string>
     <string name="about_license">Ink Weather — свободная программа под лицензией GNU General Public License v3.</string>
     <string name="about_privacy">Ink Weather обращается только к MET Norway и Open-Meteo: отправляет координаты ваших городов для прогноза и название города, который вы ищете.</string>
-    <string name="about_gpl">GNU General Public License v3</string>
-    <string name="about_source">Исходный код</string>
-    <string name="about_components">Компоненты</string>
     <string name="about_met_no">Прогноз — MET Norway (api.met.no), CC BY 4.0</string>
     <string name="about_open_meteo">Прогноз и поиск городов — Open-Meteo.com, CC BY 4.0</string>
-    <string name="about_noto">Шрифт Noto Emoji — SIL Open Font License 1.1</string>
-    <string name="about_material">Иконки Material — Apache License 2.0</string>
 </resources>

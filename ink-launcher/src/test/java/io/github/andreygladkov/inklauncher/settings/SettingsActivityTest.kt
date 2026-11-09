@@ -6,7 +6,7 @@ import android.content.ComponentName
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.contentRoot
-import io.github.andreygladkov.ink.find
+import io.github.andreygladkov.ink.findOnPages
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inklauncher.notify.InkNotificationListener
 import org.junit.runner.RunWith
@@ -31,7 +31,7 @@ class SettingsActivityTest {
     }
 
     private fun texts() = Robolectric.buildActivity(SettingsActivity::class.java).setup().get()
-        .let { contentRoot(it).find<InkTextView>().map { view -> view.text.toString() } }
+        .let { contentRoot(it).findOnPages<InkTextView>().map { view -> view.text.toString() } }
 
     private companion object {
         const val BADGE = "Значок уведомлений"
