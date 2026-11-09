@@ -35,6 +35,7 @@ import org.robolectric.annotation.GraphicsMode
 import java.time.Clock
 import java.time.Duration
 import java.time.ZoneOffset
+import java.util.TimeZone
 import java.util.concurrent.CountDownLatch
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -48,12 +49,17 @@ class MainActivityTest {
     private val store = PlaceStore.of(context)
     private val cache = ForecastCache(context)
 
+    private val machineZone = TimeZone.getDefault()
+
+    /** The phone is in Moscow, so the time a forecast was fetched reads the same on any machine running the tests. */
     @Before fun freezeTime() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Moscow"))
         Weather.clock = Clock.fixed(Fixtures.NOW, ZoneOffset.UTC)
         Weather.transport = Fixtures.offline()
     }
 
     @After fun restore() {
+        TimeZone.setDefault(machineZone)
         Weather.transport = HttpTransport
         Weather.clock = Clock.systemDefaultZone()
     }
