@@ -22,8 +22,6 @@ import android.provider.Settings
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsets
-import android.view.inputmethod.InputMethodInfo
-import android.view.inputmethod.InputMethodManager
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.assertPureBlackAndWhite
@@ -66,8 +64,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import org.robolectric.util.ReflectionHelpers
-import org.robolectric.util.ReflectionHelpers.ClassParameter
 import java.time.Clock
 import java.time.Duration
 import java.time.LocalDate
@@ -492,7 +488,7 @@ class HomeActivityTest {
         assertEquals(40f / 45, marked.driftingShare, 0.001f)
         tile(activity, "Читалка").performLongClick()
         button(activity, "Экранное время: Залип").performClick()
-        button(activity, "Не выбрано").performClick()
+        button(activity, "Не считать").performClick()
         assertEquals(ScreenTimeView.Usage("0 мин", "5 мин", 0f, 2), screenTimeTile(activity).usage)
     }
 
@@ -517,24 +513,21 @@ class HomeActivityTest {
         assertEquals(AppCategory.UNCOUNTED, activity.screenTime.category(context.packageName))
     }
 
-    @Test fun onlyEnabledKeyboardsAreLeftOutAndOneTurnedOnLaterIsToo() {
+    @Test fun theKeyboardInUseIsNotCountedAndTheTileFollowsASwitchOfKeyboards() {
         val vault = AppKey("org.vault", "org.vault.Main")
         install(vault, "Сейф")
-        val keyboard = ReflectionHelpers.callConstructor(InputMethodInfo::class.java,
-            ClassParameter.from(String::class.java, vault.packageName),
-            ClassParameter.from(String::class.java, "org.vault.Keyboard"),
-            ClassParameter.from(CharSequence::class.java, "Сейф"),
-            ClassParameter.from(String::class.java, null))
-        val keyboards = shadowOf(context.getSystemService(InputMethodManager::class.java))
-        keyboards.setInputMethodInfoList(listOf(keyboard))
-        keyboards.setEnabledInputMethodInfoList(listOf())
-        val activity = open()
+        seed(HomeLayout().place(ScreenTimeTile(1), Spot(Sheet.Page(0), 0, 0, 2, 1)))
+        grantUsageAccess()
+        usage(vault.packageName, now - 50 * MINUTE, now - 10 * MINUTE)
+        val activity = openAtNoon()
         assertEquals(AppCategory.ON_PURPOSE, activity.screenTime.category(vault.packageName))
+        assertEquals("40 мин", screenTimeTile(activity).usage!!.onPurpose)
 
-        keyboards.setEnabledInputMethodInfoList(listOf(keyboard))
-        context.contentResolver.notifyChange(Settings.Secure.getUriFor(Settings.Secure.ENABLED_INPUT_METHODS), null)
+        Settings.Secure.putString(context.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD, "org.vault/.Keyboard")
+        context.contentResolver.notifyChange(Settings.Secure.getUriFor(Settings.Secure.DEFAULT_INPUT_METHOD), null)
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals(AppCategory.UNCOUNTED, activity.screenTime.category(vault.packageName))
+        assertEquals("0 мин", screenTimeTile(activity).usage!!.onPurpose)
     }
 
     @Test fun inOneCellTheScreenTimeTileStacksTheTimesWithoutNames() {
@@ -591,9 +584,9 @@ class HomeActivityTest {
         assertEquals("40 мин", screenTimeTile(activity).usage!!.drifting)
 
         (screen.find<CategoryMark>()[1].parent as View).performClick()
-        button(activity, "Не выбрано").performClick()
+        button(activity, "Не считать").performClick()
         laidOut(activity)
-        assertTrue("1 мин · Не выбрано" in screen.find<InkTextView>().map { it.text.toString() })
+        assertTrue("1 мин · Не считать" in screen.find<InkTextView>().map { it.text.toString() })
         assertEquals("0 мин", screenTimeTile(activity).usage!!.onPurpose)
         assertPureBlackAndWhite(render(contentRoot(activity)))
     }

@@ -83,7 +83,7 @@
     <string name="yesterday">Вчера</string>
     <string name="by_day">По дням</string>
     <string name="by_app">По приложениям</string>
-    <string name="uncounted">Не выбрано</string>
+    <string name="uncounted">Не считать</string>
     <string name="screen_time_category">Экранное время: %1$s</string>
     <string name="screen_time_tap_for_access">Нажмите, чтобы разрешить доступ к статистике</string>
     <string name="screen_time_access_needed">Чтобы считать экранное время, Ink Launcher нужен доступ к истории использования.</string>

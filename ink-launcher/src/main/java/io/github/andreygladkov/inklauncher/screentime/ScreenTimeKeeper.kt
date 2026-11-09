@@ -1,8 +1,9 @@
 package io.github.andreygladkov.inklauncher.screentime
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.view.inputmethod.InputMethodManager
+import android.provider.Settings
 import androidx.core.content.edit
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.inklauncher.LauncherPrefs
@@ -61,10 +62,12 @@ class ScreenTimeKeeper(private val context: Context, private val clock: () -> Cl
         .map { it.activityInfo.packageName }
         .toSet()
 
-    // Only enabled keyboards: an app such as a password manager may ship a keyboard of its own that the user never
-    // turned on, and the app itself should still count.
-    private fun keyboards(): Set<String> =
-        context.getSystemService(InputMethodManager::class.java)?.enabledInputMethodList.orEmpty().map { it.packageName }.toSet()
+    // Only the keyboard the user types with: other enabled input methods often live inside a full app, as Google's
+    // voice typing lives in the Google app, whose own time should still count.
+    private fun keyboards(): Set<String> = setOfNotNull(
+        Settings.Secure.getString(context.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
+            ?.let(ComponentName::unflattenFromString)?.packageName,
+    )
 
     fun period(dayCount: Int): UsagePeriod? {
         if (!isGranted) return null

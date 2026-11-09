@@ -104,7 +104,7 @@ class HomeActivity : Activity() {
             val pkg = intent.data?.schemeSpecificPart ?: return
             val removed = intent.action == Intent.ACTION_PACKAGE_REMOVED && !intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)
             catalog.invalidate()
-            screenTime.forgetDefaults()
+            screenTimeDefaultsChanged()
             IconPack.forget(pkg)
             icons.forgetMemory()
             if (removed) {
@@ -120,7 +120,7 @@ class HomeActivity : Activity() {
 
     private val keyboards by lazy {
         object : ContentObserver(Handler(mainLooper)) {
-            override fun onChange(selfChange: Boolean) = screenTime.forgetDefaults()
+            override fun onChange(selfChange: Boolean) = screenTimeDefaultsChanged()
         }
     }
 
@@ -154,7 +154,7 @@ class HomeActivity : Activity() {
             addAction(Intent.ACTION_PACKAGE_REPLACED)
             addDataScheme("package")
         }, ContextCompat.RECEIVER_NOT_EXPORTED)
-        contentResolver.registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.ENABLED_INPUT_METHODS), false, keyboards)
+        contentResolver.registerContentObserver(Settings.Secure.getUriFor(Settings.Secure.DEFAULT_INPUT_METHOD), false, keyboards)
         NotificationFeed.observe(onNotifications)
     }
 
@@ -273,6 +273,12 @@ class HomeActivity : Activity() {
         if (layout.placed.none { it.tile is ScreenTimeTile }) return
         todayLog = screenTime.period(1)
         retallyScreenTime()
+    }
+
+    private fun screenTimeDefaultsChanged() {
+        screenTime.forgetDefaults()
+        retallyScreenTime()
+        (side as? ScreenTimeScreen)?.refresh()
     }
 
     private fun retallyScreenTime() {
