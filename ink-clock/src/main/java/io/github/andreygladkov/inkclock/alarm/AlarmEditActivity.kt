@@ -18,12 +18,12 @@ import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkButtonRow
 import io.github.andreygladkov.ink.ui.InkChoiceRow
 import io.github.andreygladkov.ink.ui.InkEditText
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkSettings
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.addSection
 import io.github.andreygladkov.ink.ui.confirmBeforeAction
-import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkclock.R
 import io.github.andreygladkov.inkclock.ui.DigitEntry
 import io.github.andreygladkov.inkclock.ui.DigitKeypad
@@ -87,20 +87,13 @@ class AlarmEditActivity : Activity() {
         showRingtone()
     }
 
-    private fun header() = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        addView(iconButton(this@AlarmEditActivity, R.drawable.ic_arrow_back, getString(R.string.back)).apply { setOnClickListener { finish() } })
-        addView(InkTextView(this@AlarmEditActivity).apply {
-            setText(if (isNew) R.string.new_alarm else R.string.alarm)
-            textScale = InkStyle.TITLE_SCALE
-            isBold = true
-        }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-        addView(InkButton(this@AlarmEditActivity).apply {
+    private fun header() = InkHeader.of(this, getString(if (isNew) R.string.new_alarm else R.string.alarm), ::finish,
+        InkButton(this).apply {
             setText(R.string.save)
             setOnClickListener { save() }
-        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(PADDING_DP) })
-    }
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                .apply { marginEnd = dp(PADDING_DP) }
+        })
 
     private fun body() = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL

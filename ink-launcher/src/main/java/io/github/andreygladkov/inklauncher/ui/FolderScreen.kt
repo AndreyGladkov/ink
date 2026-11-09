@@ -2,8 +2,8 @@ package io.github.andreygladkov.inklauncher.ui
 
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.eink.A9Panel
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.inklauncher.HomeActivity
-import io.github.andreygladkov.inklauncher.R
 import io.github.andreygladkov.inklauncher.home.FolderTile
 
 class FolderScreen(private val activity: HomeActivity, private val folderId: Long) : LinearLayout(activity), SideScreen {
@@ -11,7 +11,7 @@ class FolderScreen(private val activity: HomeActivity, private val folderId: Lon
     private val rows = (spec.rows - 1).coerceAtLeast(1)
     private val grid = CellGrid(activity, spec.columns, rows)
     private val bar = PagerBar(activity, ::prev, ::next)
-    private val header = screenHeader(activity, "", headerButton(activity, R.drawable.ic_arrow_back, R.string.back) { activity.showHome() })
+    private val header = InkHeader.of(activity, "", { activity.showHome() })
     private var page = 0
 
     init {
@@ -28,7 +28,7 @@ class FolderScreen(private val activity: HomeActivity, private val folderId: Lon
 
     override fun refresh() {
         val folder = folder ?: return activity.showHome()
-        header.setHeaderTitle(folder.name)
+        InkHeader.setTitle(header, folder.name)
         val pages = ((folder.apps.size + capacity - 1) / capacity).coerceAtLeast(1)
         page = page.coerceIn(0, pages - 1)
         grid.removeAllViews()

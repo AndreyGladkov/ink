@@ -16,6 +16,7 @@ import androidx.core.view.isVisible
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.search.SearchQuery
 import io.github.andreygladkov.ink.ui.InkEditText
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.inklauncher.HomeActivity
 import io.github.andreygladkov.inklauncher.R
 
@@ -25,9 +26,10 @@ class SearchHeader(
     title: String,
     @StringRes hint: Int,
     leading: View?,
+    actions: List<View> = emptyList(),
     private val onQuery: (SearchQuery) -> Unit,
 ) : LinearLayout(activity) {
-    private val titleView = screenTitle(activity, title)
+    private val titleView = InkHeader.title(activity, title)
     private val queryField = InkEditText(activity).apply {
         visibility = GONE
         this.hint = SpannableString(context.getString(hint)).apply {
@@ -44,8 +46,8 @@ class SearchHeader(
             override fun afterTextChanged(s: Editable?) = onQuery(query)
         })
     }
-    private val openButton = headerButton(activity, R.drawable.ic_search, hint) { open() }
-    private val closeButton = headerButton(activity, R.drawable.ic_close, R.string.close_search) { close() }.apply { visibility = GONE }
+    private val openButton = InkHeader.button(activity, R.drawable.ic_search, activity.getString(hint)) { open() }
+    private val closeButton = InkHeader.button(activity, R.drawable.ic_close, activity.getString(R.string.close_search)) { close() }.apply { visibility = GONE }
 
     init {
         orientation = VERTICAL
@@ -53,7 +55,7 @@ class SearchHeader(
             addView(titleView)
             addView(queryField, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER_VERTICAL))
         }
-        addView(screenHeader(activity, center, leading, openButton, closeButton))
+        addView(InkHeader.of(activity, center, leading, openButton, closeButton, *actions.toTypedArray()))
     }
 
     fun setTitle(title: String) {

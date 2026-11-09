@@ -7,6 +7,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.search.SearchQuery
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inklauncher.HomeActivity
@@ -23,7 +24,7 @@ class WidgetPickerScreen(private val activity: HomeActivity, private val target:
     private val padding = (PADDING_DP * resources.displayMetrics.density).roundToInt()
     private val list = InkPagedList(activity)
     private val search = SearchHeader(activity, activity.getString(R.string.pick_widget), R.string.search_widgets,
-        headerButton(activity, R.drawable.ic_arrow_back, R.string.back) { activity.showHome() }) { show() }
+        InkHeader.back(activity) { activity.showHome() }) { show() }
     private val empty = nothingFound(activity)
     private val all: List<Choice>
     private var choices: List<Choice> = emptyList()

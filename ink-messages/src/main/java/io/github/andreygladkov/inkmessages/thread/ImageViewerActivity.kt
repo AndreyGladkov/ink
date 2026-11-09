@@ -7,16 +7,14 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkButtonRow
-import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkWindow
-import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkmessages.R
 import io.github.andreygladkov.inkmessages.data.Attachment
 import io.github.andreygladkov.inkmessages.data.Loader
@@ -81,15 +79,7 @@ class ImageViewerActivity : Activity() {
         return resolver.openInputStream(attachment.uri)?.use { BitmapFactory.decodeStream(it, null, options) }
     }
 
-    private fun header() = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        addView(iconButton(this@ImageViewerActivity, R.drawable.ic_arrow_back, getString(R.string.back)).apply { setOnClickListener { finish() } })
-        addView(InkTextView(this@ImageViewerActivity).apply {
-            setText(R.string.viewer_title)
-            isBold = true
-        })
-    }
+    private fun header() = InkHeader.of(this, getString(R.string.viewer_title), ::finish)
 
     private fun line(style: InkStyle) = View(this).apply {
         setBackgroundColor(style.foreground)

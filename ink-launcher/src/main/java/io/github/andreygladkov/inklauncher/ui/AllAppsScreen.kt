@@ -6,6 +6,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.search.SearchQuery
 import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.LetterIndexView
@@ -19,7 +20,9 @@ class AllAppsScreen(private val activity: HomeActivity, private val target: Spot
     private val list = InkPagedList(activity)
     private val index = LetterIndexView(activity) { letter -> jumpTo(letter) }
     private val search = SearchHeader(activity, activity.getString(if (target == null) R.string.all_apps else R.string.pick_app),
-        R.string.search_apps, null) { show(keepPage = false) }
+        R.string.search_apps, null, listOfNotNull(InkHeader.settings(activity) { activity.openSettings() }.takeIf { target == null })) {
+        show(keepPage = false)
+    }
     private val empty = nothingFound(activity)
     private val style = InkStyle.of(activity)
     private var installed: List<LauncherApp> = emptyList()

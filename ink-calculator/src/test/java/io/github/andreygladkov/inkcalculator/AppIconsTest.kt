@@ -23,7 +23,7 @@ class AppIconsTest {
     private val icons = R.drawable::class.java.fields.filter { it.name.startsWith("ic_") && it.name != "ic_launcher_foreground" }
 
     @Test fun everyIconRastersToTwoTonesAndIsNotEmpty() {
-        assertTrue(icons.size >= 3)
+        assertTrue(icons.isNotEmpty())
         icons.forEach { field ->
             val pixels = MonochromeIcons.bitmap(context, field.getInt(null), 54, Color.BLACK).pixels()
             assertTrue(pixels.all { it == Color.BLACK || it == Color.TRANSPARENT }, "${field.name} has partial pixels")

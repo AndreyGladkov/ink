@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkSegments
 import io.github.andreygladkov.ink.ui.InkTextView
@@ -54,8 +55,7 @@ class ScreenTimeScreen(private val activity: HomeActivity) : LinearLayout(activi
 
     init {
         orientation = VERTICAL
-        addView(screenHeader(activity, activity.getString(R.string.screen_time),
-            headerButton(activity, R.drawable.ic_arrow_back, R.string.back) { activity.showHome() }))
+        addView(InkHeader.of(activity, activity.getString(R.string.screen_time), { activity.showHome() }))
         addView(InkSegments(activity, listOf(R.string.by_day, R.string.by_app)) { index ->
             tab = Tab.entries[index]
             show(keepPage = false)

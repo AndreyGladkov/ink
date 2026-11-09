@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="launcher_label">Сообщения</string>
-    <string name="back">Назад</string>
     <string name="settings">Настройки</string>
 
     <string name="category_favorites">Избранное</string>

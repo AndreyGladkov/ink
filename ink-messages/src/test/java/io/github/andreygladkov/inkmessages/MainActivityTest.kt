@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Application
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.core.content.edit
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.assertPureBlackAndWhite
@@ -23,6 +24,7 @@ import io.github.andreygladkov.inkmessages.conversations.ConversationRow
 import io.github.andreygladkov.inkmessages.data.FakePhoneLookupProvider
 import io.github.andreygladkov.inkmessages.data.FakeTelephonyProvider
 import io.github.andreygladkov.inkmessages.thread.ThreadActivity
+import kotlin.test.assertFalse
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -100,6 +102,19 @@ class MainActivityTest {
         assertEquals(motherThread, started.getLongExtra("thread_id", -1))
     }
 
+    @Suppress("DEPRECATION")
+    @Test fun backReturnsToTheStartCategoryBeforeClosing() {
+        val activity = Robolectric.buildActivity(MainActivity::class.java).setup().get()
+        val tabs = tabBar(activity)
+        val start = tabs.selected!!
+        tabs.select(Category.entries.first { it != start })
+        activity.onBackPressed()
+        assertEquals(start, tabs.selected)
+        assertFalse(activity.isFinishing)
+        activity.onBackPressed()
+        assertTrue(activity.isFinishing)
+    }
+
     @Test fun asksForAccessWithoutPermissions() {
         shadowOf(context as Application).denyPermissions(Manifest.permission.READ_SMS, Manifest.permission.READ_CONTACTS)
         val activity = Robolectric.buildActivity(MainActivity::class.java).setup().get()
@@ -128,10 +143,23 @@ class MainActivityTest {
         return rows(activity).map { it.title.text.toString() }
     }
 
+    @Test fun aLineSeparatesTheTopBarFromTheContentWhileComposeIsThere() {
+        TestData.makeDefaultSmsApp()
+        val root = contentRoot(open())
+        val column = root.find<LinearLayout>().first { it.orientation == LinearLayout.VERTICAL && it.childCount > 2 }
+        val settings = root.find<InkButton>().single { it.contentDescription == "Настройки" }
+        val top = column.getChildAt(0)
+        assertTrue(settings.parent === top)
+        val line = column.getChildAt(1)
+        assertTrue(line.isShown && line.height in 1..10 && line.width == column.width, "${line.width}x${line.height}")
+    }
+
     @Test fun withoutTheSmsRoleOffersToBecomeDefaultAndHidesCompose() {
         val root = contentRoot(open())
         assertTrue(root.find<InkButton>().single { it.text.toString() == "Сделать основным" }.isShown)
         assertTrue(root.find<InkButton>().none { it.isShown && it.text.toString() == "Написать" })
+        val column = root.find<LinearLayout>().first { it.orientation == LinearLayout.VERTICAL && it.childCount > 2 }
+        assertFalse(column.getChildAt(1).isShown)
     }
 
     @Test fun defaultAppShowsComposeAndDraftPreviews() {

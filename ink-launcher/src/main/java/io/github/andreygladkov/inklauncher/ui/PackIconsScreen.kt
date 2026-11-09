@@ -6,6 +6,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inklauncher.HomeActivity
@@ -31,7 +32,7 @@ class PackIconsScreen(private val activity: HomeActivity, private val pack: Icon
     private val tile: LabeledTile? = activity.layout.find(tileId)?.tile as? LabeledTile ?: activity.layout.app(tileId)
     private val padding = (PADDING_DP * resources.displayMetrics.density).roundToInt()
     private val search = SearchHeader(activity, pack.label, R.string.search_icons,
-        headerButton(activity, R.drawable.ic_arrow_back, R.string.back) { back() }) { showQuery() }
+        InkHeader.back(activity) { back() }) { showQuery() }
     private val overview = InkPagedList(activity)
     private val grid = IconGrid(activity, pack.packageName, ::pick).apply { visibility = GONE }
     private val empty = nothingFound(activity)

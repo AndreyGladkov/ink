@@ -2,7 +2,6 @@ package io.github.andreygladkov.inkphone.contacts
 
 import android.Manifest
 import android.app.Activity
-import android.content.Intent
 import android.database.ContentObserver
 import android.os.Handler
 import android.os.Looper
@@ -27,7 +26,7 @@ import io.github.andreygladkov.ink.ui.PermissionGate
 import io.github.andreygladkov.ink.ui.iconButton
 import io.github.andreygladkov.inkphone.R
 import io.github.andreygladkov.inkphone.TabScreen
-import io.github.andreygladkov.inkphone.settings.SettingsActivity
+import io.github.andreygladkov.inkphone.settings.settingsButton
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
 
@@ -180,9 +179,7 @@ class ContactsScreen(private val activity: Activity) : LinearLayout(activity), T
         addView(iconButton(activity, R.drawable.ic_add, activity.getString(R.string.contact_new)).apply {
             setOnClickListener { activity.startActivity(ContactEditActivity.intentForNew(activity)) }
         })
-        addView(iconButton(activity, R.drawable.ic_settings, activity.getString(R.string.settings)).apply {
-            setOnClickListener { activity.startActivity(Intent(activity, SettingsActivity::class.java)) }
-        })
+        addView(settingsButton(activity))
     }
 
     private fun showMessage(text: Int) {

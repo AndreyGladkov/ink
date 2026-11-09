@@ -27,6 +27,7 @@ import io.github.andreygladkov.inkphone.contacts.ContactList
 import io.github.andreygladkov.inkphone.contacts.ContactListOptions
 import io.github.andreygladkov.inkphone.contacts.ContactsRepository
 import io.github.andreygladkov.inkphone.contacts.ContactsScreen
+import io.github.andreygladkov.inkphone.settings.settingsButton
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
 
@@ -64,9 +65,13 @@ class FavoritesScreen(private val activity: Activity) : LinearLayout(activity), 
 
     init {
         orientation = VERTICAL
-        addView(InkSegments(activity, listOf(R.string.favorites_tab_favorites, R.string.favorites_tab_speed_dial)) { index ->
-            showSpeedDial = index == 1
-            load()
+        addView(LinearLayout(activity).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            addView(InkSegments(activity, listOf(R.string.favorites_tab_favorites, R.string.favorites_tab_speed_dial)) { index ->
+                showSpeedDial = index == 1
+                load()
+            }, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
+            addView(settingsButton(activity))
         })
         addView(View(activity).apply { setBackgroundColor(InkStyle.of(activity).foreground) },
             LayoutParams(LayoutParams.MATCH_PARENT, dp(InkStyle.LINE_DP).coerceAtLeast(1)))
