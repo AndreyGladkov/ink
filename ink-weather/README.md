@@ -27,6 +27,8 @@ Requires Android 11 or newer.
 - **GitHub:** download `InkWeather-<version>-release.apk` from [Releases](https://github.com/AndreyGladkov/ink/releases).
 - **[Obtainium](https://github.com/ImranR98/Obtainium):** add `https://github.com/AndreyGladkov/ink` as an app and set "Filter release titles by regular expression" to `^Ink Weather `, because the repository also publishes other apps.
 
+Signing certificate SHA-256: `A5:14:EB:6A:1E:E8:B7:56:30:04:20:F9:53:0C:77:02:B0:52:83:1E:59:1A:6A:7A:9C:B7:8E:75:F0:6D:7B:12`.
+
 ## Building
 
 ```
@@ -67,3 +69,5 @@ Ink Weather обращается только к MET Norway и Open-Meteo. По�
 
 - **GitHub:** скачайте `InkWeather-<версия>-release.apk` в [Releases](https://github.com/AndreyGladkov/ink/releases).
 - **[Obtainium](https://github.com/ImranR98/Obtainium):** добавьте `https://github.com/AndreyGladkov/ink` и в поле «Filter release titles by regular expression» укажите `^Ink Weather ` — в репозитории публикуются и другие приложения.
+
+SHA-256 сертификата подписи: `A5:14:EB:6A:1E:E8:B7:56:30:04:20:F9:53:0C:77:02:B0:52:83:1E:59:1A:6A:7A:9C:B7:8E:75:F0:6D:7B:12`.
