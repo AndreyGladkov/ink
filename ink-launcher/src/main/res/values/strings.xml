@@ -69,6 +69,14 @@
     <string name="notification_access_on">Notifications are shown on the screen left of the first page.</string>
     <string name="grant_notification_access">Allow access</string>
     <string name="notification_access_change">Notification access</string>
+    <string name="notification_badge">Notification badge</string>
+    <string name="notification_badge_none">None</string>
+    <string name="notification_badge_number">Number</string>
+    <string name="notification_badge_dot">Dot</string>
+    <plurals name="notification_count">
+        <item quantity="one">%d notification</item>
+        <item quantity="other">%d notifications</item>
+    </plurals>
 
     <string name="screen_time">Screen time</string>
     <string name="drifting">Drifting</string>

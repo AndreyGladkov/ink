@@ -25,6 +25,7 @@ import io.github.andreygladkov.inklauncher.R
 import io.github.andreygladkov.inklauncher.home.GridSpec
 import io.github.andreygladkov.inklauncher.home.LayoutStore
 import io.github.andreygladkov.inklauncher.icons.IconPack
+import io.github.andreygladkov.inklauncher.notify.NotificationBadge
 import io.github.andreygladkov.inklauncher.notify.NotificationFeed
 import kotlin.math.roundToInt
 import io.github.andreygladkov.ink.R as InkR
@@ -136,6 +137,11 @@ class SettingsActivity : Activity() {
         body.addView(hint(getString(if (granted) R.string.notification_access_on else R.string.notification_access_needed)))
         body.addView(wideButton(getString(if (granted) R.string.notification_access_change else R.string.grant_notification_access)) {
             NotificationFeed.requestAccess(this)
+        })
+        if (!granted) return
+        val badges = NotificationBadge.entries.map { it to getString(it.title) }
+        body.addView(InkChoiceRow(this, getString(R.string.notification_badge), badges, NotificationBadge.of(inkPrefs())) {
+            NotificationBadge.save(inkPrefs(), it)
         })
     }
 

@@ -13,7 +13,7 @@ Every pixel the launcher draws is pure black or white, with no antialiasing and 
 - A long press on a tile opens its menu: rename, change the icon, hide the label, move, put into a folder, remove. Moving takes two taps: Move, then the cell; dropped on an app, an app makes a folder.
 - A long press on an empty cell adds an app, a widget or a folder there.
 - Icons come from an ADW or Nova compatible icon pack, from the app's themed monochrome icon, or from its ordinary icon; colors are dithered to black and white. Any icon can be replaced with a picture or with text, and every icon can get a frame.
-- Left of the first page is a notification screen, grouped by app, with a number next to the left arrow instead of badges on icons. Right of the last page is the list of all apps by name.
+- Left of the first page is a notification screen, grouped by app, with a number or a dot next to the left arrow instead of badges on icons, or nothing, as set in the settings. Right of the last page is the list of all apps by name.
 - A screen time tile, among the widgets, shows today's time split in two: Drifting, for the apps you mark as such (a reader, a feed), and On purpose, for everything else. Launchers and the keyboard in use start as Don't count; any app can be set to that too. Below them is the number of unlocks. A tap opens the last seven days, by day and by app; an app's category is chosen from its menu or from that list. The tile needs usage access, which you grant yourself in system settings.
 - Making the grid smaller moves whatever no longer fits to the end; nothing is removed.
 - Settings for text size, font weight, button corners, colors, lists and vibration, shared with the other Ink apps.
@@ -56,7 +56,7 @@ Bundled components: Noto Emoji font (SIL Open Font License 1.1) and Material ico
 - Долгое нажатие на иконку открывает меню: переименовать, сменить иконку, скрыть подпись, переместить, положить в папку, убрать. Перемещение — в два нажатия: «Переместить», потом ячейка; приложение, положенное на приложение, создаёт папку.
 - Долгое нажатие на пустую ячейку добавляет туда приложение, виджет или папку.
 - Иконки берутся из набора, совместимого с ADW или Nova, из монохромной тематической иконки приложения или из обычной; цвета переводятся в чёрно-белые дизерингом. Любую иконку можно заменить картинкой или текстом, а вокруг иконок можно включить обводку.
-- Слева от первой страницы — экран уведомлений, сгруппированных по приложениям; вместо значков на иконках — число рядом с левой стрелкой. Справа от последней страницы — список всех приложений по алфавиту.
+- Слева от первой страницы — экран уведомлений, сгруппированных по приложениям; вместо значков на иконках — число или точка рядом с левой стрелкой, а можно и ничего: это выбирается в настройках. Справа от последней страницы — список всех приложений по алфавиту.
 - Среди виджетов есть плитка экранного времени: время за сегодня в ней делится на «Залип» — в приложениях, которые вы так отметили (читалка, лента), — и «По делу» — во всех остальных, включая сам лаунчер. Под ними — число разблокировок. Нажатие открывает последние семь дней по дням и по приложениям; отметить приложение можно в его меню или в этом списке. Плитке нужен доступ к истории использования, который вы даёте сами в системных настройках.
 - Если уменьшить сетку, всё, что перестало помещаться, переезжает в конец; ничего не удаляется.
 - Настройки размера текста, толщины шрифта, скругления кнопок, цветов, списков и вибрации — общие с другими приложениями Ink.

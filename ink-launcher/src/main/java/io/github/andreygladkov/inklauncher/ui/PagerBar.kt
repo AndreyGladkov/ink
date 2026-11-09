@@ -54,10 +54,11 @@ class PagerBar(context: Context, onPrev: () -> Unit, onNext: () -> Unit, onDots:
         addView(next, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
     }
 
-    fun show(page: Int, pageCount: Int, hasPrev: Boolean, hasNext: Boolean, prevCount: Int = 0) {
+    fun show(page: Int, pageCount: Int, hasPrev: Boolean, hasNext: Boolean, prevBadge: String = "", prevState: String? = null) {
         prev.visibility = if (hasPrev) VISIBLE else INVISIBLE
         next.visibility = if (hasNext) VISIBLE else INVISIBLE
-        prev.text = prevCount.takeIf { it > 0 }?.toString().orEmpty()
+        if (prev.text.toString() != prevBadge) prev.text = prevBadge
+        if (prev.stateDescription?.toString() != prevState) prev.stateDescription = prevState
         dots.show(page, pageCount)
     }
 
@@ -78,7 +79,8 @@ class PagerBar(context: Context, onPrev: () -> Unit, onNext: () -> Unit, onDots:
         setOnClickListener { onClick() }
     }
 
-    private class PageDots(context: Context) : View(context) {
+    /** Centred on the whole bar, not on the room between the arrows, so a badge widening the left arrow leaves the dots in place. */
+    private inner class PageDots(context: Context) : View(context) {
         private val inkStyle = InkStyle.of(context)
         private val density = resources.displayMetrics.density
         private val fill = Paint().apply {
@@ -103,27 +105,28 @@ class PagerBar(context: Context, onPrev: () -> Unit, onNext: () -> Unit, onDots:
         override fun onDraw(canvas: Canvas) {
             if (count <= 1 && !isClickable) return
             val centerY = height / 2f
+            val centerX = this@PagerBar.width / 2 - (parent as View).left - left
             if (count > MAX_DOTS) {
                 text.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, inkStyle.textSizeSp * InkStyle.SECONDARY_SCALE, resources.displayMetrics)
                 text.typeface = StemFit.typeface(text.textSize, inkStyle.weight)
-                canvas.drawText("${page + 1} / $count", width / 2f, (centerY - (text.ascent() + text.descent()) / 2).roundToInt().toFloat(), text)
+                canvas.drawText("${page + 1} / $count", centerX.toFloat(), (centerY - (text.ascent() + text.descent()) / 2).roundToInt().toFloat(), text)
                 return
             }
             val dot = (DOT_DP * density).roundToInt()
             val small = (SMALL_DOT_DP * density).roundToInt()
             val step = (STEP_DP * density).roundToInt()
-            val left = (width - (count - 1) * step) / 2
+            val first = centerX - (count - 1) * step / 2
             for (i in 0 until count) {
                 val radius = if (i == page) dot / 2f else small / 2f
-                canvas.drawCircle((left + i * step).toFloat(), centerY.roundToInt().toFloat(), radius, fill)
+                canvas.drawCircle((first + i * step).toFloat(), centerY.roundToInt().toFloat(), radius, fill)
             }
         }
+    }
 
-        private companion object {
-            const val MAX_DOTS = 9
-            const val DOT_DP = 10f
-            const val SMALL_DOT_DP = 4f
-            const val STEP_DP = 20f
-        }
+    private companion object {
+        const val MAX_DOTS = 9
+        const val DOT_DP = 10f
+        const val SMALL_DOT_DP = 4f
+        const val STEP_DP = 20f
     }
 }

@@ -14,6 +14,7 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
+import android.graphics.Color
 import android.graphics.Insets
 import android.graphics.Rect
 import android.os.Looper
@@ -45,6 +46,7 @@ import io.github.andreygladkov.inklauncher.notify.InkNotification
 import io.github.andreygladkov.inklauncher.notify.InkNotificationListener
 import io.github.andreygladkov.inklauncher.notify.NotificationFeed
 import io.github.andreygladkov.inklauncher.screentime.AppCategory
+import io.github.andreygladkov.inklauncher.settings.SettingsActivity
 import io.github.andreygladkov.inklauncher.ui.ActionSheet
 import io.github.andreygladkov.inklauncher.ui.AllAppsScreen
 import io.github.andreygladkov.inklauncher.ui.AppRow
@@ -53,6 +55,7 @@ import io.github.andreygladkov.inklauncher.ui.CategoryMark
 import io.github.andreygladkov.inklauncher.ui.FolderScreen
 import io.github.andreygladkov.inklauncher.ui.HomeScreen
 import io.github.andreygladkov.inklauncher.ui.NotificationsScreen
+import io.github.andreygladkov.inklauncher.ui.PagerBar
 import io.github.andreygladkov.inklauncher.ui.ScreenTimeScreen
 import io.github.andreygladkov.inklauncher.ui.ScreenTimeView
 import io.github.andreygladkov.inklauncher.ui.SheetAction
@@ -162,8 +165,7 @@ class HomeActivityTest {
             InkNotification("a", "com.mail", "Письмо", "Привет", 2),
             InkNotification("b", "com.mail", "Тихое", "", 1, isSilent = true),
         ))
-        shadowOf(context.getSystemService(NotificationManager::class.java))
-            .setNotificationListenerAccessGranted(ComponentName(context, InkNotificationListener::class.java), true)
+        grantNotificationAccess()
         val activity = open()
         val prev = arrow(activity, "Предыдущая страница")
         assertEquals("1", prev.text.toString())
@@ -172,6 +174,46 @@ class HomeActivityTest {
         val screen = contentRoot(activity).find<NotificationsScreen>().single()
         val texts = screen.find<InkTextView>().map { it.text.toString() }
         assertTrue("Письмо" in texts && "Тихое" in texts, "$texts")
+    }
+
+    @Test fun theBadgeChosenInSettingsShowsOnReturningHomeWithoutMovingThePageDots() {
+        grantNotificationAccess()
+        NotificationFeed.publish(listOf(
+            InkNotification("a", "com.mail", "Письмо", "Привет", 2),
+            InkNotification("b", "com.chat", "Чат", "Как дела", 1),
+        ))
+        val home = Robolectric.buildActivity(HomeActivity::class.java).setup()
+        val activity = home.get()
+        val prev = arrow(activity, "Предыдущая страница")
+        assertEquals("2", prev.text.toString())
+        assertEquals("2 уведомления", prev.stateDescription?.toString())
+        val dotsWithNumber = pageDots(activity)
+
+        home.pause()
+        chooseBadge("Точка")
+        home.resume()
+        assertEquals("●", prev.text.toString())
+        assertEquals("2 уведомления", prev.stateDescription?.toString())
+        val inkWithDot = blackPixels(activity, prev)
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+        assertEquals(dotsWithNumber, pageDots(activity))
+
+        home.pause()
+        chooseBadge("Нет")
+        home.resume()
+        assertEquals("", prev.text.toString())
+        assertNull(prev.stateDescription)
+        assertTrue(blackPixels(activity, prev) < inkWithDot)
+        assertEquals(dotsWithNumber, pageDots(activity))
+    }
+
+    @Test fun anUnchangedBadgeDoesNotLayTheBarOutAgain() {
+        NotificationFeed.publish(listOf(InkNotification("a", "com.mail", "Письмо", "Привет", 2)))
+        val activity = open()
+        laidOut(activity)
+        val prev = arrow(activity, "Предыдущая страница")
+        activity.home.updateBar()
+        assertFalse(prev.isLayoutRequested)
     }
 
     @Test fun theRightArrowOnTheLastPageOpensAllAppsInOrder() {
@@ -663,6 +705,29 @@ class HomeActivityTest {
     }
 
     private fun open(): HomeActivity = Robolectric.buildActivity(HomeActivity::class.java).setup().get()
+
+    private fun grantNotificationAccess() = shadowOf(context.getSystemService(NotificationManager::class.java))
+        .setNotificationListenerAccessGranted(ComponentName(context, InkNotificationListener::class.java), true)
+
+    private fun chooseBadge(label: String) {
+        val settings = Robolectric.buildActivity(SettingsActivity::class.java).setup()
+        contentRoot(settings.get()).find<InkButton>().single { it.text.toString() == label }.performClick()
+        settings.pause().stop().destroy()
+    }
+
+    private fun blackPixels(activity: HomeActivity, view: View): Int {
+        val bitmap = render(contentRoot(activity))
+        val bounds = Rect(0, 0, view.width, view.height).also { contentRoot(activity).offsetDescendantRectToMyCoords(view, it) }
+        return (bounds.left until bounds.right).sumOf { x -> (bounds.top until bounds.bottom).count { y -> bitmap.getPixel(x, y) == Color.BLACK } }
+    }
+
+    private fun pageDots(activity: HomeActivity): List<Int> {
+        val bitmap = render(contentRoot(activity))
+        val bar = contentRoot(activity).find<PagerBar>().single()
+        val bounds = Rect(bar.width / 4, 0, bar.width * 3 / 4, bar.height).also { contentRoot(activity).offsetDescendantRectToMyCoords(bar, it) }
+        return (bounds.top until bounds.bottom).flatMap { y -> (bounds.left until bounds.right).map { x -> bitmap.getPixel(x, y) } }
+            .also { assertTrue(Color.BLACK in it) }
+    }
 
     private fun openAtNoon(): HomeActivity = Robolectric.buildActivity(HomeActivity::class.java)
         .apply { get().clock = { Clock.fixed(noon.toInstant(), noon.zone) } }

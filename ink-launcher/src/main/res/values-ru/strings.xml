@@ -67,6 +67,16 @@
     <string name="notification_access_on">Уведомления показываются на экране слева от первой страницы.</string>
     <string name="grant_notification_access">Разрешить доступ</string>
     <string name="notification_access_change">Доступ к уведомлениям</string>
+    <string name="notification_badge">Значок уведомлений</string>
+    <string name="notification_badge_none">Нет</string>
+    <string name="notification_badge_number">Число</string>
+    <string name="notification_badge_dot">Точка</string>
+    <plurals name="notification_count">
+        <item quantity="one">%d уведомление</item>
+        <item quantity="few">%d уведомления</item>
+        <item quantity="many">%d уведомлений</item>
+        <item quantity="other">%d уведомления</item>
+    </plurals>
 
     <string name="screen_time">Экранное время</string>
     <string name="drifting">Залип</string>
