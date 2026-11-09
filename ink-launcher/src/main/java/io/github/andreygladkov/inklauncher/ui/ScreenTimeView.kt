@@ -17,6 +17,7 @@ import io.github.andreygladkov.ink.eink.StemFit
 import io.github.andreygladkov.ink.haptics.HapticChannel
 import io.github.andreygladkov.ink.haptics.Haptics
 import io.github.andreygladkov.inklauncher.R
+import io.github.andreygladkov.inklauncher.screentime.AppCategory
 import io.github.andreygladkov.inklauncher.screentime.ScreenTimeText
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -228,9 +229,9 @@ class ScreenTimeView(context: Context) : View(context) {
 
     private fun drawStackedTimes(canvas: Canvas, usage: Usage, left: Float, top: Float, ink: Int, paper: Int): Float {
         var lineTop = top
-        listOf(usage.drifting to true, usage.onPurpose to false).forEach { (time, drifting) ->
+        listOf(usage.drifting to AppCategory.DRIFTING, usage.onPurpose to AppCategory.ON_PURPOSE).forEach { (time, category) ->
             val baseline = (lineTop - values.ascent()).roundToInt().toFloat()
-            drawMark(canvas, left, baseline, drifting, ink, paper)
+            drawMark(canvas, left, baseline, category, ink, paper)
             textAt(canvas, time, left + markSize() + values.measureText(" "), baseline, values, Paint.Align.LEFT)
             lineTop += valueLine()
         }
@@ -242,10 +243,10 @@ class ScreenTimeView(context: Context) : View(context) {
         canvas.drawText(text, x, baseline, paint)
     }
 
-    private fun drawMark(canvas: Canvas, left: Float, baseline: Float, drifting: Boolean, ink: Int, paper: Int) {
+    private fun drawMark(canvas: Canvas, left: Float, baseline: Float, category: AppCategory, ink: Int, paper: Int) {
         val size = markSize()
         val top = (baseline - (capHeight() + size) / 2f).roundToInt().toFloat()
-        canvas.drawDriftingMark(left, top, size, borderPx, drifting, ink, paper, fill)
+        canvas.drawCategoryMark(left, top, size, borderPx, category, ink, paper, fill)
     }
 
     /** A nonzero share always fills at least a sliver, so a few minutes of drifting do not vanish from the bar. */

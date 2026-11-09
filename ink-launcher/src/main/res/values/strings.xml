@@ -83,10 +83,8 @@
     <string name="yesterday">Yesterday</string>
     <string name="by_day">By day</string>
     <string name="by_app">By app</string>
-    <string name="marked">Marked</string>
-    <string name="not_marked">Not marked</string>
-    <string name="mark_drifting">Mark as Drifting</string>
-    <string name="unmark_drifting">Unmark Drifting</string>
+    <string name="uncounted">Not selected</string>
+    <string name="screen_time_category">Screen time: %1$s</string>
     <string name="screen_time_tap_for_access">Tap to allow access to usage history</string>
     <string name="screen_time_access_needed">To count screen time, Ink Launcher needs access to usage history.</string>
     <string name="grant_screen_time_access">Allow access</string>

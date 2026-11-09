@@ -36,6 +36,7 @@ import io.github.andreygladkov.inklauncher.icons.IconPack
 import io.github.andreygladkov.inklauncher.icons.IconPackInfo
 import io.github.andreygladkov.inklauncher.icons.IconRepository
 import io.github.andreygladkov.inklauncher.notify.NotificationFeed
+import io.github.andreygladkov.inklauncher.screentime.AppCategory
 import io.github.andreygladkov.inklauncher.screentime.DayUsage
 import io.github.andreygladkov.inklauncher.screentime.ScreenTimeKeeper
 import io.github.andreygladkov.inklauncher.screentime.ScreenTimeText
@@ -263,7 +264,7 @@ class HomeActivity : Activity() {
     }
 
     private fun retallyScreenTime() {
-        today = todayLog?.report(screenTime.drifting)?.days?.single()
+        today = todayLog?.report(screenTime.categories())?.days?.single()
         home.screenTimeViews().forEach(::showScreenTime)
     }
 
@@ -283,8 +284,8 @@ class HomeActivity : Activity() {
         showScreen(ScreenTimeScreen(this)) {}
     }
 
-    fun setDrifting(packageName: String, drifting: Boolean) {
-        screenTime.setDrifting(packageName, drifting)
+    fun setCategory(packageName: String, category: AppCategory) {
+        screenTime.setCategory(packageName, category)
         retallyScreenTime()
         side?.refresh()
     }

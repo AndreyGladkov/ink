@@ -23,7 +23,7 @@ object ScreenTime {
         Span(date.atStartOfDay(zone).toInstant().toEpochMilli(), date.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli())
     }
 
-    fun tally(log: UsageLog, days: List<Span>, drifting: Set<String>): ScreenTimeReport {
+    fun tally(log: UsageLog, days: List<Span>, categories: AppCategories): ScreenTimeReport {
         val sessions = sessions(log)
         val byApp = HashMap<String, Long>()
         val usage = days.map { day ->
@@ -32,7 +32,11 @@ object ScreenTime {
             sessions.forEach { session ->
                 val overlap = minOf(session.end, day.end) - maxOf(session.start, day.start)
                 if (overlap <= 0) return@forEach
-                if (session.packageName in drifting) driftingMs += overlap else onPurposeMs += overlap
+                when (categories[session.packageName]) {
+                    AppCategory.DRIFTING -> driftingMs += overlap
+                    AppCategory.ON_PURPOSE -> onPurposeMs += overlap
+                    AppCategory.UNCOUNTED -> Unit
+                }
                 byApp.merge(session.packageName, overlap, Long::plus)
             }
             val unlocks = log.events.count { it.kind == UsageKind.UNLOCK && it.at >= day.start && it.at < day.end }

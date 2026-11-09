@@ -39,6 +39,26 @@ class ScreenTimeTest {
         assertEquals(mapOf(reader to 40 * MINUTE, launcher to MINUTE, maps to 15 * MINUTE), report.byApp)
     }
 
+    @Test fun anUncountedAppIsListedButLeftOutOfTheDay() {
+        val report = ScreenTime.tally(
+            UsageLog(at(6, 18, 0), at(8, 12, 0), listOf(
+                event(8, 10, 0, FOREGROUND, launcher),
+                event(8, 10, 5, BACKGROUND, launcher),
+                event(8, 10, 5, FOREGROUND, maps),
+                event(8, 10, 20, BACKGROUND, maps),
+            )),
+            days,
+            AppCategories(emptyMap(), uncountedByDefault = setOf(launcher)),
+        )
+        assertEquals(DayUsage(days[0], 0, 15 * MINUTE, 0), report.days[0])
+        assertEquals(mapOf(launcher to 5 * MINUTE, maps to 15 * MINUTE), report.byApp)
+    }
+
+    @Test fun aChosenCategoryOverridesTheDefault() {
+        val categories = AppCategories(mapOf(launcher to AppCategory.ON_PURPOSE, maps to AppCategory.UNCOUNTED), uncountedByDefault = setOf(launcher))
+        assertEquals(listOf(AppCategory.ON_PURPOSE, AppCategory.UNCOUNTED, AppCategory.ON_PURPOSE), listOf(launcher, maps, reader).map { categories[it] })
+    }
+
     @Test fun aSessionOverMidnightIsSplitBetweenTheDays() {
         val report = tally(
             event(7, 23, 30, FOREGROUND, reader),
@@ -127,7 +147,7 @@ class ScreenTimeTest {
     }
 
     private fun tally(vararg events: UsageEvent, since: Long = at(6, 18, 0), until: Long) =
-        ScreenTime.tally(UsageLog(since, until, events.toList()), days, drifting = setOf(reader))
+        ScreenTime.tally(UsageLog(since, until, events.toList()), days, AppCategories(mapOf(reader to AppCategory.DRIFTING), uncountedByDefault = emptySet()))
 
     private fun event(day: Int, hour: Int, minute: Int, kind: UsageKind, packageName: String? = null) =
         UsageEvent(at(day, hour, minute), kind, packageName)

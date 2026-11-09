@@ -43,11 +43,12 @@ import io.github.andreygladkov.inklauncher.home.Spot
 import io.github.andreygladkov.inklauncher.notify.InkNotification
 import io.github.andreygladkov.inklauncher.notify.InkNotificationListener
 import io.github.andreygladkov.inklauncher.notify.NotificationFeed
+import io.github.andreygladkov.inklauncher.screentime.AppCategory
 import io.github.andreygladkov.inklauncher.ui.ActionSheet
 import io.github.andreygladkov.inklauncher.ui.AllAppsScreen
 import io.github.andreygladkov.inklauncher.ui.AppRow
 import io.github.andreygladkov.inklauncher.ui.CellGrid
-import io.github.andreygladkov.inklauncher.ui.DriftingMark
+import io.github.andreygladkov.inklauncher.ui.CategoryMark
 import io.github.andreygladkov.inklauncher.ui.FolderScreen
 import io.github.andreygladkov.inklauncher.ui.HomeScreen
 import io.github.andreygladkov.inklauncher.ui.NotificationsScreen
@@ -479,12 +480,28 @@ class HomeActivityTest {
         assertPureBlackAndWhite(render(contentRoot(activity)))
 
         tile(activity, "Читалка").performLongClick()
-        button(activity, "Отметить как «Залип»").performClick()
+        button(activity, "Экранное время: По делу").performClick()
+        assertTrue(button(activity, "По делу").isSelected)
+        button(activity, "Залип").performClick()
         val marked = screenTimeTile(activity).usage!!
         assertEquals(listOf("40 мин", "5 мин", "2"), listOf(marked.drifting, marked.onPurpose, marked.unlocks.toString()))
         assertEquals(40f / 45, marked.driftingShare, 0.001f)
         tile(activity, "Читалка").performLongClick()
-        assertNotNull(button(activity, "Снять отметку «Залип»"))
+        button(activity, "Экранное время: Залип").performClick()
+        button(activity, "Не выбрано").performClick()
+        assertEquals(ScreenTimeView.Usage("0 мин", "5 мин", 0f, 2), screenTimeTile(activity).usage)
+    }
+
+    @Test fun theLauncherItselfIsNotCountedUntilItIsChosen() {
+        seed(HomeLayout().place(ScreenTimeTile(1), Spot(Sheet.Page(0), 0, 0, 2, 1)))
+        grantUsageAccess()
+        usage(context.packageName, now - 50 * MINUTE, now - 10 * MINUTE)
+        usage(maps.packageName, now - 10 * MINUTE, now - 5 * MINUTE)
+        val activity = openAtNoon()
+        assertEquals(AppCategory.UNCOUNTED, activity.screenTime.category(context.packageName))
+        assertEquals("5 мин", screenTimeTile(activity).usage!!.onPurpose)
+        activity.setCategory(context.packageName, AppCategory.ON_PURPOSE)
+        assertEquals("45 мин", screenTimeTile(activity).usage!!.onPurpose)
     }
 
     @Test fun inOneCellTheScreenTimeTileStacksTheTimesWithoutNames() {
@@ -532,12 +549,19 @@ class HomeActivityTest {
         laidOut(activity)
         val apps = screen.find<InkTextView>().map { it.text.toString() }
         assertEquals(listOf("Читалка", "40 мин", "Карты", "1 мин"), apps.filter { it in setOf("Читалка", "Карты", "Чат", "40 мин", "1 мин") })
-        assertEquals(listOf(false, false), screen.find<DriftingMark>().map { it.isDrifting })
-        (screen.find<DriftingMark>().first().parent as View).performClick()
+        assertEquals(listOf(AppCategory.ON_PURPOSE, AppCategory.ON_PURPOSE), screen.find<CategoryMark>().map { it.category })
+        (screen.find<CategoryMark>().first().parent as View).performClick()
+        button(activity, "Залип").performClick()
         laidOut(activity)
-        assertTrue(activity.screenTime.isDrifting(reader.packageName))
-        assertEquals(listOf(true, false), screen.find<DriftingMark>().map { it.isDrifting })
+        assertEquals(AppCategory.DRIFTING, activity.screenTime.category(reader.packageName))
+        assertEquals(listOf(AppCategory.DRIFTING, AppCategory.ON_PURPOSE), screen.find<CategoryMark>().map { it.category })
         assertEquals("40 мин", screenTimeTile(activity).usage!!.drifting)
+
+        (screen.find<CategoryMark>()[1].parent as View).performClick()
+        button(activity, "Не выбрано").performClick()
+        laidOut(activity)
+        assertTrue("1 мин · Не выбрано" in screen.find<InkTextView>().map { it.text.toString() })
+        assertEquals("0 мин", screenTimeTile(activity).usage!!.onPurpose)
         assertPureBlackAndWhite(render(contentRoot(activity)))
     }
 

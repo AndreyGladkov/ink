@@ -17,6 +17,9 @@
             <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
         </intent>
         <intent>
+            <action android:name="android.view.InputMethod" />
+        </intent>
+        <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.HOME" />
         </intent>
