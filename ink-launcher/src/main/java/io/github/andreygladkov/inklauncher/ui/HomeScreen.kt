@@ -3,6 +3,7 @@ package io.github.andreygladkov.inklauncher.ui
 import android.view.View
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.eink.A9Panel
+import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.inklauncher.HomeActivity
 import io.github.andreygladkov.inklauncher.R
 import io.github.andreygladkov.inklauncher.home.AppTile
@@ -15,6 +16,7 @@ import io.github.andreygladkov.inklauncher.home.ScreenTimeTile
 import io.github.andreygladkov.inklauncher.home.Sheet
 import io.github.andreygladkov.inklauncher.home.Spot
 import io.github.andreygladkov.inklauncher.home.WidgetTile
+import io.github.andreygladkov.inklauncher.notify.NotificationBadge
 import io.github.andreygladkov.inklauncher.notify.NotificationFeed
 import io.github.andreygladkov.inklauncher.notify.NotificationGroups
 
@@ -113,7 +115,9 @@ class HomeScreen(private val activity: HomeActivity) : LinearLayout(activity) {
 
     fun updateBar() {
         val count = if (page == 0 && movingId == null) NotificationGroups.loudCount(NotificationFeed.notifications) else 0
-        bar.show(page, layout.pageCount, hasPrev = page > 0 || movingId == null, hasNext = true, prevCount = count)
+        val badge = if (count > 0) NotificationBadge.of(context.inkPrefs()) else NotificationBadge.NONE
+        val state = if (badge == NotificationBadge.NONE) null else resources.getQuantityString(R.plurals.notification_count, count, count)
+        bar.show(page, layout.pageCount, hasPrev = page > 0 || movingId == null, hasNext = true, prevBadge = badge.label(count), prevState = state)
     }
 
     private fun endMove() {
