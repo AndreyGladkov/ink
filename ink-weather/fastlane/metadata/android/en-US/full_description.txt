@@ -1,0 +1,13 @@
+Ink Weather is a weather app with a home screen widget for Android phones with e-ink screens, built for the Hisense A9 as a companion to the other Ink apps. The forecast comes from MET Norway or Open-Meteo, as chosen in the settings; cities are found with Open-Meteo.
+
+Every pixel is pure black or white, with no antialiasing and no animations. The whole forecast fits one screen, so nothing scrolls.
+
+<ul>
+<li>Now, the next 24 hours in three-hour steps and seven days, in the city's own time.</li>
+<li>Cities are found by name, without location access; the arrows move between saved cities.</li>
+<li>A widget for any launcher, drawn in black and white by the app itself, that shows more as it grows.</li>
+<li>Widgets are refreshed once an hour and redrawn only when what they show has changed.</li>
+<li>Without a connection the last forecast stays, marked with the time it was fetched.</li>
+</ul>
+
+The app talks only to MET Norway and Open-Meteo: it sends the coordinates of your cities and the name of the city you search for.

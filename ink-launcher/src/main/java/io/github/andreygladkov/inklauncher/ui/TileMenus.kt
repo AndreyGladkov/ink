@@ -98,6 +98,12 @@ class TileMenus(private val activity: HomeActivity) {
     }
 
     private fun widget(widget: WidgetTile) = sheet(activity.widgets.info(widget.widgetId)?.loadLabel(activity.packageManager) ?: string(R.string.widget)) {
+        if (activity.widgets.isReconfigurable(widget.widgetId)) {
+            action(R.string.widget_configure) {
+                activity.dismissSheet()
+                activity.reconfigureWidget(widget.widgetId)
+            }
+        }
         action(R.string.widget_size) { size(widget.id) }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             action(if (widget.monochrome) R.string.widget_original_colors else R.string.widget_monochrome) {

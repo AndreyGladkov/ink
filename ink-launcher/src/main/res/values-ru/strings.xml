@@ -47,6 +47,7 @@
     <string name="delete_folder">Удалить папку</string>
     <string name="delete_folder_confirm">Нажмите ещё раз: приложения из неё уйдут с экрана</string>
     <string name="remove_widget_confirm">Нажмите ещё раз, чтобы убрать виджет</string>
+    <string name="widget_configure">Настроить…</string>
     <string name="widget_size">Размер…</string>
     <string name="widget_size_title">Размер</string>
     <string name="widget_monochrome">Чёрно-белый</string>

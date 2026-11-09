@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Погода</string>
+
+    <string name="widget_label">Погода</string>
+    <string name="widget_description">Погода в выбранном городе</string>
+    <string name="widget_place">Город для виджета</string>
+
+    <string name="places">Города</string>
+    <string name="add_place">Добавить город</string>
+    <string name="search_hint">Название города</string>
+    <string name="searching">Ищу…</string>
+    <string name="search_nothing">Ничего не найдено</string>
+    <string name="move_up">Выше</string>
+    <string name="delete_place">Удалить</string>
+    <string name="delete_place_confirm">Удалить?</string>
+    <string name="prev_place">Предыдущий город</string>
+    <string name="next_place">Следующий город</string>
+
+    <string name="loading">Загружаю прогноз…</string>
+    <string name="error_network">Нет сети</string>
+    <string name="error_service">Сервис погоды не ответил</string>
+    <string name="error_storage">Не удалось сохранить прогноз</string>
+    <string name="retry">Повторить</string>
+    <string name="no_data">Нет данных</string>
+    <string name="updated_at">Обновлено в %1$s</string>
+    <string name="updated_on">Обновлено %1$s</string>
+    <string name="millimetres">%1$s мм</string>
+    <string name="source_failed">%1$s не ответил, показан прогноз %2$s</string>
+    <string name="attribution_met_no">Данные: MET Norway, Open-Meteo</string>
+    <string name="attribution_open_meteo">Данные: Open-Meteo</string>
+
+    <string name="today">Сегодня</string>
+    <string name="feels_like">Ощущается как %1$s</string>
+    <string name="wind">Ветер %1$s м/с</string>
+    <string name="wind_from">Ветер %1$s м/с, %2$s</string>
+    <string name="precipitation">Осадки %1$s мм</string>
+    <string name="pressure_hpa">Давление %1$d гПа</string>
+    <string name="pressure_mmhg">Давление %1$d мм рт. ст.</string>
+    <string-array name="directions">
+        <item>С</item>
+        <item>СВ</item>
+        <item>В</item>
+        <item>ЮВ</item>
+        <item>Ю</item>
+        <item>ЮЗ</item>
+        <item>З</item>
+        <item>СЗ</item>
+    </string-array>
+
+    <string name="weather_clear">Ясно</string>
+    <string name="weather_fair">Малооблачно</string>
+    <string name="weather_partly_cloudy">Переменная облачность</string>
+    <string name="weather_cloudy">Пасмурно</string>
+    <string name="weather_fog">Туман</string>
+    <string name="rain_light">Небольшой дождь</string>
+    <string name="rain">Дождь</string>
+    <string name="rain_heavy">Сильный дождь</string>
+    <string name="rain_showers_light">Небольшой ливень</string>
+    <string name="rain_showers">Ливень</string>
+    <string name="rain_showers_heavy">Сильный ливень</string>
+    <string name="sleet_light">Небольшой мокрый снег</string>
+    <string name="sleet">Мокрый снег</string>
+    <string name="sleet_heavy">Сильный мокрый снег</string>
+    <string name="sleet_showers_light">Небольшой мокрый снег</string>
+    <string name="sleet_showers">Мокрый снег</string>
+    <string name="sleet_showers_heavy">Сильный мокрый снег</string>
+    <string name="snow_light">Небольшой снег</string>
+    <string name="snow">Снег</string>
+    <string name="snow_heavy">Сильный снег</string>
+    <string name="snow_showers_light">Небольшой снегопад</string>
+    <string name="snow_showers">Снегопад</string>
+    <string name="snow_showers_heavy">Сильный снегопад</string>
+    <string name="drizzle">Морось</string>
+    <string name="freezing_drizzle">Ледяная морось</string>
+    <string name="freezing_rain">Ледяной дождь</string>
+    <string name="thunderstorm">Гроза</string>
+    <string name="thunderstorm_hail">Гроза с градом</string>
+    <string name="with_thunder">%1$s, гроза</string>
+    <string name="weather_unknown">Неизвестная погода</string>
+
+    <string name="settings_forecast">Прогноз</string>
+    <string name="settings_source">Источник прогноза</string>
+
+    <string name="about">О приложении</string>
+    <string name="about_version">Версия %1$s</string>
+    <string name="about_license">Ink Weather — свободная программа под лицензией GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Weather обращается только к MET Norway и Open-Meteo: отправляет координаты ваших городов для прогноза и название города, который вы ищете.</string>
+    <string name="about_gpl">GNU General Public License v3</string>
+    <string name="about_source">Исходный код</string>
+    <string name="about_components">Компоненты</string>
+    <string name="about_met_no">Прогноз — MET Norway (api.met.no), CC BY 4.0</string>
+    <string name="about_open_meteo">Прогноз и поиск городов — Open-Meteo.com, CC BY 4.0</string>
+    <string name="about_noto">Шрифт Noto Emoji — SIL Open Font License 1.1</string>
+    <string name="about_material">Иконки Material — Apache License 2.0</string>
+</resources>

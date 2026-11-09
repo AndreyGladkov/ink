@@ -34,6 +34,14 @@ class InkWidgetHost(private val context: Context) : AppWidgetHost(context, HOST_
 
     fun info(widgetId: Int): AppWidgetProviderInfo? = manager.getAppWidgetInfo(widgetId)
 
+    /** The configure activity must still exist and be open to the launcher, or Configure… would do nothing. */
+    fun isReconfigurable(widgetId: Int): Boolean {
+        val info = info(widgetId) ?: return false
+        if ((info.widgetFeatures and AppWidgetProviderInfo.WIDGET_FEATURE_RECONFIGURABLE) == 0) return false
+        val configure = info.configure ?: return false
+        return runCatching { context.packageManager.getActivityInfo(configure, 0).exported }.getOrDefault(false)
+    }
+
     fun bindIfAllowed(widgetId: Int, provider: ComponentName): Boolean = manager.bindAppWidgetIdIfAllowed(widgetId, provider)
 
     fun remove(widgetId: Int) {
