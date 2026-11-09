@@ -13,6 +13,8 @@ import io.github.andreygladkov.ink.ui.InkSegments
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inklauncher.HomeActivity
 import io.github.andreygladkov.inklauncher.R
+import io.github.andreygladkov.inklauncher.screentime.AppCategories
+import io.github.andreygladkov.inklauncher.screentime.AppCategory
 import io.github.andreygladkov.inklauncher.screentime.DayUsage
 import io.github.andreygladkov.inklauncher.screentime.ScreenTimeReport
 import io.github.andreygladkov.inklauncher.screentime.ScreenTimeText
@@ -23,7 +25,7 @@ import kotlin.math.roundToInt
 class ScreenTimeScreen(private val activity: HomeActivity) : LinearLayout(activity), SideScreen {
     private enum class Tab { DAYS, APPS }
 
-    private class AppUsage(val packageName: String, val label: String, val millis: Long, val drifting: Boolean)
+    private class AppUsage(val packageName: String, val label: String, val millis: Long, val category: AppCategory)
 
     private val labels = HashMap<String, String>()
     private val padding = (PADDING_DP * resources.displayMetrics.density).roundToInt()
@@ -71,19 +73,19 @@ class ScreenTimeScreen(private val activity: HomeActivity) : LinearLayout(activi
     }
 
     override fun refresh() {
-        val report = period?.report(activity.screenTime.drifting)
+        val categories = activity.screenTime.categories()
+        val report = period?.report(categories)
         days = report?.days.orEmpty()
-        apps = report?.let(::appsOf).orEmpty()
+        apps = report?.let { appsOf(it, categories) }.orEmpty()
         access.visibility = if (report == null) VISIBLE else GONE
         show(keepPage = true)
     }
 
-    private fun appsOf(report: ScreenTimeReport): List<AppUsage> {
-        val drifting = activity.screenTime.drifting
+    private fun appsOf(report: ScreenTimeReport, categories: AppCategories): List<AppUsage> {
         val installed = activity.catalog.apps().map { it.key.packageName }.toSet()
-        val shown = report.byApp.filterValues { it >= ScreenTimeText.MINUTE_MS }.keys + drifting.filter { it in installed }
+        val shown = report.byApp.filterValues { it >= ScreenTimeText.MINUTE_MS }.keys + categories.chosenApps.filter { it in installed }
         val collator = Collator.getInstance(resources.configuration.locales[0])
-        return shown.map { AppUsage(it, label(it), report.byApp[it] ?: 0, it in drifting) }
+        return shown.map { AppUsage(it, label(it), report.byApp[it] ?: 0, categories[it]) }
             .sortedWith(compareByDescending<AppUsage> { it.millis / ScreenTimeText.MINUTE_MS }.thenBy(collator) { it.label })
     }
 
@@ -111,15 +113,18 @@ class ScreenTimeScreen(private val activity: HomeActivity) : LinearLayout(activi
             LinearLayout(activity).apply {
                 orientation = HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                addView(DriftingMark(activity, app.drifting), LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { marginStart = padding })
-                addView(column(app.label, duration(app.millis)), LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
-                if (app.packageName == activity.packageName) return@apply
+                addView(CategoryMark(activity, app.category), LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { marginStart = padding })
+                addView(column(app.label, appDetail(app)), LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
                 isClickable = true
-                contentDescription = "${app.label}, ${duration(app.millis)}, ${activity.getString(R.string.drifting)}"
-                stateDescription = activity.getString(if (app.drifting) R.string.marked else R.string.not_marked)
-                setOnClickListener { activity.setDrifting(app.packageName, !app.drifting) }
+                contentDescription = "${app.label}, ${duration(app.millis)}, ${ScreenTimeText.category(activity, app.category)}"
+                setOnClickListener { activity.menus.appCategory(app.packageName, app.label) }
             }
         }
+    }
+
+    private fun appDetail(app: AppUsage): String = when (app.category) {
+        AppCategory.UNCOUNTED -> "${duration(app.millis)} · ${ScreenTimeText.category(activity, app.category)}"
+        AppCategory.DRIFTING, AppCategory.ON_PURPOSE -> duration(app.millis)
     }
 
     private fun column(title: String, detail: String) = LinearLayout(activity).apply {

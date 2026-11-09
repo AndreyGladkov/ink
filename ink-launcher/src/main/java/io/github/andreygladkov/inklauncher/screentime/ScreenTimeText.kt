@@ -14,6 +14,12 @@ object ScreenTimeText {
         return if (hours > 0) context.getString(withHours, hours, minutes % 60) else context.getString(R.string.duration_minutes, minutes)
     }
 
+    fun category(context: Context, category: AppCategory): String = context.getString(when (category) {
+        AppCategory.DRIFTING -> R.string.drifting
+        AppCategory.ON_PURPOSE -> R.string.on_purpose
+        AppCategory.UNCOUNTED -> R.string.uncounted
+    })
+
     fun unlocks(context: Context, count: Int): String = context.resources.getQuantityString(R.plurals.unlocks, count, count)
 
     const val MINUTE_MS = 60_000L

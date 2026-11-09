@@ -14,7 +14,7 @@ Every pixel the launcher draws is pure black or white, with no antialiasing and 
 - A long press on an empty cell adds an app, a widget or a folder there.
 - Icons come from an ADW or Nova compatible icon pack, from the app's themed monochrome icon, or from its ordinary icon; colors are dithered to black and white. Any icon can be replaced with a picture or with text, and every icon can get a frame.
 - Left of the first page is a notification screen, grouped by app, with a number next to the left arrow instead of badges on icons. Right of the last page is the list of all apps by name.
-- A screen time tile, among the widgets, shows today's time split in two: Drifting, for the apps you mark as such (a reader, a feed), and On purpose, for everything else, the launcher included. Below them is the number of unlocks. A tap opens the last seven days, by day and by app; an app is marked from its menu or from that list. The tile needs usage access, which you grant yourself in system settings.
+- A screen time tile, among the widgets, shows today's time split in two: Drifting, for the apps you mark as such (a reader, a feed), and On purpose, for everything else. Launchers and keyboards start as Not selected and are not counted; any app can be set to that too. Below them is the number of unlocks. A tap opens the last seven days, by day and by app; an app's category is chosen from its menu or from that list. The tile needs usage access, which you grant yourself in system settings.
 - Making the grid smaller moves whatever no longer fits to the end; nothing is removed.
 - Settings for text size, font weight, button corners, colors, lists and vibration, shared with the other Ink apps.
 

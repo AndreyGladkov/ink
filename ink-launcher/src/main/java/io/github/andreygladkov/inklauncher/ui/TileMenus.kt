@@ -24,6 +24,8 @@ import io.github.andreygladkov.inklauncher.home.renamed
 import io.github.andreygladkov.inklauncher.home.takeGraphemes
 import io.github.andreygladkov.inklauncher.home.withLabelHidden
 import io.github.andreygladkov.inklauncher.icons.IconPack
+import io.github.andreygladkov.inklauncher.screentime.AppCategory
+import io.github.andreygladkov.inklauncher.screentime.ScreenTimeText
 
 class TileMenus(private val activity: HomeActivity) {
     fun tile(placed: Placed) = when (val tile = placed.tile) {
@@ -55,7 +57,7 @@ class TileMenus(private val activity: HomeActivity) {
             activity.dismissSheet()
             activity.addToHome(app.key)
         }
-        driftingAction(app.key.packageName)
+        categoryAction(app.key.packageName, app.label)
         action(R.string.app_info) { activity.catalog.openDetails(app.key.packageName) }
         action(R.string.uninstall) { activity.catalog.uninstall(app.key.packageName) }
     }
@@ -70,7 +72,7 @@ class TileMenus(private val activity: HomeActivity) {
             activity.dismissSheet()
             activity.update { it.remove(app.id) }
         }
-        driftingAction(app.app.packageName)
+        categoryAction(app.app.packageName, activity.labelOf(app))
         action(R.string.app_info) { activity.catalog.openDetails(app.app.packageName) }
     }
 
@@ -82,7 +84,7 @@ class TileMenus(private val activity: HomeActivity) {
             activity.dismissSheet()
             activity.update { it.remove(app.id) }
         }
-        driftingAction(app.app.packageName)
+        categoryAction(app.app.packageName, activity.labelOf(app))
         action(R.string.app_info) { activity.catalog.openDetails(app.app.packageName) }
     }
 
@@ -120,12 +122,19 @@ class TileMenus(private val activity: HomeActivity) {
         }
     }
 
-    private fun ActionSheet.driftingAction(packageName: String) {
-        val drifting = activity.screenTime.isDrifting(packageName)
-        action(if (drifting) R.string.unmark_drifting else R.string.mark_drifting) {
-            activity.dismissSheet()
-            activity.setDrifting(packageName, !drifting)
+    fun appCategory(packageName: String, label: String) = sheet(label) {
+        val current = activity.screenTime.category(packageName)
+        AppCategory.entries.forEach { category ->
+            action(ScreenTimeText.category(activity, category)) {
+                activity.dismissSheet()
+                activity.setCategory(packageName, category)
+            }.isSelected = category == current
         }
+    }
+
+    private fun ActionSheet.categoryAction(packageName: String, label: String) {
+        val current = ScreenTimeText.category(activity, activity.screenTime.category(packageName))
+        action(activity.getString(R.string.screen_time_category, current)) { appCategory(packageName, label) }
     }
 
     private fun ActionSheet.labelActions(tile: LabeledTile) {

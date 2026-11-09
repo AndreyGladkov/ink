@@ -6,7 +6,7 @@ The home screen layout, custom labels, pictures picked for icons and the setting
 
 With notification access, which you grant yourself in system settings, Ink Launcher reads the notifications currently shown to list them on its notification screen. It keeps them only in memory and stores nothing about them.
 
-With usage access, which you also grant yourself in system settings, the screen time tile reads the system's record of which app was in front and when the phone was unlocked, for the last seven days, each time it is shown. Ink Launcher does not copy this record; it keeps only the list of apps you marked as drifting.
+With usage access, which you also grant yourself in system settings, the screen time tile reads the system's record of which app was in front and when the phone was unlocked, for the last seven days, each time it is shown. Ink Launcher does not copy this record; it keeps only the category you chose for each app.
 
 # Конфиденциальность
 

@@ -3,7 +3,7 @@ package io.github.andreygladkov.inklauncher.screentime
 import java.time.LocalDate
 import java.time.ZoneId
 
-enum class UsageKind { FOREGROUND, BACKGROUND, SCREEN_OFF, UNLOCK }
+enum class UsageKind { FOREGROUND, BACKGROUND, SCREEN_OFF, UNLOCK, STARTUP }
 
 data class UsageEvent(val at: Long, val kind: UsageKind, val packageName: String? = null)
 
@@ -23,7 +23,7 @@ object ScreenTime {
         Span(date.atStartOfDay(zone).toInstant().toEpochMilli(), date.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli())
     }
 
-    fun tally(log: UsageLog, days: List<Span>, drifting: Set<String>): ScreenTimeReport {
+    fun tally(log: UsageLog, days: List<Span>, categories: AppCategories): ScreenTimeReport {
         val sessions = sessions(log)
         val byApp = HashMap<String, Long>()
         val usage = days.map { day ->
@@ -32,7 +32,11 @@ object ScreenTime {
             sessions.forEach { session ->
                 val overlap = minOf(session.end, day.end) - maxOf(session.start, day.start)
                 if (overlap <= 0) return@forEach
-                if (session.packageName in drifting) driftingMs += overlap else onPurposeMs += overlap
+                when (categories[session.packageName]) {
+                    AppCategory.DRIFTING -> driftingMs += overlap
+                    AppCategory.ON_PURPOSE -> onPurposeMs += overlap
+                    AppCategory.UNCOUNTED -> Unit
+                }
                 byApp.merge(session.packageName, overlap, Long::plus)
             }
             val unlocks = log.events.count { it.kind == UsageKind.UNLOCK && it.at >= day.start && it.at < day.end }
@@ -48,7 +52,7 @@ object ScreenTime {
         val seen = HashSet<String>()
         var current: String? = null
         var start = log.since
-        val changes = log.events.filter { it.kind != UsageKind.UNLOCK }
+        val changes = darkBeforeBoots(log.events, log.since).filter { it.kind != UsageKind.UNLOCK }
         val firstChange = changes.firstOrNull()?.at ?: log.until
         fun close(at: Long) {
             current?.let { if (at > start) sessions += Session(it, start, at) }
@@ -70,11 +74,34 @@ object ScreenTime {
                     else if (app != null && app !in seen) sessions += Session(app, log.since, firstChange)
                 }
                 UsageKind.SCREEN_OFF -> close(event.at)
-                UsageKind.UNLOCK -> Unit
+                UsageKind.UNLOCK, UsageKind.STARTUP -> Unit
             }
             event.packageName?.let(seen::add)
         }
         close(log.until)
         return sessions
     }
+
+    /**
+     * A phone that dies or is forced off records no shutdown, so the app in front would run on until the next boot. It
+     * is taken to have gone dark right after the last event it recorded. A boot records its first events (the screen
+     * turning on, the fallback home of an encrypted phone) a moment before the startup itself, so those are left out.
+     */
+    private fun darkBeforeBoots(events: List<UsageEvent>, since: Long): List<UsageEvent> {
+        val result = ArrayList<UsageEvent>(events.size)
+        events.forEach { event ->
+            if (event.kind == UsageKind.STARTUP) {
+                val bootStart = result.indexOfLast { it.at < event.at - BOOT_MS } + 1
+                val lastAlive = result.getOrNull(bootStart - 1)?.at ?: since
+                result.add(bootStart, UsageEvent(lastAlive, UsageKind.SCREEN_OFF))
+            } else {
+                result += event
+            }
+        }
+        return result
+    }
+
+    // On the A9 the startup came 26–223 ms after the boot's first event in every boot of a week, whether or not the
+    // phone was unlocked by then.
+    private const val BOOT_MS = 2_000L
 }
