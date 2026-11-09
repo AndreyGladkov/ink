@@ -1,1 +1,1 @@
-First release: the forecast now, by hours and by days on one screen, several cities, and a black-and-white widget for any launcher.
+First release: the forecast now, by hours and by days on one screen from MET Norway or Open-Meteo, as you choose, several cities, and a black-and-white widget for any launcher.

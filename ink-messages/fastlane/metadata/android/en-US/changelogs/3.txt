@@ -1,0 +1,1 @@
+Settings and About page with the buttons at the bottom like the lists, or scroll when lists are set to scroll. The choices in settings are one strip in a shared frame, and the page stays put after changing the text size, colors or corners. Licenses in About continue on the next page instead of being cut off.
