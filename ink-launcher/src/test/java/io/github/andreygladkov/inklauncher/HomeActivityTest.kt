@@ -42,6 +42,7 @@ import io.github.andreygladkov.inklauncher.home.LayoutStore
 import io.github.andreygladkov.inklauncher.home.ScreenTimeTile
 import io.github.andreygladkov.inklauncher.home.Sheet
 import io.github.andreygladkov.inklauncher.home.Spot
+import io.github.andreygladkov.inklauncher.home.WidgetTile
 import io.github.andreygladkov.inklauncher.notify.InkNotification
 import io.github.andreygladkov.inklauncher.notify.InkNotificationListener
 import io.github.andreygladkov.inklauncher.notify.NotificationFeed
@@ -61,6 +62,8 @@ import io.github.andreygladkov.inklauncher.ui.ScreenTimeView
 import io.github.andreygladkov.inklauncher.ui.SheetAction
 import io.github.andreygladkov.inklauncher.ui.TileView
 import io.github.andreygladkov.inklauncher.ui.WidgetPickerScreen
+import io.github.andreygladkov.inklauncher.widgets.InkWidgetHost
+import io.github.andreygladkov.inklauncher.widgets.RecordingAppWidgetHost
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -86,6 +89,7 @@ import kotlin.test.assertTrue
 class HomeActivityTest {
     private val context = ApplicationProvider.getApplicationContext<Application>()
     private val store = LayoutStore(context)
+    private var lastWidgetId = 0
     private val mail = AppKey("com.mail", "com.mail.Inbox")
     private val chat = AppKey("com.chat", "com.chat.Main")
     private val maps = AppKey("org.maps", "org.maps.Map")
@@ -266,6 +270,29 @@ class HomeActivityTest {
         assertTrue(contentRoot(activity).find<AllAppsScreen>().isNotEmpty())
     }
 
+    @Config(shadows = [RecordingAppWidgetHost::class])
+    @Test fun onlyAReconfigurableWidgetWithItsConfigureScreenOffersToBeConfiguredAgain() {
+        RecordingAppWidgetHost.configured.clear()
+        val reconfigurable = AppWidgetProviderInfo.WIDGET_FEATURE_RECONFIGURABLE
+        val weather = placeWidget(addWidget(mail, "Погода", configurable = true, features = reconfigurable), Spot(Sheet.Page(0), 0, 0, 2, 1))
+        val traffic = placeWidget(addWidget(maps, "Пробки", configurable = true), Spot(Sheet.Page(0), 0, 1, 2, 1))
+        val gone = placeWidget(addWidget(chat, "Последние", features = reconfigurable).apply {
+            configure = ComponentName(chat.packageName, "${chat.packageName}.Removed")
+        }, Spot(Sheet.Top, 0, 0, 2, 1))
+        val activity = open()
+
+        listOf(traffic, gone).forEach { id ->
+            activity.menus.tile(activity.layout.placed.single { (it.tile as? WidgetTile)?.widgetId == id })
+            assertTrue(contentRoot(activity).find<InkButton>().none { it.text.toString() == "Настроить…" })
+            activity.dismissSheet()
+        }
+
+        activity.menus.tile(activity.layout.placed.single { (it.tile as? WidgetTile)?.widgetId == weather })
+        button(activity, "Настроить…").performClick()
+        assertTrue(contentRoot(activity).find<ActionSheet>().isEmpty())
+        assertEquals(listOf(weather), RecordingAppWidgetHost.configured)
+    }
+
     @Test fun widgetsAreFoundByTheirNameOrTheirAppsName() {
         addWidget(mail, "Входящие")
         addWidget(chat, "Последние")
@@ -291,8 +318,19 @@ class HomeActivityTest {
         assertEquals(3, widgetsListed(screen).size)
     }
 
-    private fun addWidget(app: AppKey, label: String) {
-        val info = AppWidgetProviderInfo().apply { provider = ComponentName(app.packageName, "${app.packageName}.Widget") }
+    private fun addWidget(app: AppKey, label: String, configurable: Boolean = false, features: Int = 0): AppWidgetProviderInfo {
+        val info = AppWidgetProviderInfo().apply {
+            provider = ComponentName(app.packageName, "${app.packageName}.Widget")
+            if (configurable) {
+                configure = ComponentName(app.packageName, "${app.packageName}.Configure")
+                shadowOf(context.packageManager).addOrUpdateActivity(ActivityInfo().apply {
+                    packageName = app.packageName
+                    name = "${app.packageName}.Configure"
+                    exported = true
+                })
+            }
+            widgetFeatures = features
+        }
         // loadLabel reads providerInfo, a field the SDK stubs hide but the runtime has.
         AppWidgetProviderInfo::class.java.getField("providerInfo").set(info, ActivityInfo().apply {
             packageName = app.packageName
@@ -301,6 +339,16 @@ class HomeActivityTest {
             applicationInfo = context.packageManager.getApplicationInfo(app.packageName, 0)
         })
         shadowOf(AppWidgetManager.getInstance(context)).addInstalledProvider(info)
+        return info
+    }
+
+    private fun placeWidget(info: AppWidgetProviderInfo, spot: Spot): Int {
+        val manager = AppWidgetManager.getInstance(context)
+        shadowOf(manager).setAllowedToBindAppWidgets(true)
+        val id = ++lastWidgetId
+        assertTrue(manager.bindAppWidgetIdIfAllowed(id, info.provider))
+        store.save((store.load() ?: HomeLayout()).place(WidgetTile(100L + id, id, InkWidgetHost.key(info)), spot))
+        return id
     }
 
     private fun widgetsListed(screen: WidgetPickerScreen) =

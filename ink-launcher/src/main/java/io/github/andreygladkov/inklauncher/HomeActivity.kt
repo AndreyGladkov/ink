@@ -405,6 +405,14 @@ class HomeActivity : Activity() {
         }
     }
 
+    /** The widget stays as it is whatever the result: it redraws itself if its settings changed. */
+    fun reconfigureWidget(widgetId: Int) {
+        try {
+            widgets.startAppWidgetConfigureActivityForResult(this, widgetId, 0, REQUEST_RECONFIGURE_WIDGET, null)
+        } catch (_: ActivityNotFoundException) {
+        }
+    }
+
     fun addScreenTime(target: Spot) {
         placeSized(ScreenTimeTile(layout.nextId()), target, ScreenTimeTile.COLUMNS.coerceAtMost(layout.spec.columns), ScreenTimeTile.ROWS)
         refreshScreenTime()
@@ -520,6 +528,7 @@ class HomeActivity : Activity() {
         const val REQUEST_BIND_WIDGET = 1
         const val REQUEST_CONFIGURE_WIDGET = 2
         const val REQUEST_PICTURE = 3
+        const val REQUEST_RECONFIGURE_WIDGET = 4
         const val STATE_WIDGET_ID = "pending_widget_id"
         const val STATE_WIDGET_SHEET = "pending_widget_sheet"
         const val STATE_WIDGET_SPOT = "pending_widget_spot"

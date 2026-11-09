@@ -49,6 +49,7 @@
     <string name="delete_folder">Delete folder</string>
     <string name="delete_folder_confirm">Tap again: the apps in it leave the home screen</string>
     <string name="remove_widget_confirm">Tap again to remove the widget</string>
+    <string name="widget_configure">Configure…</string>
     <string name="widget_size">Size…</string>
     <string name="widget_size_title">Size</string>
     <string name="widget_monochrome">Black and white</string>
