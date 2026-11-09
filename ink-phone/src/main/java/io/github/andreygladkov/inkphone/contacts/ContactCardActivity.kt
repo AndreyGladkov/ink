@@ -195,7 +195,7 @@ class ContactCardActivity : Activity() {
         val options = listOf<Char?>(null) + SpeedDial.KEYS
         body.addView(InkChoiceRow(this, getString(R.string.speed_dial),
             options.map { it to (it?.toString() ?: getString(R.string.speed_dial_none)) }, speedDial.keyFor(numbers),
-            decorate = { isBordered = false },
+            decorate = { isBordered = false }, isJoined = false,
         ) { key -> speedDial.assign(key, number, numbers) })
     }
 

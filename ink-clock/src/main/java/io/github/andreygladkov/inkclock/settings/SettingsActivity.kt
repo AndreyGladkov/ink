@@ -1,118 +1,65 @@
 package io.github.andreygladkov.inkclock.settings
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import android.provider.Settings
-import android.view.Gravity
-import android.view.View
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.haptics.HapticChannel
-import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkChoiceRow
-import io.github.andreygladkov.ink.ui.InkHeader
+import io.github.andreygladkov.ink.ui.InkPagedActivity
+import io.github.andreygladkov.ink.ui.InkPagedItems
 import io.github.andreygladkov.ink.ui.InkSettings
-import io.github.andreygladkov.ink.ui.InkTextView
-import io.github.andreygladkov.ink.ui.InkWindow
-import io.github.andreygladkov.ink.ui.addSection
 import io.github.andreygladkov.inkclock.ClockPrefs
 import io.github.andreygladkov.inkclock.R
 import io.github.andreygladkov.inkclock.desk.ClockDreamSetting
 import io.github.andreygladkov.inkclock.pomodoro.PomodoroPlan
 import io.github.andreygladkov.inkclock.pomodoro.PomodoroStore
-import kotlin.math.roundToInt
 import io.github.andreygladkov.ink.R as InkR
 
-class SettingsActivity : Activity() {
-    private lateinit var dreamStatus: InkTextView
+class SettingsActivity : InkPagedActivity() {
+    override fun headerTitle(): String = getString(R.string.settings)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val body = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            val padding = dp(PADDING_DP)
-            setPadding(padding, 0, padding, padding)
-        }
-        body.addSection(getString(R.string.settings_alarms))
-        body.addView(minutesRow(R.string.settings_snooze, ClockPrefs.SNOOZE_CHOICES, ClockPrefs.snoozeMinutes(this)) { ClockPrefs.setSnoozeMinutes(this, it) })
-        body.addView(minutesRow(R.string.settings_ring_for, ClockPrefs.RING_CHOICES, ClockPrefs.ringMinutes(this)) { ClockPrefs.setRingMinutes(this, it) })
-        addPomodoro(body)
-        body.addSection(getString(R.string.settings_dream))
-        body.addView(hint(R.string.dream_hint))
-        dreamStatus = hint(R.string.dream_not_selected)
-        body.addView(dreamStatus)
-        body.addView(InkButton(this).apply {
-            setText(R.string.dream_choose)
-            gravity = Gravity.START or Gravity.CENTER_VERTICAL
-            setOnClickListener { startActivity(Intent(Settings.ACTION_DREAM_SETTINGS)) }
-        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(GAP_DP) })
-        body.addSection(getString(InkR.string.settings_display))
+    override fun outsideState() = ClockDreamSetting.isSelected(this)
+
+    override fun InkPagedItems.build() {
+        val activity = this@SettingsActivity
+        section(getString(R.string.settings_alarms))
+        item { minutesRow(R.string.settings_snooze, ClockPrefs.SNOOZE_CHOICES, ClockPrefs.snoozeMinutes(activity)) { ClockPrefs.setSnoozeMinutes(activity, it) } }
+        item { minutesRow(R.string.settings_ring_for, ClockPrefs.RING_CHOICES, ClockPrefs.ringMinutes(activity)) { ClockPrefs.setRingMinutes(activity, it) } }
+        addPomodoro()
+        section(getString(R.string.settings_dream))
+        item { InkSettings.hint(activity, getString(R.string.dream_hint)) }
+        item { InkSettings.hint(activity, getString(if (ClockDreamSetting.isSelected(activity)) R.string.dream_selected else R.string.dream_not_selected)) }
+        item { InkSettings.rowButton(activity, getString(R.string.dream_choose)) { startActivity(Intent(Settings.ACTION_DREAM_SETTINGS)) } }
+        section(getString(InkR.string.settings_display))
         listOf(InkSettings::textSize, InkSettings::weight, InkSettings::lists, InkSettings::cornerRadius, InkSettings::colors, InkSettings::tabLabels)
-            .forEach { body.addView(it(this)) }
-        InkSettings.addHaptics(this, body, listOf(
+            .forEach { item { it(activity) } }
+        InkSettings.addHaptics(activity, this, listOf(
             HapticChannel.BUTTONS to getString(InkR.string.settings_haptic_buttons),
             HapticChannel.KEYS to getString(R.string.settings_haptic_keys),
         ))
-        InkSettings.addA9(this, body)
-        body.addSection(getString(R.string.about))
-        body.addView(InkButton(this).apply {
-            setText(R.string.about)
-            gravity = Gravity.START or Gravity.CENTER_VERTICAL
-            setOnClickListener { startActivity(AboutActivity.intent(this@SettingsActivity)) }
-        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(GAP_DP) })
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            addView(header())
-            addView(ScrollView(this@SettingsActivity).apply {
-                isVerticalScrollBarEnabled = false
-                overScrollMode = View.OVER_SCROLL_NEVER
-                addView(body)
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
-        }
-        InkWindow.setContent(this, root)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        dreamStatus.setText(if (ClockDreamSetting.isSelected(this)) R.string.dream_selected else R.string.dream_not_selected)
-    }
-
-    private fun hint(text: Int) = InkTextView(this).apply {
-        setText(text)
-        textScale = InkStyle.SECONDARY_SCALE
-        setPadding(0, dp(GAP_DP), 0, 0)
+        InkSettings.addA9(activity, this)
+        InkSettings.addAbout(activity, this, AboutActivity::class.java)
     }
 
     private fun minutesRow(title: Int, choices: List<Int>, current: Int, onChoose: (Int) -> Unit) =
         InkChoiceRow(this, getString(title), choices.map { it to getString(R.string.minutes_short, it) }, current, onChoose = onChoose)
 
-    private fun addPomodoro(body: LinearLayout) {
-        val store = PomodoroStore.of(this)
-        val plan = store.plan()
-        body.addSection(getString(R.string.settings_pomodoro))
-        body.addView(minutesRow(R.string.settings_pomodoro_work, PomodoroPlan.WORK_CHOICES, plan.workMinutes) { store.savePlan(store.plan().copy(workMinutes = it)) })
-        body.addView(minutesRow(R.string.settings_pomodoro_short, PomodoroPlan.SHORT_BREAK_CHOICES, plan.shortBreakMinutes) { store.savePlan(store.plan().copy(shortBreakMinutes = it)) })
-        body.addView(minutesRow(R.string.settings_pomodoro_long, PomodoroPlan.LONG_BREAK_CHOICES, plan.longBreakMinutes) { store.savePlan(store.plan().copy(longBreakMinutes = it)) })
-        body.addView(countRow(R.string.settings_pomodoro_cycle, PomodoroPlan.CYCLE_CHOICES, plan.cycleLength) { store.savePlan(store.plan().copy(cycleLength = it)) })
-        body.addView(countRow(R.string.settings_pomodoro_goal, PomodoroPlan.GOAL_CHOICES, plan.dailyGoal) { store.savePlan(store.plan().copy(dailyGoal = it)) })
-        body.addView(InkSettings.onOff(this, R.string.settings_pomodoro_screen, store.keepsScreenOn) { store.keepsScreenOn = it })
-        body.addView(InkSettings.onOff(this, R.string.settings_pomodoro_sound, store.playsSound) { store.playsSound = it })
+    private fun InkPagedItems.addPomodoro() {
+        val store = PomodoroStore.of(this@SettingsActivity)
+        section(getString(R.string.settings_pomodoro))
+        item { minutesRow(R.string.settings_pomodoro_work, PomodoroPlan.WORK_CHOICES, store.plan().workMinutes) { store.savePlan(store.plan().copy(workMinutes = it)) } }
+        item { minutesRow(R.string.settings_pomodoro_short, PomodoroPlan.SHORT_BREAK_CHOICES, store.plan().shortBreakMinutes) { store.savePlan(store.plan().copy(shortBreakMinutes = it)) } }
+        item { minutesRow(R.string.settings_pomodoro_long, PomodoroPlan.LONG_BREAK_CHOICES, store.plan().longBreakMinutes) { store.savePlan(store.plan().copy(longBreakMinutes = it)) } }
+        item { countRow(R.string.settings_pomodoro_cycle, PomodoroPlan.CYCLE_CHOICES, store.plan().cycleLength) { store.savePlan(store.plan().copy(cycleLength = it)) } }
+        item { countRow(R.string.settings_pomodoro_goal, PomodoroPlan.GOAL_CHOICES, store.plan().dailyGoal) { store.savePlan(store.plan().copy(dailyGoal = it)) } }
+        item { InkSettings.onOff(this@SettingsActivity, R.string.settings_pomodoro_screen, store.keepsScreenOn) { store.keepsScreenOn = it } }
+        item { InkSettings.onOff(this@SettingsActivity, R.string.settings_pomodoro_sound, store.playsSound) { store.playsSound = it } }
     }
 
     private fun countRow(title: Int, choices: List<Int>, current: Int, onChoose: (Int) -> Unit) =
         InkChoiceRow(this, getString(title), choices.map { it to it.toString() }, current, onChoose = onChoose)
 
-    private fun header() = InkHeader.of(this, getString(R.string.settings), ::finish)
-
-    private fun dp(value: Float) = (value * resources.displayMetrics.density).roundToInt()
-
     companion object {
-        private const val PADDING_DP = 16f
-        private const val GAP_DP = 8f
-
         fun intent(context: Context) = Intent(context, SettingsActivity::class.java)
     }
 }

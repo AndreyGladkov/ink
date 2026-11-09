@@ -11,6 +11,7 @@ class InkChoiceRow<T>(
     options: List<Pair<T, String>>,
     selected: T,
     decorate: InkButton.(T) -> Unit = {},
+    isJoined: Boolean = true,
     private val onChoose: (T) -> Unit,
 ) : LinearLayout(context) {
     private val buttons: List<Pair<T, InkButton>>
@@ -19,6 +20,8 @@ class InkChoiceRow<T>(
         orientation = VERTICAL
         val density = resources.displayMetrics.density
         val gap = (GAP_DP * density).roundToInt()
+        val sharedBorderOverlap = -(InkStyle.LINE_DP * density).roundToInt().coerceAtLeast(1)
+        val spacing = if (isJoined) sharedBorderOverlap else gap
         addView(InkTextView(context).apply {
             text = title
             setPadding(0, gap * 3, 0, gap * 2)
@@ -31,11 +34,13 @@ class InkChoiceRow<T>(
                 maxLines = 1
                 setPadding(gap, paddingTop, gap, paddingBottom)
                 isSelected = value == selected
+                isJoinedStart = isJoined && index > 0
+                isJoinedEnd = isJoined && index < options.lastIndex
                 decorate(value)
                 setOnClickListener { choose(value) }
             }
             row.addView(button, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f).apply {
-                if (index > 0) marginStart = gap
+                if (index > 0) marginStart = spacing
             })
             value to button
         }

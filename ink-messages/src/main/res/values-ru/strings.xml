@@ -116,14 +116,7 @@
     <string name="blocked_unavailable">Список доступен, когда Ink Messages выбрано для SMS.</string>
     <string name="settings_sms_app">Приложение для SMS</string>
     <string name="sms_app_yes">Ink Messages выбрано для SMS.</string>
-    <string name="about">О приложении</string>
-    <string name="about_version">Версия %1$s</string>
     <string name="about_license">Ink Messages — свободная программа под лицензией GNU General Public License v3.</string>
     <string name="about_privacy">Ink Messages не выходит в интернет: у него нет разрешения INTERNET.</string>
-    <string name="about_gpl">GNU General Public License v3</string>
-    <string name="about_source">Исходный код</string>
-    <string name="about_components">Компоненты</string>
     <string name="about_mmslib">Разбор MMS из AOSP Messaging — Apache License 2.0</string>
-    <string name="about_noto">Шрифт Noto Emoji — SIL Open Font License 1.1</string>
-    <string name="about_material">Иконки Material — Apache License 2.0</string>
 </resources>

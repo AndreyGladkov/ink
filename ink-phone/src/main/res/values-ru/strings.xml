@@ -131,15 +131,8 @@
     <string name="settings_default_dialer">Звонилка по умолчанию</string>
     <string name="default_dialer_yes">Ink Phone — звонилка по умолчанию</string>
     <string name="a9_clear_after_call">Полная перерисовка после звонка</string>
-    <string name="about">О приложении</string>
-    <string name="about_version">Версия %1$s</string>
     <string name="about_license">Ink Phone — свободная программа под лицензией GNU General Public License v3.</string>
-    <string name="about_source">Исходный код</string>
-    <string name="about_components">Компоненты</string>
-    <string name="about_noto">Шрифт Noto Emoji — SIL Open Font License 1.1</string>
     <string name="about_ezvcard">ez-vcard — Apache License 2.0</string>
-    <string name="about_material">Иконки Material — Apache License 2.0</string>
-    <string name="about_gpl">GNU General Public License v3</string>
     <string name="launcher_label">Телефон</string>
     <string name="contact_save_failed">Не удалось сохранить изменения</string>
     <string name="contact_delete_failed">Не удалось удалить контакт</string>

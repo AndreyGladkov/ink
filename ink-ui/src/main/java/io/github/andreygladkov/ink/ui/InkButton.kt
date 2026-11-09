@@ -3,6 +3,7 @@ package io.github.andreygladkov.ink.ui
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Path
 import android.util.AttributeSet
 import android.view.Gravity
 import androidx.annotation.DrawableRes
@@ -26,6 +27,17 @@ open class InkButton @JvmOverloads constructor(
             invalidate()
         }
     var isFillRounded: Boolean = false
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    var isJoinedStart: Boolean = false
+        set(value) {
+            field = value
+            invalidate()
+        }
+    var isJoinedEnd: Boolean = false
         set(value) {
             field = value
             invalidate()
@@ -68,6 +80,8 @@ open class InkButton @JvmOverloads constructor(
     private val haptics by lazy { Haptics.of(context) }
     private val density = resources.displayMetrics.density
     private val fill = Paint().apply { isAntiAlias = false }
+    private val shape = Path()
+    private val cornerRadii = FloatArray(8)
     private val borderPx = (InkStyle.LINE_DP * density).roundToInt().coerceAtLeast(1)
     var paddingDp: Float = PADDING_DP
         set(value) {
@@ -113,16 +127,28 @@ open class InkButton @JvmOverloads constructor(
         val radius = if (isBordered || isFillRounded) radiusPx else 0f
         fill.color = style.foreground
         if (isInverted) {
-            canvas.drawRoundRect(0f, 0f, w, h, radius, radius, fill)
+            drawShape(canvas, 0f, 0f, w, h, radius)
         } else if (isBordered) {
             val b = borderPx.toFloat()
-            canvas.drawRoundRect(0f, 0f, w, h, radius, radius, fill)
+            drawShape(canvas, 0f, 0f, w, h, radius)
             fill.color = style.background
-            val inner = (radius - b).coerceAtLeast(0f)
-            canvas.drawRoundRect(b, b, w - b, h - b, inner, inner, fill)
+            drawShape(canvas, b, b, w - b, h - b, (radius - b).coerceAtLeast(0f))
         }
         if (icon != 0) drawIcon(canvas)
         super.onDraw(canvas)
+    }
+
+    private fun drawShape(canvas: Canvas, left: Float, top: Float, right: Float, bottom: Float, radius: Float) {
+        if (!isJoinedStart && !isJoinedEnd) return canvas.drawRoundRect(left, top, right, bottom, radius, radius, fill)
+        val isRtl = layoutDirection == LAYOUT_DIRECTION_RTL
+        val leftRadius = if (if (isRtl) isJoinedEnd else isJoinedStart) 0f else radius
+        val rightRadius = if (if (isRtl) isJoinedStart else isJoinedEnd) 0f else radius
+        cornerRadii.fill(leftRadius, 0, 2)
+        cornerRadii.fill(rightRadius, 2, 6)
+        cornerRadii.fill(leftRadius, 6, 8)
+        shape.rewind()
+        shape.addRoundRect(left, top, right, bottom, cornerRadii, Path.Direction.CW)
+        canvas.drawPath(shape, fill)
     }
 
     override fun onTextChanged(text: CharSequence?, start: Int, lengthBefore: Int, lengthAfter: Int) {

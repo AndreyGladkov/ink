@@ -8,11 +8,15 @@ import io.github.andreygladkov.ink.assertPureBlackAndWhite
 import io.github.andreygladkov.ink.contentRoot
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.find
+import io.github.andreygladkov.ink.pages
+import io.github.andreygladkov.ink.firstOnPages
+import io.github.andreygladkov.ink.findOnPages
 import io.github.andreygladkov.ink.haptics.HapticChannel
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.render
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkChoiceRow
+import io.github.andreygladkov.ink.ui.InkPagedList
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -32,7 +36,7 @@ class SettingsActivityTest {
     private fun launch() = Robolectric.buildActivity(SettingsActivity::class.java).setup().get()
 
     private fun row(root: android.view.View, title: String) =
-        root.find<InkChoiceRow<*>>().single { (it.getChildAt(0) as android.widget.TextView).text.toString() == title }
+        root.firstOnPages<InkChoiceRow<*>> { (it.getChildAt(0) as android.widget.TextView).text.toString() == title }
 
     private fun option(row: InkChoiceRow<*>, label: String) = row.find<InkButton>().single { it.text.toString() == label }
 
@@ -40,12 +44,12 @@ class SettingsActivityTest {
         io.github.andreygladkov.inkphone.contacts.FakeContactsProvider.reset()
         Robolectric.setupContentProvider(io.github.andreygladkov.inkphone.contacts.FakeContactsProvider::class.java, android.provider.ContactsContract.AUTHORITY)
         val root = contentRoot(launch())
-        assertTrue(root.find<android.widget.TextView>().none { it.text.toString() == "Аккаунты в списке" })
+        assertTrue(root.findOnPages<android.widget.TextView>().none { it.text.toString() == "Аккаунты в списке" })
     }
 
     @Test fun rendersPureBlackAndWhiteWithRoundedButtons() {
         val root = contentRoot(launch())
-        assertPureBlackAndWhite(render(root, height = 4000))
+        root.pages().forEach { assertPureBlackAndWhite(render(it)) }
     }
 
     @Test fun defaultsAreSelected() {
@@ -72,19 +76,31 @@ class SettingsActivityTest {
         assertTrue(context.inkPrefs().getBoolean(io.github.andreygladkov.ink.ui.InkPagedList.PREF_SCROLL, false))
     }
 
+    @Test fun recreatingAfterAStyleChangeKeepsThePage() {
+        val controller = Robolectric.buildActivity(SettingsActivity::class.java).setup()
+        val root = contentRoot(controller.get())
+        root.pages().drop(1).first()
+        val firstShown = root.find<InkPagedList>().single().firstPosition
+        controller.recreate()
+        shadowOf(android.os.Looper.getMainLooper()).idle()
+        val list = contentRoot(controller.get()).find<InkPagedList>().single()
+        assertEquals(1, list.page)
+        assertEquals(firstShown, list.firstPosition)
+    }
+
     @Test fun aboutShowsVersionAndLicenses() {
         val activity = Robolectric.buildActivity(AboutActivity::class.java).setup().get()
         val root = contentRoot(activity)
-        val texts = root.find<android.widget.TextView>().map { it.text.toString() }
+        val texts = root.findOnPages<android.widget.TextView>().map { it.text.toString() }
         assertTrue(texts.any { it.startsWith("Версия ") }, texts.toString())
         assertTrue("Шрифт Noto Emoji — SIL Open Font License 1.1" in texts)
-        assertPureBlackAndWhite(render(root))
+        root.pages().forEach { assertPureBlackAndWhite(render(it)) }
     }
 
     @Test fun licenseScreenShowsBundledText() {
         val intent = android.content.Intent(context, AboutActivity::class.java).putExtra("license", "OFL-1.1.txt")
         val root = contentRoot(Robolectric.buildActivity(AboutActivity::class.java, intent).setup().get())
-        assertTrue(root.find<android.widget.TextView>().any { "SIL Open Font License" in it.text })
+        assertTrue(root.findOnPages<android.widget.TextView>().any { "SIL Open Font License" in it.text })
     }
 
     @Test fun choosingVibrationSavesAndPlaysIt() {
