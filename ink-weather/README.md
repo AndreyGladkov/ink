@@ -4,6 +4,14 @@ A weather app with a home screen widget for Android phones with e-ink screens, b
 
 Every pixel is pure black or white, with no antialiasing and no animations. The whole forecast fits one screen, so nothing scrolls.
 
+<p>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="160">
+</p>
+
 [Русская версия ниже](#ink-weather-1)
 
 ## Features
@@ -51,6 +59,14 @@ Forecast: [MET Norway](https://api.met.no/doc/License) or [Open-Meteo.com](https
 Погода с виджетом для Android-телефонов с e-ink экраном, сделана под Hisense A9 и выглядит и ведёт себя как [Ink Phone](../ink-phone/README.md#ink-phone-1), [Ink Messages](../ink-messages/README.md#ink-messages-1), [Ink Clock](../ink-clock/README.md#ink-clock-1), [Ink Calculator](../ink-calculator/README.md#ink-calculator-1) и [Ink Launcher](../ink-launcher/README.md#ink-launcher-1). Прогноз берётся у [MET Norway](https://api.met.no) или [Open-Meteo](https://open-meteo.com) — как выбрано в настройках; города ищутся через Open-Meteo.
 
 Каждый пиксель чисто чёрный или белый, без сглаживания и анимаций. Весь прогноз помещается на один экран, прокручивать ничего не нужно.
+
+<p>
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/1.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/2.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/3.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/4.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/5.png" width="160">
+</p>
 
 - Сейчас: температура, как она ощущается, ветер, давление и осадки, с описанием погоды.
 - Ближайшие сутки с шагом в три часа и семь дней с минимальной и максимальной температурой и количеством осадков.
