@@ -31,6 +31,8 @@ Requires Android 11 or newer.
 - **GitHub:** download `InkGallery-<version>-release.apk` from [Releases](https://github.com/AndreyGladkov/ink/releases).
 - **[Obtainium](https://github.com/ImranR98/Obtainium):** add `https://github.com/AndreyGladkov/ink` as an app and set "Filter release titles by regular expression" to `^Ink Gallery `, because the repository also publishes other apps.
 
+Signing certificate SHA-256: `50:B8:5F:0A:96:2E:33:B4:92:DF:88:73:DA:C7:A8:BC:52:CA:B5:89:C1:42:D4:73:8D:F5:6C:6C:AA:42:4E:FA`.
+
 ## Building
 
 ```
@@ -75,3 +77,5 @@ Ink Gallery не пользуется интернетом. Подробнее �
 
 - **GitHub:** скачайте `InkGallery-<версия>-release.apk` в [Releases](https://github.com/AndreyGladkov/ink/releases).
 - **[Obtainium](https://github.com/ImranR98/Obtainium):** добавьте `https://github.com/AndreyGladkov/ink` и в поле «Filter release titles by regular expression» укажите `^Ink Gallery ` — в репозитории публикуются и другие приложения.
+
+SHA-256 сертификата подписи: `50:B8:5F:0A:96:2E:33:B4:92:DF:88:73:DA:C7:A8:BC:52:CA:B5:89:C1:42:D4:73:8D:F5:6C:6C:AA:42:4E:FA`.

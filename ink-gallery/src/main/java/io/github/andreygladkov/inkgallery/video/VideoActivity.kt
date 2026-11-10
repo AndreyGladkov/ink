@@ -150,7 +150,8 @@ class VideoActivity : Activity(), ModeScreen {
             keepScreenOn(false)
             showPlayPause()
             controls.forEach { it.isVisible = true }
-            showTime()
+            // NuPlayer on the Android 16 emulator reports position 0 once a video has ended.
+            showTime(player.duration)
         }
         player.setOnSeekCompleteListener {
             seekingTo = null
