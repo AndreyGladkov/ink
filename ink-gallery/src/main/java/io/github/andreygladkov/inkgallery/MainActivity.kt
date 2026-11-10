@@ -2,6 +2,7 @@ package io.github.andreygladkov.inkgallery
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
@@ -20,6 +21,7 @@ import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.PermissionGate
 import io.github.andreygladkov.inkgallery.grid.AlbumActivity
 import io.github.andreygladkov.inkgallery.grid.AlbumList
+import io.github.andreygladkov.inkgallery.grid.GridSelection
 import io.github.andreygladkov.inkgallery.grid.PhotoGrid
 import io.github.andreygladkov.inkgallery.media.MediaAccess
 import io.github.andreygladkov.inkgallery.media.Item
@@ -40,6 +42,7 @@ class MainActivity : Activity() {
     private lateinit var partialAccess: LinearLayout
     private lateinit var allowMore: InkButton
     private val backToStart = BackToStart(this) { tabBar.select(Tab.PHOTOS) }
+    private lateinit var selection: GridSelection
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,9 +54,10 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER
         }
         tabBar = InkTabBar(this, Tab.entries, inkPrefs().getBoolean(InkTabBar.PREF_LABELS, true), ::showTab)
+        selection = GridSelection(this, grid, header, tabBar, ::refresh)
         InkWindow.setContent(this, LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(header, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+            addView(selection.top, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
             addView(partialAccess(), LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
             addView(FrameLayout(this@MainActivity).apply {
                 addView(grid.view)
@@ -61,7 +65,7 @@ class MainActivity : Activity() {
                 addView(empty, FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, Gravity.CENTER))
                 addView(noAccess(), FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, Gravity.CENTER))
             }, LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f))
-            addView(tabBar, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+            addView(selection.bottom, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
         })
         tabBar.select(Tab.PHOTOS)
     }
@@ -74,7 +78,13 @@ class MainActivity : Activity() {
     @SuppressLint("GestureBackNavigation")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        if (!backToStart.onBackPressed()) @Suppress("DEPRECATION") super.onBackPressed()
+        if (!selection.onBackPressed() && !backToStart.onBackPressed()) @Suppress("DEPRECATION") super.onBackPressed()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION") super.onActivityResult(requestCode, resultCode, data)
+        selection.onActivityResult(requestCode, resultCode)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

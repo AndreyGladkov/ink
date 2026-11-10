@@ -29,10 +29,15 @@ import io.github.andreygladkov.ink.ui.InkButtonRow
 import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
+import io.github.andreygladkov.inkgallery.Background
 import io.github.andreygladkov.inkgallery.GalleryPrefs
 import io.github.andreygladkov.inkgallery.R
 import io.github.andreygladkov.inkgallery.media.Item
+import io.github.andreygladkov.inkgallery.media.Library
 import io.github.andreygladkov.inkgallery.media.formatDuration
+import io.github.andreygladkov.inkgallery.viewer.ActionPanel
+import io.github.andreygladkov.inkgallery.viewer.Actions
+import io.github.andreygladkov.inkgallery.viewer.InfoActivity
 import io.github.andreygladkov.inkgallery.viewer.ModeScreen
 import io.github.andreygladkov.inkgallery.viewer.Overlay
 import io.github.andreygladkov.inkgallery.viewer.Viewport
@@ -40,7 +45,8 @@ import io.github.andreygladkov.inkgallery.viewer.Viewport
 /**
  * A video on the whole screen, played with the A9 panel in SPEED, its fastest mode. A tap shows or hides the
  * controls, which never hide by themselves: every redraw shows on e-ink. While they are shown the time and the
- * progress line move once a second. Leaving the app pauses the video, and coming back plays on from there.
+ * progress line move once a second. Leaving the app pauses the video, and coming back plays on from there. A video
+ * deleted here closes the player with [RESULT_DELETED] and its address as the result's data.
  */
 class VideoActivity : Activity(), ModeScreen {
     private val player = MediaPlayer()
@@ -59,6 +65,12 @@ class VideoActivity : Activity(), ModeScreen {
     private var startAt = 0
     private var seekingTo: Int? = null
     private var videoSize: Size? = null
+    private var video: Item? = null
+    private val uri: Uri? by lazy {
+        intent.data.takeIf { intent.action == Intent.ACTION_VIEW } ?: IntentCompat.getParcelableExtra(intent, EXTRA_VIDEO, Uri::class.java)
+    }
+    private lateinit var itemActions: List<View>
+    private lateinit var delete: InkButton
     private val tick = object : Runnable {
         override fun run() {
             showTime()
@@ -90,6 +102,12 @@ class VideoActivity : Activity(), ModeScreen {
         }
         progress = ProgressLine(this, ::seekTo).apply { contentDescription = getString(R.string.seek) }
         playPause = Overlay.action(this, R.drawable.ic_play, R.string.play) { togglePlay() }
+        val actions = ActionPanel(this)
+        itemActions = listOf(
+            actions.add(R.drawable.ic_share, R.string.share) { video?.let { Actions.share(this, listOf(it)) } },
+            actions.add(R.drawable.ic_info, R.string.info) { video?.let { startActivity(InfoActivity.intent(this, it)) } },
+            actions.addDelete({ getString(R.string.delete_video_question) }) { video?.let { Actions.askToDelete(this, listOf(it)) } }.also { delete = it },
+        ).onEach { it.isVisible = false }
         val top = Overlay.bar(this, InkHeader.of(this, time, InkHeader.back(this, ::finish)))
         val bottom = Overlay.bar(this, LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -100,6 +118,8 @@ class VideoActivity : Activity(), ModeScreen {
                 addButton(playPause)
                 addButton(Overlay.action(this@VideoActivity, 0, R.string.forward_10) { skip(SKIP_MS) })
             })
+            addView(InkHeader.line(this@VideoActivity))
+            addView(actions, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
         })
         controls = listOf(top, bottom)
         InkWindow.setContent(this, FrameLayout(this).apply {
@@ -110,6 +130,29 @@ class VideoActivity : Activity(), ModeScreen {
             addView(bottom, FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, Gravity.BOTTOM))
         })
         preparePlayer()
+        loadItem()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION") super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != Actions.REQUEST_DELETE || resultCode != RESULT_OK) return
+        setResult(RESULT_DELETED, Intent().setData(uri))
+        finish()
+    }
+
+    /** What the actions need to know of the video, the same whether it came from the grid or from another app. */
+    private fun loadItem() {
+        val uri = uri ?: return
+        val resolver = contentResolver
+        Background.queries.execute {
+            val found = runCatching { Library.item(resolver, uri) }.getOrNull() ?: return@execute
+            runOnUiThread {
+                if (isDestroyed) return@runOnUiThread
+                video = found
+                itemActions.forEach { it.isVisible = it != delete || found.isInLibrary }
+            }
+        }
     }
 
     override fun onStart() {
@@ -140,7 +183,6 @@ class VideoActivity : Activity(), ModeScreen {
     }
 
     private fun preparePlayer() {
-        val uri = intent.data.takeIf { intent.action == Intent.ACTION_VIEW } ?: IntentCompat.getParcelableExtra(intent, EXTRA_VIDEO, Uri::class.java)
         player.setOnPreparedListener {
             isPrepared = true
             player.seekTo(startAt)
@@ -279,6 +321,7 @@ class VideoActivity : Activity(), ModeScreen {
     }
 
     companion object {
+        const val RESULT_DELETED = RESULT_FIRST_USER
         private const val EXTRA_VIDEO = "video"
         private const val STATE_POSITION = "position"
         private const val STATE_PLAYING = "playing"

@@ -20,6 +20,12 @@
     <string name="info">Details</string>
     <string name="delete">Delete</string>
     <string name="delete_confirm">Delete?</string>
+    <string name="selected_count">Selected: %1$d</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok" translatable="false">OK</string>
+    <string name="delete_photo_question">Delete this photo?</string>
+    <string name="delete_video_question">Delete this video?</string>
+    <string name="delete_picked_question">Delete the %1$d picked?</string>
     <string name="info_taken">Taken</string>
     <string name="info_resolution">Resolution</string>
     <string name="info_pixels" translatable="false">%1$d × %2$d</string>
