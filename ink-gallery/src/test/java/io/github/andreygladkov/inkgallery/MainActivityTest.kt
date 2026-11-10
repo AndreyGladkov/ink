@@ -3,6 +3,7 @@ package io.github.andreygladkov.inkgallery
 import android.Manifest
 import android.app.Activity
 import android.app.Application
+import android.content.Intent
 import android.os.Looper
 import android.view.View
 import androidx.test.core.app.ApplicationProvider
@@ -17,6 +18,7 @@ import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkgallery.FakeMedia.Row
 import io.github.andreygladkov.inkgallery.grid.AlbumActivity
+import io.github.andreygladkov.inkgallery.viewer.Actions
 import io.github.andreygladkov.inkgallery.viewer.ViewerActivity
 import org.junit.After
 import org.junit.Before
@@ -28,7 +30,9 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
@@ -180,6 +184,87 @@ class MainActivityTest {
         contentRoot(activity).find<InkButton>().single { it.isShown && it.text.toString() == "Разрешить доступ" }.performClick()
         val asked = assertNotNull(shadowOf(activity).lastRequestedPermission).requestedPermissions.toList()
         assertTrue(Manifest.permission.READ_MEDIA_VIDEO in asked, "asked for $asked")
+    }
+
+    private fun Activity.longPress(view: View) = view.performLongClick()
+
+    private fun Activity.title() = contentRoot(this).find<InkTextView>().first { it.isShown && it.tag == "ink_header_title" }.text.toString()
+
+    private fun Activity.barButton(name: String) =
+        contentRoot(this).find<InkButton>().single { it.isShown && (it.contentDescription == name || it.text.toString() == name) }
+
+    @Test fun aLongPressStartsPickingAndTapsPickMoreOnAnyPage() {
+        shadowOf(context).grantPermissions(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO)
+        val activity = launch()
+        idleUntil { activity.cells().isNotEmpty() }
+        val firstPage = activity.cells()
+        activity.longPress(activity.cells()[0])
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals("Выбрано: 1", activity.title())
+        assertTrue(activity.cells()[0].isSelected)
+        assertTrue(activity.cells().zip(firstPage).all { (now, before) -> now === before }, "the page was laid out again")
+        assertFalse(contentRoot(activity).find<InkButton>().any { it.isShown && it.text.toString() == "Альбомы" }, "the tabs stay while picking")
+        activity.cells()[1].performClick()
+        assertEquals("Выбрано: 2", activity.title())
+        assertNull(shadowOf(activity).nextStartedActivity, "a tap while picking opened a photo")
+        activity.grid().showPage(1)
+        shadowOf(Looper.getMainLooper()).idle()
+        activity.cells()[0].performClick()
+        assertEquals("Выбрано: 3", activity.title())
+        activity.grid().showPage(0)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertTrue(activity.cells()[1].isSelected)
+        activity.cells()[1].performClick()
+        assertEquals("Выбрано: 2", activity.title())
+    }
+
+    @Test fun cancelOrBackEndsPicking() {
+        shadowOf(context).grantPermissions(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO)
+        val activity = launch()
+        idleUntil { activity.cells().isNotEmpty() }
+        activity.longPress(activity.cells()[0])
+        activity.barButton("Отмена").performClick()
+        assertEquals("Фото", activity.title())
+        assertFalse(activity.cells()[0].isSelected)
+        activity.longPress(activity.cells()[0])
+        @Suppress("DEPRECATION") activity.onBackPressed()
+        assertEquals("Фото", activity.title())
+        assertFalse(activity.isFinishing)
+    }
+
+    @Test fun thePickedAreSharedAndDeletedTogether() {
+        shadowOf(context).grantPermissions(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO)
+        val activity = launch()
+        idleUntil { activity.cells().isNotEmpty() }
+        activity.longPress(activity.cells()[0])
+        activity.cells()[2].performClick()
+        activity.barButton("Поделиться").performClick()
+        val send = androidx.core.content.IntentCompat.getParcelableExtra(assertNotNull(shadowOf(activity).nextStartedActivity), Intent.EXTRA_INTENT, Intent::class.java)!!
+        assertEquals(Intent.ACTION_SEND_MULTIPLE, send.action)
+        assertEquals<List<android.net.Uri>?>(listOf(FakeMedia.uri(20), FakeMedia.uri(18)),
+            androidx.core.content.IntentCompat.getParcelableArrayListExtra(send, Intent.EXTRA_STREAM, android.net.Uri::class.java))
+
+        activity.barButton("Удалить").performClick()
+        assertTrue(contentRoot(activity).find<InkTextView>().any { it.isShown && it.text.toString() == "Удалить выбранные: 2?" })
+        assertTrue(FakeMedia.deleteRequests.isEmpty())
+        activity.barButton("OK").performClick()
+        assertEquals(listOf(FakeMedia.uri(20), FakeMedia.uri(18)), FakeMedia.deleteRequests)
+        FakeMedia.rows.removeAll { it.id == 20L || it.id == 18L }
+        activity.deliverResult(Actions.REQUEST_DELETE, Activity.RESULT_OK)
+        assertEquals("Фото", activity.title())
+        idleUntil { activity.cells().first().contentDescription == "photo19.png" }
+        assertTrue(activity.cells().none { it.contentDescription == "photo18.png" })
+    }
+
+    @Test fun anAlbumPicksAndDeletesToo() {
+        shadowOf(context).grantPermissions(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO)
+        val album = Robolectric.buildActivity(AlbumActivity::class.java, AlbumActivity.intent(context, io.github.andreygladkov.inkgallery.media.Album("shots", "Screenshots", 4))).setup().get()
+        idleUntil { album.cells().isNotEmpty() }
+        album.longPress(album.cells()[0])
+        assertEquals("Выбрано: 1", album.title())
+        album.barButton("Удалить").performClick()
+        album.barButton("OK").performClick()
+        assertEquals(listOf(FakeMedia.uri(20)), FakeMedia.deleteRequests)
     }
 
     @Test fun anEmptyLibrarySaysSo() {

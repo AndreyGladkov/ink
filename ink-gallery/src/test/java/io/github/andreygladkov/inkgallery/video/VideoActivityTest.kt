@@ -20,6 +20,10 @@ import io.github.andreygladkov.inkgallery.drainBackground
 import io.github.andreygladkov.inkgallery.media.Item
 import io.github.andreygladkov.inkgallery.registerVideo
 import io.github.andreygladkov.inkgallery.viewer.ViewerActivity
+import androidx.core.content.IntentCompat
+import androidx.core.view.isVisible
+import io.github.andreygladkov.inkgallery.deliverResult
+import io.github.andreygladkov.inkgallery.viewer.Actions
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -34,6 +38,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.test.assertNotNull
 
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -175,6 +180,42 @@ class VideoActivityTest {
         assertEquals(listOf("TEMPORARY CLEAR", "TEMPORARY SPEED", "TEMPORARY CLEAR"), A9.modeChanges(context))
         viewer.pause().stop()
         assertEquals(listOf("TEMPORARY CLEAR", "TEMPORARY SPEED", "TEMPORARY CLEAR", "RESTORE"), A9.modeChanges(context))
+    }
+
+    private fun Activity.action(label: String) = contentRoot(this).find<InkButton>().single { it.text.toString() == label }
+
+    @Test fun theVideoCanBeSharedLookedIntoAndDeletedFromThePlayer() {
+        val activity = play().get()
+        drainBackground()
+        activity.tapScreen()
+        assertTrue(activity.action("Удалить").isShown, "the actions are not at the bottom with the playback")
+        activity.action("Поделиться").performClick()
+        val chooser = assertNotNull(shadowOf(activity).nextStartedActivity)
+        val send = IntentCompat.getParcelableExtra(chooser, Intent.EXTRA_INTENT, Intent::class.java)!!
+        assertEquals(clip.uri, IntentCompat.getParcelableExtra(send, Intent.EXTRA_STREAM, android.net.Uri::class.java))
+
+        activity.action("Сведения").performClick()
+        assertEquals(io.github.andreygladkov.inkgallery.viewer.InfoActivity::class.java.name, shadowOf(activity).nextStartedActivity?.component?.className)
+
+        activity.action("Удалить").performClick()
+        assertTrue(FakeMedia.deleteRequests.isEmpty())
+        activity.action("OK").performClick()
+        assertEquals(listOf(clip.uri), FakeMedia.deleteRequests)
+        activity.deliverResult(Actions.REQUEST_DELETE, Activity.RESULT_OK)
+        assertTrue(activity.isFinishing)
+        assertEquals(VideoActivity.RESULT_DELETED, shadowOf(activity).resultCode)
+        assertEquals(clip.uri, shadowOf(activity).resultIntent.data)
+    }
+
+    @Test fun aVideoFromOutsideTheLibraryCannotBeDeleted() {
+        io.github.andreygladkov.inkgallery.FakeShared.install(context)
+        io.github.andreygladkov.inkgallery.FakeShared.type = "video/mp4"
+        registerVideo(context, io.github.andreygladkov.inkgallery.FakeShared.uri, 10_000)
+        val intent = Intent(Intent.ACTION_VIEW).setDataAndType(io.github.andreygladkov.inkgallery.FakeShared.uri, "video/mp4")
+        val activity = Robolectric.buildActivity(VideoActivity::class.java, intent).setup().get()
+        drainBackground()
+        assertFalse(activity.action("Удалить").isVisible)
+        assertTrue(activity.action("Поделиться").isVisible)
     }
 
     @Test fun aVideoAnotherAppOpensPlaysToo() {

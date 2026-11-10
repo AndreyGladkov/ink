@@ -20,6 +20,11 @@
     <string name="info">Сведения</string>
     <string name="delete">Удалить</string>
     <string name="delete_confirm">Удалить?</string>
+    <string name="selected_count">Выбрано: %1$d</string>
+    <string name="cancel">Отмена</string>
+    <string name="delete_photo_question">Удалить фото?</string>
+    <string name="delete_video_question">Удалить видео?</string>
+    <string name="delete_picked_question">Удалить выбранные: %1$d?</string>
     <string name="info_taken">Снято</string>
     <string name="info_resolution">Разрешение</string>
     <string name="info_duration">Длительность</string>

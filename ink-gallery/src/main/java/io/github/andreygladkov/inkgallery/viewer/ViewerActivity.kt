@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -15,13 +14,10 @@ import android.widget.LinearLayout
 import androidx.core.content.IntentCompat
 import androidx.core.view.isVisible
 import io.github.andreygladkov.ink.eink.A9Panel
-import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkButton
-import io.github.andreygladkov.ink.ui.InkButtonRow
 import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
-import io.github.andreygladkov.ink.ui.confirmBeforeAction
 import io.github.andreygladkov.inkgallery.GalleryPrefs
 import io.github.andreygladkov.inkgallery.Background
 import io.github.andreygladkov.inkgallery.R
@@ -40,6 +36,7 @@ class ViewerActivity : Activity(), ModeScreen {
     private lateinit var controls: List<View>
     private lateinit var counter: InkTextView
     private lateinit var deleteButton: InkButton
+    private lateinit var actions: ActionPanel
     private lateinit var unreadable: InkTextView
     private lateinit var play: InkButton
     private var photos: List<Item> = emptyList()
@@ -68,17 +65,17 @@ class ViewerActivity : Activity(), ModeScreen {
             iconSizeDp = PLAY_ICON_DP
             contentDescription = getString(R.string.play)
             visibility = View.GONE
-            setOnClickListener { shownPhoto?.let { startActivity(VideoActivity.intent(this@ViewerActivity, it)) } }
+            setOnClickListener { shownPhoto?.let { @Suppress("DEPRECATION") startActivityForResult(VideoActivity.intent(this@ViewerActivity, it), REQUEST_PLAY) } }
         }
         val top = Overlay.bar(this, InkHeader.of(this, counter, InkHeader.back(this, ::finish)))
+        actions = ActionPanel(this)
         val bottom = Overlay.bar(this, LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             addView(InkHeader.line(this@ViewerActivity))
-            addView(InkButtonRow(this@ViewerActivity, 0, InkStyle.SECONDARY_SCALE).apply {
-                addButton(Overlay.action(this@ViewerActivity, R.drawable.ic_share, R.string.share) { share() })
-                addButton(Overlay.action(this@ViewerActivity, R.drawable.ic_info, R.string.info) { shownPhoto?.let { startActivity(InfoActivity.intent(this@ViewerActivity, it)) } })
-                deleteButton = Overlay.action(this@ViewerActivity, R.drawable.ic_delete, R.string.delete) {}
-                addButton(deleteButton)
+            addView(actions.apply {
+                add(R.drawable.ic_share, R.string.share) { share() }
+                add(R.drawable.ic_info, R.string.info) { shownPhoto?.let { startActivity(InfoActivity.intent(this@ViewerActivity, it)) } }
+                deleteButton = addDelete({ getString(if (shownPhoto?.isVideo == true) R.string.delete_video_question else R.string.delete_photo_question) }, ::requestDelete)
             })
         })
         controls = listOf(top, bottom)
@@ -112,7 +109,13 @@ class ViewerActivity : Activity(), ModeScreen {
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         @Suppress("DEPRECATION") super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_DELETE && resultCode == RESULT_OK) onDeleted()
+        when {
+            requestCode == Actions.REQUEST_DELETE && resultCode == RESULT_OK -> deleting?.let {
+                deleting = null
+                remove(it)
+            }
+            requestCode == REQUEST_PLAY && resultCode == VideoActivity.RESULT_DELETED -> data?.data?.let(::remove)
+        }
     }
 
     private fun load(restored: Uri?) {
@@ -139,8 +142,7 @@ class ViewerActivity : Activity(), ModeScreen {
         counter.text = if (photos.size > 1) getString(InkR.string.page_of, index + 1, photos.size) else photo.name
         play.isVisible = photo.isVideo
         deleteButton.visibility = if (photo.isInLibrary) View.VISIBLE else View.GONE
-        deleteButton.setText(R.string.delete)
-        deleteButton.confirmBeforeAction(R.string.delete_confirm, ::requestDelete)
+        actions.cancelQuestion()
     }
 
     private fun flip(step: Int) {
@@ -156,29 +158,20 @@ class ViewerActivity : Activity(), ModeScreen {
     }
 
     private fun share() {
-        val photo = shownPhoto ?: return
-        val send = Intent(Intent.ACTION_SEND)
-            .setType(contentResolver.getType(photo.uri) ?: if (photo.isVideo) "video/*" else "image/*")
-            .putExtra(Intent.EXTRA_STREAM, photo.uri)
-            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        startActivity(Intent.createChooser(send, null))
+        shownPhoto?.let { Actions.share(this, listOf(it)) }
     }
 
-    /** With the "manage media" right the system deletes at once; without it, it asks first in its own dialog. */
     private fun requestDelete() {
         val photo = shownPhoto ?: return
         deleting = photo.uri
-        val request = MediaStore.createDeleteRequest(contentResolver, listOf(photo.uri))
-        @Suppress("DEPRECATION") startIntentSenderForResult(request.intentSender, REQUEST_DELETE, null, 0, 0, 0)
+        Actions.askToDelete(this, listOf(photo))
     }
 
     /**
      * A screen recreated while the system asked about deleting gets the answer before its list is read again; the
      * list read then no longer has the deleted item, so there is nothing to remove yet.
      */
-    private fun onDeleted() {
-        val deleted = deleting ?: return
-        deleting = null
+    private fun remove(deleted: Uri) {
         if (photos.isEmpty()) return
         photos = photos.filter { it.uri != deleted }
         if (photos.isEmpty()) return finish()
@@ -191,7 +184,7 @@ class ViewerActivity : Activity(), ModeScreen {
         private const val EXTRA_ALBUM = "album"
         private const val STATE_PHOTO = "photo"
         private const val STATE_DELETING = "deleting"
-        private const val REQUEST_DELETE = 1
+        private const val REQUEST_PLAY = 2
         private const val PLAY_ICON_DP = 64f
 
         /** A video tapped in a grid plays at once; a photo opens among the others of that grid. */
