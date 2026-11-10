@@ -18,7 +18,7 @@ Everything but the photos and videos is pure black or white, with no antialiasin
 - Other apps can open pictures and videos in Ink Gallery; such a picture is shown alone, and a video plays.
 - Wide photos can be turned to fill the tall screen, in the settings.
 - With [A9PatchingService](https://github.com/AndreyGladkov/A9PatchingService) and its "Allow Control via Broadcasts" on, opening a photo puts the panel in CLEAR mode, which shows 16 real greys, and the photo is dithered to them with blue noise so smooth tones do not band. Going back to the grid or leaving the app brings the previous mode back; the photo's details keep CLEAR. Switching to CLEAR and dithering are set apart in the settings: dithering follows CLEAR by default, and can be kept on for a panel set to CLEAR by hand in A9PatchingService, or turned off to see CLEAR's own steps between greys instead of grain.
-- With only some photos allowed (Android 14 and newer), the grid says so and leads to the system settings to allow more.
+- With only some photos and videos allowed (Android 14 and newer), or photos without videos, the grid says so and asks again, where all can be allowed.
 - The list refreshes each time the app comes back to the screen.
 - Settings for text size, font weight, button corners, colors, lists, tab labels and vibration, shared with the other Ink apps.
 
@@ -65,7 +65,7 @@ Bundled components: Noto Emoji font (SIL Open Font License 1.1) and Material ico
 - Другие приложения могут открывать в Ink Gallery картинки и видео; картинка показывается одна, видео сразу играет.
 - Горизонтальные фото можно поворачивать на весь вытянутый экран — в настройках.
 - С [A9PatchingService](https://github.com/AndreyGladkov/A9PatchingService) и включённым в нём «Allow Control via Broadcasts» открытие фото переводит панель в режим CLEAR, где видны 16 настоящих оттенков серого, а фото дизерится до них синим шумом, чтобы на плавных переходах не было полос. При возврате к сетке или уходе из приложения возвращается прежний режим; в сведениях о фото CLEAR остаётся. Переключение в CLEAR и дизеринг настраиваются отдельно: по умолчанию дизеринг следует за CLEAR, его можно оставить включённым, если CLEAR задан вручную в A9PatchingService, или выключить, чтобы вместо зерна были видны собственные ступени CLEAR между оттенками.
-- Если разрешён доступ только к части фото (Android 14 и новее), над сеткой об этом написано и есть переход в системные настройки, чтобы разрешить больше.
+- Если разрешён доступ только к части фото и видео (Android 14 и новее) или к фото без видео, над сеткой об этом написано и есть кнопка, которая снова спрашивает доступ — там можно разрешить всё.
 - Список обновляется каждый раз, когда приложение возвращается на экран.
 - Настройки размера текста, толщины шрифта, скругления кнопок, цветов, списков, подписей вкладок и вибрации — общие с другими приложениями Ink.
 

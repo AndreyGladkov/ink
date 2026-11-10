@@ -171,12 +171,15 @@ class MainActivityTest {
         assertEquals(io.github.andreygladkov.inkgallery.video.VideoActivity::class.java.name, started.component?.className)
     }
 
-    @Test fun onlyPhotosAllowedIsPartialAccess() {
+    @Test fun onlyPhotosAllowedIsPartialAccessAndAsksForTheRestAgain() {
         shadowOf(context).grantPermissions(Manifest.permission.READ_MEDIA_IMAGES)
         val activity = launch()
         idleUntil { activity.cells().isNotEmpty() }
         val texts = contentRoot(activity).find<InkTextView>().filter { it.isShown }.map { it.text.toString() }
         assertTrue("Видны только выбранные вами фото и видео" in texts, "shown: $texts")
+        contentRoot(activity).find<InkButton>().single { it.isShown && it.text.toString() == "Разрешить доступ" }.performClick()
+        val asked = assertNotNull(shadowOf(activity).lastRequestedPermission).requestedPermissions.toList()
+        assertTrue(Manifest.permission.READ_MEDIA_VIDEO in asked, "asked for $asked")
     }
 
     @Test fun anEmptyLibrarySaysSo() {

@@ -2,10 +2,7 @@ package io.github.andreygladkov.inkgallery
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -30,7 +27,6 @@ import io.github.andreygladkov.inkgallery.media.Library
 import io.github.andreygladkov.inkgallery.settings.SettingsActivity
 import io.github.andreygladkov.inkgallery.viewer.ViewerActivity
 import kotlin.math.roundToInt
-import io.github.andreygladkov.ink.R as InkR
 
 class MainActivity : Activity() {
     private val gate by lazy { PermissionGate(this, MediaAccess.permissions, REQUEST_PHOTOS) }
@@ -42,6 +38,7 @@ class MainActivity : Activity() {
     private lateinit var noAccess: LinearLayout
     private lateinit var grantAccess: InkButton
     private lateinit var partialAccess: LinearLayout
+    private lateinit var allowMore: InkButton
     private val backToStart = BackToStart(this) { tabBar.select(Tab.PHOTOS) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,6 +93,7 @@ class MainActivity : Activity() {
         val access = MediaAccess.of(this)
         noAccess.visibility = if (access == MediaAccess.NONE) View.VISIBLE else View.GONE
         partialAccess.visibility = if (access == MediaAccess.PARTIAL) View.VISIBLE else View.GONE
+        if (access == MediaAccess.PARTIAL) gate.bind(allowMore)
         if (access == MediaAccess.NONE) {
             gate.bind(grantAccess)
             show(emptyList())
@@ -128,7 +126,10 @@ class MainActivity : Activity() {
         noAccess = this
     }
 
-    /** With access to only the photos picked, the system's own app settings are where more can be allowed. */
+    /**
+     * Asking again shows the system's choice with "Allow all", which also covers access to photos given before videos
+     * were asked for; once asking is refused for good, the button leads to the app's system settings instead.
+     */
     private fun partialAccess() = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
@@ -138,14 +139,11 @@ class MainActivity : Activity() {
             setText(R.string.access_partial)
             textScale = InkStyle.SECONDARY_SCALE
         }, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f))
-        addView(InkButton(this@MainActivity).apply {
-            setText(InkR.string.open_settings)
+        allowMore = InkButton(this@MainActivity).apply {
             textScale = InkStyle.SECONDARY_SCALE
             isBordered = false
-            setOnClickListener {
-                startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null)))
-            }
-        })
+        }
+        addView(allowMore)
         visibility = View.GONE
         partialAccess = this
     }
