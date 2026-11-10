@@ -52,6 +52,7 @@ class VideoActivity : Activity(), ModeScreen {
     private lateinit var playPause: InkButton
     private lateinit var unplayable: InkTextView
     private var isPrepared = false
+    private var isReleased = false
     private var isStarted = false
     private var hasEnded = false
     private var wantsToPlay = true
@@ -134,6 +135,7 @@ class VideoActivity : Activity(), ModeScreen {
     override fun onDestroy() {
         super.onDestroy()
         main.removeCallbacks(tick)
+        isReleased = true
         player.release()
     }
 
@@ -267,8 +269,9 @@ class VideoActivity : Activity(), ModeScreen {
 
         override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) = fitVideo()
 
+        /** The window, and the texture with it, goes only after onDestroy has released the player. */
         override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-            player.setSurface(null)
+            if (!isReleased) player.setSurface(null)
             return true
         }
 
