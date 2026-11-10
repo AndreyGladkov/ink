@@ -77,7 +77,7 @@ class EndAnchoredPageBreaker(
 
     override fun end(page: Int): Int {
         fromEnd.end(page)
-        return count - fromEnd.start(page)
+        return if (page < fromEnd.knownPages) count - fromEnd.start(page) else 0
     }
 
     override fun pageOf(position: Int): Int = fromEnd.pageOf(count - 1 - position)

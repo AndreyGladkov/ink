@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Галерея</string>
+
+    <string name="tab_photos">Фото</string>
+    <string name="tab_albums">Альбомы</string>
+    <string name="no_photos">Фото и видео пока нет</string>
+    <string name="album_unnamed">Без названия</string>
+    <plurals name="photo_count">
+        <item quantity="one">%d фото</item>
+        <item quantity="few">%d фото</item>
+        <item quantity="many">%d фото</item>
+        <item quantity="other">%d фото</item>
+    </plurals>
+    <string name="access_needed">Чтобы показать фото и видео, Ink Gallery нужен доступ к ним</string>
+    <string name="access_partial">Видны только выбранные вами фото и видео</string>
+
+    <string name="unreadable">Эту картинку не открыть</string>
+    <string name="share">Поделиться</string>
+    <string name="info">Сведения</string>
+    <string name="delete">Удалить</string>
+    <string name="delete_confirm">Удалить?</string>
+    <string name="info_taken">Снято</string>
+    <string name="info_resolution">Разрешение</string>
+    <string name="info_duration">Длительность</string>
+    <string name="info_size">Размер</string>
+    <string name="info_name">Файл</string>
+    <string name="info_folder">Папка</string>
+
+    <string name="video_described">%1$s, видео %2$s</string>
+    <string name="unplayable">Это видео не воспроизвести</string>
+    <string name="play">Играть</string>
+    <string name="pause">Пауза</string>
+    <string name="back_10">−10 с</string>
+    <string name="forward_10">+10 с</string>
+    <string name="seek">Место в видео</string>
+
+    <string name="settings_viewer">Просмотр</string>
+    <string name="settings_rotate_landscape">Поворачивать горизонтальные фото на весь экран</string>
+    <string name="settings_deletion">Удаление</string>
+    <string name="manage_media_hint">Каждое удаление система ещё раз подтверждает своим диалогом. Разрешите Ink Gallery управлять медиафайлами, чтобы удалять одной кнопкой.</string>
+    <string name="manage_media_granted">Ink Gallery может управлять медиафайлами: фото удаляются без системного диалога.</string>
+    <string name="manage_media_open">Доступ к управлению медиафайлами</string>
+    <string name="settings_clear_for_photos">Режим CLEAR при просмотре фото</string>
+    <string name="settings_photo_dither">Дизеринг фото до 16 оттенков</string>
+    <string name="dither_auto">Авто</string>
+
+    <string name="about_license">Ink Gallery — свободная программа под лицензией GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Gallery не пользуется интернетом. Фото и видео остаются на устройстве и уходят в другие приложения, только когда вы нажимаете «Поделиться».</string>
+</resources>

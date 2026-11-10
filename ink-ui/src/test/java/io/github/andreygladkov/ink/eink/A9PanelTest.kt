@@ -42,4 +42,12 @@ class A9PanelTest {
         afterDelay()
         assertEquals(2, clears())
     }
+
+    @Test fun aModeIsHeldTemporarilyAndRestored() {
+        A9Panel.holdMode(context, A9Panel.RefreshMode.CLEAR)
+        A9Panel.holdMode(context, A9Panel.RefreshMode.SPEED)
+        A9Panel.restoreMode(context)
+        val sent = app.broadcastIntents.filter { it.`package` == "com.lmqr.ha9_comp_service" }
+        assertEquals(listOf("EINK_REFRESH_TEMPORARY" to "CLEAR", "EINK_REFRESH_TEMPORARY" to "SPEED", "EINK_REFRESH_RESTORE" to null), sent.map { it.action to it.getStringExtra("mode") })
+    }
 }

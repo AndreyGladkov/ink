@@ -32,6 +32,9 @@ class InkPagedList(
         val count: Int
         fun itemId(position: Int): Long
         fun createView(position: Int): View
+
+        /** The height of every item at [widthPx] when all are alike, so pages are known at once without building each item. */
+        fun uniformHeight(widthPx: Int): Int? = null
     }
 
     var onPageShown: ((firstPosition: Int) -> Unit)? = null
@@ -159,6 +162,15 @@ class InkPagedList(
         if (list != null && top != null) list.setSelectionFromTop(position, top)
     }
 
+    /** The positions shown on page [index], or null for a scrolling list or a page past the end. */
+    fun positionsOf(index: Int): IntRange? {
+        if (scrollList != null || index < 0) return null
+        val current = breaker ?: return null
+        current.end(index)
+        if (index >= current.knownPages) return null
+        return current.start(index) until current.end(index)
+    }
+
     fun showPageOf(position: Int) {
         scrollList?.let { return it.setSelection(position) }
         val current = breaker ?: return
@@ -219,11 +231,12 @@ class InkPagedList(
             heights.clear()
             heightsWidth = width
         }
+        val uniform = adapter.uniformHeight(width)
         val heightOf = { position: Int ->
-            heights.getOrPut(adapter.itemId(position)) { measureHeight(adapter.createView(position), width) }
+            uniform ?: heights.getOrPut(adapter.itemId(position)) { measureHeight(adapter.createView(position), width) }
         }
-        breaker = if (anchorEnd) EndAnchoredPageBreaker(adapter.count, height, dividerPx, heightOf)
-        else PageBreaker(adapter.count, height, dividerPx, forcedStart, heightOf)
+        breaker = (if (anchorEnd) EndAnchoredPageBreaker(adapter.count, height, dividerPx, heightOf)
+        else PageBreaker(adapter.count, height, dividerPx, forcedStart, heightOf)).apply { if (uniform != null) measure(adapter.count) }
         return true
     }
 
