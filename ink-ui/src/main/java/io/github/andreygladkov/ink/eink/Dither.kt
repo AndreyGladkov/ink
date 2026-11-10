@@ -49,12 +49,12 @@ object Dither {
         }
     }
 
-    /** Rec. 601 luma over a white background, since transparent areas of a picture show the page behind. */
-    fun luminance(argb: Int): Int {
-        val alpha = Color.alpha(argb)
-        val luma = (RED * Color.red(argb) + GREEN * Color.green(argb) + BLUE * Color.blue(argb)) / 1000
-        return (luma * alpha + 255 * (255 - alpha)) / 255
-    }
+    /** Rec. 601 luma over a white background. */
+    fun luminance(argb: Int): Int =
+        overPage((RED * Color.red(argb) + GREEN * Color.green(argb) + BLUE * Color.blue(argb)) / 1000, Color.alpha(argb))
+
+    /** Transparent areas of a picture show the page behind, which is white. */
+    internal fun overPage(luma: Int, alpha: Int) = (luma * alpha + 255 * (255 - alpha)) / 255
 
     private fun spread(values: IntArray, width: Int, height: Int, x: Int, y: Int, share: Int) {
         if (x < 0 || x >= width || y >= height) return

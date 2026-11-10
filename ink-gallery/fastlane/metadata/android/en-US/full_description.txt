@@ -1,0 +1,13 @@
+Ink Gallery is a photo and video gallery for Android phones with e-ink screens, built for the Hisense A9 as a companion to the other Ink apps.
+
+Everything but the photos and videos is pure black or white, with no antialiasing and no animations. Nothing scrolls: photos are turned like pages.
+
+<ul>
+<li>All photos and videos newest first, three to a row a page at a time, and albums by folder.</li>
+<li>A photo on the whole screen, turned by a tap on the side or a swipe; a double tap zooms in.</li>
+<li>Videos play on the whole screen with simple controls that stay until tapped away.</li>
+<li>Share, details and delete; other apps can open pictures and videos here.</li>
+<li>On the Hisense A9 with A9 Service, photos are shown in the panel's CLEAR mode, dithered to its 16 greys, and videos in its fastest SPEED mode; the previous mode comes back when you leave.</li>
+</ul>
+
+The app has no internet access: your photos and videos stay on the device.

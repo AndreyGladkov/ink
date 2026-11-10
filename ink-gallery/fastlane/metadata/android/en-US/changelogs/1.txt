@@ -1,0 +1,1 @@
+First release: photos, videos and albums a page at a time, a full-screen viewer with zoom, a video player, share, details and delete, and on the Hisense A9 CLEAR mode with 16-grey dithering for photos and SPEED mode for videos.

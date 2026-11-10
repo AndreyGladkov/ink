@@ -25,6 +25,45 @@ import kotlin.test.assertTrue
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = A9_QUALIFIERS)
 class InkPagedListTest {
+    @Test fun alikeItemsArePagedAtOnceWithoutBuildingThemAll() {
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        val list = InkPagedList(activity, dividers = false)
+        activity.setContentView(FrameLayout(activity).apply { addView(list, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, 1200)) })
+        val built = mutableListOf<Int>()
+        list.setAdapter(object : InkPagedList.Adapter {
+            override val count = 10_000
+            override fun itemId(position: Int) = position.toLong()
+            override fun uniformHeight(widthPx: Int) = 100
+            override fun createView(position: Int): View = TextView(activity).apply {
+                built += position
+                text = "item $position"
+                height = 100
+            }
+        })
+        shadowOf(Looper.getMainLooper()).idle()
+        val perPage = list.positionsOf(0)!!.count()
+        assertTrue(perPage in 9..11, "a page holds $perPage")
+        assertEquals((10_000 + perPage - 1) / perPage, list.pageCount)
+        assertEquals(perPage until 2 * perPage, list.positionsOf(1))
+        assertEquals(null, list.positionsOf(list.pageCount))
+        assertTrue(built.distinct().size <= perPage, "built ${built.distinct().size} items")
+    }
+
+    @Test fun aChatAsksPastItsOldestPageGetsNothing() {
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        val list = InkPagedList(activity, anchorEnd = true, dividers = false)
+        activity.setContentView(FrameLayout(activity).apply { addView(list, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, 1200)) })
+        list.setAdapter(object : InkPagedList.Adapter {
+            override val count = 40
+            override fun itemId(position: Int) = position.toLong()
+            override fun createView(position: Int): View = TextView(activity).apply { height = 100 }
+        }, position = 39)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(null, list.positionsOf(list.pageCount))
+        list.showPage(list.pageCount + 1)
+        assertEquals(list.pageCount - 1, list.page)
+    }
+
     @Test fun chatStaysOnTheNewestItemsWhenItGetsShorter() {
         val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
         val list = InkPagedList(activity, anchorEnd = true, dividers = false)

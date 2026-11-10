@@ -57,9 +57,11 @@ class AlarmFlowTest {
     @Test fun savingAnAlarmHandsTheEarliestRingToTheSystem() {
         AlarmActions.save(context, Alarm(1, 9, 0))
         AlarmActions.save(context, Alarm(2, 6, 30))
-        assertEquals(nextRingMillis(2), alarmManager.nextAlarmClock?.triggerTime)
-        AlarmActions.delete(context, 2)
-        assertEquals(nextRingMillis(1), alarmManager.nextAlarmClock?.triggerTime)
+        // Which of the two rings first depends on the time of day the test runs at.
+        val (earliest, later) = listOf(1, 2).sortedBy(::nextRingMillis)
+        assertEquals(nextRingMillis(earliest), alarmManager.nextAlarmClock?.triggerTime)
+        AlarmActions.delete(context, earliest)
+        assertEquals(nextRingMillis(later), alarmManager.nextAlarmClock?.triggerTime)
     }
 
     @Test fun firingRingsInTheForegroundUntilSnoozed() {

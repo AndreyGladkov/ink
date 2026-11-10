@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ink_prefs_file" translatable="false">ink_gallery</string>
+    <string name="app_name" translatable="false">Ink Gallery</string>
+    <string name="launcher_label">Gallery</string>
+
+    <string name="tab_photos">Photos</string>
+    <string name="tab_albums">Albums</string>
+    <string name="no_photos">No photos or videos yet</string>
+    <string name="album_unnamed">No name</string>
+    <plurals name="photo_count">
+        <item quantity="one">%d photo</item>
+        <item quantity="other">%d photos</item>
+    </plurals>
+    <string name="access_needed">Ink Gallery needs access to your photos and videos to show them</string>
+    <string name="access_partial">Only the photos and videos you picked are shown</string>
+
+    <string name="unreadable">This picture cannot be opened</string>
+    <string name="share">Share</string>
+    <string name="info">Details</string>
+    <string name="delete">Delete</string>
+    <string name="delete_confirm">Delete?</string>
+    <string name="info_taken">Taken</string>
+    <string name="info_resolution">Resolution</string>
+    <string name="info_pixels" translatable="false">%1$d × %2$d</string>
+    <string name="info_duration">Length</string>
+    <string name="info_size">Size</string>
+    <string name="info_name">File</string>
+    <string name="info_folder">Folder</string>
+
+    <string name="video_described">%1$s, video %2$s</string>
+    <string name="unplayable">This video cannot be played</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="back_10">−10 s</string>
+    <string name="forward_10">+10 s</string>
+    <string name="seek">Position in the video</string>
+    <string name="video_time" translatable="false">%1$s / %2$s</string>
+
+    <string name="settings_viewer">Viewing</string>
+    <string name="settings_rotate_landscape">Turn wide photos to fill the screen</string>
+    <string name="settings_deletion">Deleting</string>
+    <string name="manage_media_hint">Each deletion is confirmed once more in a system dialog. Allow Ink Gallery to manage media to delete with the button alone.</string>
+    <string name="manage_media_granted">Ink Gallery may manage media: photos are deleted without a system dialog.</string>
+    <string name="manage_media_open">Manage media access</string>
+    <string name="settings_clear_for_photos">CLEAR mode while viewing photos</string>
+    <string name="settings_photo_dither">Dither photos to 16 greys</string>
+    <string name="dither_auto">Auto</string>
+
+    <string name="about_license">Ink Gallery is free software under the GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Gallery does not use the internet. Your photos and videos stay on the device and are shared only when you tap Share.</string>
+</resources>

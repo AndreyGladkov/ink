@@ -8,13 +8,19 @@ import android.os.Handler
 import android.os.Looper
 import io.github.andreygladkov.ink.inkPrefs
 
-/** Full panel refreshes through A9PatchingService, which acts only while its "Allow Control via Broadcasts" is on. */
+/** Full panel refreshes and refresh modes through A9PatchingService, which acts only while its "Allow Control via Broadcasts" is on. */
 object A9Panel {
+    /** The service's own names for the modes it accepts in a broadcast. */
+    enum class RefreshMode { CLEAR, BALANCED, SMOOTH, SPEED }
+
     const val PREF_CLEAR_EVERY_PAGES = "a9_clear_every_pages"
     val PAGE_INTERVALS = listOf(0, 1, 3, 5, 10)
 
     private const val SERVICE_PACKAGE = "com.lmqr.ha9_comp_service"
     private const val ACTION_FORCE_CLEAR = "EINK_FORCE_CLEAR"
+    private const val ACTION_TEMPORARY_MODE = "EINK_REFRESH_TEMPORARY"
+    private const val ACTION_RESTORE_MODE = "EINK_REFRESH_RESTORE"
+    private const val EXTRA_MODE = "mode"
 
     // The panel keeps working through queued updates after the frame is drawn; clearing earlier leaves ghosts.
     // Ink Keyboard found 400 ms too short and 800 ms enough after its window disappears.
@@ -41,8 +47,17 @@ object A9Panel {
 
     fun clearSoon(context: Context) {
         val app = context.applicationContext
-        main.postDelayed({
-            app.sendBroadcast(Intent(ACTION_FORCE_CLEAR).setPackage(SERVICE_PACKAGE).addFlags(Intent.FLAG_RECEIVER_FOREGROUND))
-        }, CLEAR_DELAY_MS)
+        main.postDelayed({ send(app, Intent(ACTION_FORCE_CLEAR)) }, CLEAR_DELAY_MS)
     }
+
+    /**
+     * Switches the panel to [mode] until [restoreMode] or another held mode. The service keeps this apart from the
+     * mode it stores for each app, so it holds across app switches and is never saved as this app's mode.
+     */
+    fun holdMode(context: Context, mode: RefreshMode) = send(context, Intent(ACTION_TEMPORARY_MODE).putExtra(EXTRA_MODE, mode.name))
+
+    fun restoreMode(context: Context) = send(context, Intent(ACTION_RESTORE_MODE))
+
+    private fun send(context: Context, intent: Intent) =
+        context.sendBroadcast(intent.setPackage(SERVICE_PACKAGE).addFlags(Intent.FLAG_RECEIVER_FOREGROUND))
 }
