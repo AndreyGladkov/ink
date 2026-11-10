@@ -1,0 +1,1 @@
+Several photos and videos can be picked in a grid with a long press and shared or deleted at once. Photos, videos and picked items all have Share, Details and Delete at the bottom, and Delete asks OK or Cancel in place. Closing a video no longer crashes the app.

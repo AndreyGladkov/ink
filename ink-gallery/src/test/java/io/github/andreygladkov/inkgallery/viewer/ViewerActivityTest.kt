@@ -29,6 +29,7 @@ import io.github.andreygladkov.inkgallery.A9
 import io.github.andreygladkov.inkgallery.FakeMedia
 import io.github.andreygladkov.inkgallery.FakeMedia.Row
 import io.github.andreygladkov.inkgallery.FakeShared
+import io.github.andreygladkov.inkgallery.deliverResult
 import io.github.andreygladkov.inkgallery.drainBackground
 import io.github.andreygladkov.inkgallery.registerVideo
 import io.github.andreygladkov.inkgallery.media.Item
@@ -41,8 +42,6 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import org.robolectric.util.ReflectionHelpers
-import org.robolectric.util.ReflectionHelpers.ClassParameter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -151,8 +150,7 @@ class ViewerActivityTest {
         val saved = android.os.Bundle().apply { putString("photo", FakeMedia.uri(2).toString()); putString("deleting", FakeMedia.uri(2).toString()) }
         controller.create(saved)
         val activity = controller.get()
-        ReflectionHelpers.callInstanceMethod<Unit>(activity, "onActivityResult",
-            ClassParameter.from(Int::class.java, 1), ClassParameter.from(Int::class.java, Activity.RESULT_OK), ClassParameter.from(Intent::class.java, null))
+        activity.deliverResult(Actions.REQUEST_DELETE, Activity.RESULT_OK)
         assertFalse(activity.isFinishing)
         controller.start().resume()
         idleUntil { activity.shownPhoto != null }
@@ -285,20 +283,37 @@ class ViewerActivityTest {
         assertEquals(1, shadowOf(context).broadcastIntents.count { it.action == "EINK_FORCE_CLEAR" })
     }
 
-    @Test fun deletingAsksTwiceThenTheSystemAndMovesOn() {
-        val activity = open(2).get()
-        val delete = activity.button("Удалить")
-        delete.performClick()
-        assertEquals("Удалить?", delete.text.toString())
-        assertTrue(FakeMedia.deleteRequests.isEmpty())
-        delete.performClick()
-        assertEquals(listOf(FakeMedia.uri(2)), FakeMedia.deleteRequests)
+    private fun Activity.shownTexts() = contentRoot(this).find<InkTextView>().filter { it.isShown }.map { it.text.toString() }
 
-        ReflectionHelpers.callInstanceMethod<Unit>(activity, "onActivityResult",
-            ClassParameter.from(Int::class.java, 1), ClassParameter.from(Int::class.java, Activity.RESULT_OK), ClassParameter.from(Intent::class.java, null))
+    @Test fun deletingAsksInPlaceThenTheSystemAndMovesOn() {
+        val activity = open(2).get()
+        activity.photoView().tap(activity.photoView().width * 0.5f)
+        activity.button("Удалить").performClick()
+        assertTrue("Удалить фото?" in activity.shownTexts(), "shown: ${activity.shownTexts()}")
+        assertFalse(activity.button("Поделиться").isShown)
+        activity.button("Отмена").performClick()
+        assertTrue(FakeMedia.deleteRequests.isEmpty())
+        assertTrue(activity.button("Поделиться").isShown)
+
+        activity.button("Удалить").performClick()
+        activity.button("OK").performClick()
+        assertEquals(listOf(FakeMedia.uri(2)), FakeMedia.deleteRequests)
+        activity.deliverResult(Actions.REQUEST_DELETE, Activity.RESULT_OK)
         assertEquals("2 / 2", activity.counter())
         assertEquals("third.png", activity.shownPhoto?.name)
-        assertEquals("Удалить", delete.text.toString())
+        assertTrue(activity.button("Поделиться").isShown)
+    }
+
+    @Test fun theDeleteQuestionIsBlackOnWhiteWithALineBetweenItsAnswers() {
+        val activity = open(2).get()
+        activity.photoView().tap(activity.photoView().width * 0.5f)
+        activity.button("Удалить").performClick()
+        val ok = activity.button("OK")
+        val row = ok.parent as io.github.andreygladkov.ink.ui.InkButtonRow
+        assertTrue((row.dividerDrawable as android.graphics.drawable.InsetDrawable).drawable is io.github.andreygladkov.ink.ui.VerticalLineDrawable)
+        assertEquals(android.widget.LinearLayout.SHOW_DIVIDER_MIDDLE, row.showDividers)
+        assertEquals(Color.BLACK, ok.currentTextColor)
+        assertEquals(Color.BLACK, activity.button("Отмена").currentTextColor)
     }
 
     @Test fun aVideoAmongThePhotosShowsItsFirstFrameAndAPlayButton() {
@@ -317,6 +332,19 @@ class ViewerActivityTest {
         assertEquals(io.github.andreygladkov.inkgallery.video.VideoActivity::class.java.name, started.component?.className)
         view.tap(view.width * 0.9f)
         assertFalse(play.isShown)
+    }
+
+    @Test fun aVideoDeletedInThePlayerLeavesTheViewersTurns() {
+        FakeMedia.add(context, Row(8, "clip.mp4", "camera", "Camera", takenAt = 2_500, durationMs = 90_000))
+        registerVideo(context, FakeMedia.videoUri(8), 90_000)
+        val controller = Robolectric.buildActivity(ViewerActivity::class.java,
+            ViewerActivity.intent(context, Item(FakeMedia.videoUri(8), "", isVideo = true), null)).setup()
+        idleUntil { controller.get().shownPhoto != null }
+        val activity = controller.get()
+        assertEquals("2 / 4", activity.counter())
+        activity.deliverResult(2, io.github.andreygladkov.inkgallery.video.VideoActivity.RESULT_DELETED, Intent().setData(FakeMedia.videoUri(8)))
+        assertEquals("2 / 3", activity.counter())
+        assertEquals("second.png", activity.shownPhoto?.name)
     }
 
     @Test fun detailsOpenForTheShownPhoto() {
