@@ -4,6 +4,15 @@ A home screen for Android phones with e-ink screens, built for the Hisense A9 an
 
 Every pixel the launcher draws is pure black or white, with no antialiasing and no animations. Pages change at once, without sliding, and only the paged rows are redrawn.
 
+<p>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="160">
+</p>
+
 [Русская версия ниже](#ink-launcher-1)
 
 ## Features
@@ -51,6 +60,15 @@ Bundled components: Noto Emoji font (SIL Open Font License 1.1) and Material ico
 Домашний экран для Android-телефонов с e-ink экраном, сделан под Hisense A9 и выглядит и ведёт себя как [Ink Phone](../ink-phone/README.md#ink-phone-1), [Ink Messages](../ink-messages/README.md#ink-messages-1), [Ink Clock](../ink-clock/README.md#ink-clock-1) и [Ink Calculator](../ink-calculator/README.md#ink-calculator-1).
 
 Всё, что рисует лаунчер, чисто чёрное или белое, без сглаживания и анимаций. Страницы меняются сразу, без прокрутки, и перерисовываются только листаемые ряды.
+
+<p>
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/1.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/2.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/3.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/4.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/5.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/6.png" width="160">
+</p>
 
 - Одна сетка из одинаковых ячеек, по умолчанию 4 × 7. Закреплённые ряды сверху и снизу одинаковы на всех страницах; ряды между ними листаются стрелками или свайпом.
 - В любую ячейку можно положить приложение, папку или виджет. Виджет занимает несколько ячеек, его размер меняется кнопками + и −, без перетаскивания.

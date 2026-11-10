@@ -4,6 +4,12 @@ A calculator for Android phones with e-ink screens, built for the Hisense A9 and
 
 Every pixel is pure black or white, with no antialiasing and no animations. Only the expression and its result change while you type.
 
+<p>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="160">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="160">
+</p>
+
 [Русская версия ниже](#ink-calculator-1)
 
 ## Features
@@ -49,6 +55,12 @@ Bundled components: Noto Emoji font (SIL Open Font License 1.1) and Material ico
 Калькулятор для Android-телефонов с e-ink экраном, сделан под Hisense A9 и выглядит и ведёт себя как [Ink Phone](../ink-phone/README.md#ink-phone-1), [Ink Messages](../ink-messages/README.md#ink-messages-1) и [Ink Clock](../ink-clock/README.md#ink-clock-1).
 
 Каждый пиксель чисто чёрный или белый, без сглаживания и анимаций. Пока вы набираете, меняются только выражение и его результат.
+
+<p>
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/1.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/2.png" width="160">
+  <img src="fastlane/metadata/android/ru/images/phoneScreenshots/3.png" width="160">
+</p>
 
 - Умножение и деление выполняются раньше сложения и вычитания; дроби считаются точно, 0,1 + 0,2 = 0,3.
 - Процент как на настольном калькуляторе: 200 + 10% = 220, 200 × 10% = 20.
