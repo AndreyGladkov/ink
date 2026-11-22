@@ -1,0 +1,1 @@
+Links, email addresses and phone numbers in messages open with a tap: links in the browser, email in the mail app, numbers in the dialer. Amounts, codes and account numbers stay plain text, and a long press on a link still selects the message.
