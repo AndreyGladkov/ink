@@ -3,7 +3,11 @@ package io.github.andreygladkov.inkmessages.thread
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.PointF
+import android.text.Spanned
+import android.text.style.ClickableSpan
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.ui.InkButton
@@ -14,6 +18,7 @@ class BubbleView(context: Context, borderDp: Float) : InkTextView(context) {
     private val density = resources.displayMetrics.density
     private val borderPx = (borderDp * density).roundToInt().coerceAtLeast(1)
     private val fill = Paint().apply { isAntiAlias = false }
+    private var tap: PointF? = null
 
     /** Drawn into the padding, so selecting a message never moves anything on the page. */
     var isHighlighted = false
@@ -26,6 +31,55 @@ class BubbleView(context: Context, borderDp: Float) : InkTextView(context) {
         val horizontal = (PADDING_H_DP * density).roundToInt() + borderPx
         val vertical = (PADDING_V_DP * density).roundToInt() + borderPx
         setPadding(horizontal, vertical, horizontal, vertical)
+        setOnClickListener { openTappedLink() }
+        isClickable = hasLinks()
+    }
+
+    override fun setText(text: CharSequence?, type: BufferType?) {
+        super.setText(text, type)
+        isClickable = hasLinks()
+    }
+
+    private fun hasLinks(): Boolean {
+        val spanned = text as? Spanned ?: return false
+        return spanned.getSpans(0, spanned.length, ClickableSpan::class.java).isNotEmpty()
+    }
+
+    /**
+     * LinkMovementMethod would also open a link when the press was a long one that selects the message,
+     * so a tap is matched to a link here instead, and only a plain click opens it. A click that did not
+     * come from a fresh tap (accessibility, keys) opens nothing: TalkBack offers the links in its own menu.
+     */
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> tap = PointF(event.x, event.y)
+            MotionEvent.ACTION_CANCEL -> tap = null
+        }
+        return super.onTouchEvent(event)
+    }
+
+    override fun performLongClick(): Boolean {
+        tap = null
+        return super.performLongClick()
+    }
+
+    private fun openTappedLink() {
+        val point = tap ?: return
+        tap = null
+        linkAt(point.x, point.y)?.onClick(this)
+    }
+
+    private fun linkAt(x: Float, y: Float): ClickableSpan? {
+        val layout = layout ?: return null
+        val spanned = text as? Spanned ?: return null
+        val layoutX = x - totalPaddingLeft + scrollX
+        val layoutY = y - totalPaddingTop + scrollY
+        if (layoutY < 0 || layoutY >= layout.height) return null
+        val line = layout.getLineForVertical(layoutY.toInt())
+        if (layoutX < layout.getLineLeft(line) || layoutX > layout.getLineRight(line)) return null
+        var index = layout.getOffsetForHorizontal(line, layoutX)
+        if (index > layout.getLineStart(line) && layout.getPrimaryHorizontal(index) > layoutX) index--
+        return spanned.getSpans(index, index + 1, ClickableSpan::class.java).firstOrNull()
     }
 
     override fun onDraw(canvas: Canvas) {
