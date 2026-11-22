@@ -234,7 +234,7 @@ class ThreadActivity : Activity() {
             val row = if (pending != null) {
                 BubbleRow(this, false, getString(R.string.mms_pending, Formatter.formatShortFileSize(this, pending.sizeBytes)), downloadFooter(message, pending))
             } else {
-                BubbleRow(this, message.isOutgoing, message.text, footer(message, item.showTime), message.attachments.map { attachmentView(it, message.isOutgoing) })
+                BubbleRow(this, message.isOutgoing, MessageLinks.of(message.text), footer(message, item.showTime), message.attachments.map { attachmentView(it, message.isOutgoing) })
             }
             rows[message.key] = row
             row.isHighlighted = message.key == highlighted

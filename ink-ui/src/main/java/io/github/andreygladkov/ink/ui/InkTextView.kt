@@ -58,5 +58,6 @@ open class InkTextView @JvmOverloads constructor(
         if (!isStyled) return
         setTextColor(textColor)
         setHintTextColor(textColor)
+        setLinkTextColor(textColor)
     }
 }
