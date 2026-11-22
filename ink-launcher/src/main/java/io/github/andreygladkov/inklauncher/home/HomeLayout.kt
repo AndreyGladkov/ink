@@ -66,6 +66,24 @@ data class HomeLayout(
         return copy(placed = placed.map { if (it.tile.id == id) Placed(it.tile, spot) else it })
     }
 
+    fun placementCovering(id: Long, sheet: Sheet, column: Int, row: Int): Spot? {
+        val size = find(id)?.spot ?: return null
+        val shifts = (0 until size.height).flatMap { up -> (0 until size.width).map { left -> left to up } }.sortedBy { (left, up) -> left + up }
+        return shifts.map { (left, up) -> Spot(sheet, column - left, row - up, size.width, size.height) }.firstOrNull { fits(it, ignoring = id) }
+    }
+
+    fun dropSpots(id: Long, sheet: Sheet): List<Spot> {
+        val size = find(id)?.spot ?: return emptyList()
+        val chosen = mutableListOf<Spot>()
+        for (row in 0..spec.rowsOf(sheet) - size.height) {
+            for (column in 0..spec.columns - size.width) {
+                val spot = Spot(sheet, column, row, size.width, size.height)
+                if (fits(spot) && chosen.none { it.overlaps(spot) }) chosen += spot
+            }
+        }
+        return chosen
+    }
+
     fun resized(id: Long, width: Int, height: Int): HomeLayout? {
         val current = find(id) ?: return null
         val spot = current.spot.copy(width = width, height = height)

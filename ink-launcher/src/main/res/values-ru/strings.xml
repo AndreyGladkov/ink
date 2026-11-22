@@ -6,7 +6,9 @@
     <string name="cancel">Отмена</string>
     <string name="done">Готово</string>
 
-    <string name="move_hint">Нажмите, куда положить</string>
+    <string name="move_hint">Нажмите на отмеченное место</string>
+    <string name="move_no_room">Сюда не помещается</string>
+    <string name="move_only_apps_into_folders">В папку кладутся только приложения</string>
     <string name="all_apps">Все приложения</string>
     <string name="search_apps">Поиск по названию</string>
     <string name="search_widgets">Поиск по виджету или приложению</string>

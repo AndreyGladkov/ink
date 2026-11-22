@@ -59,7 +59,10 @@ class TileMenus(private val activity: HomeActivity) {
         }
         categoryAction(app.key.packageName, app.label)
         action(R.string.app_info) { activity.catalog.openDetails(app.key.packageName) }
-        action(R.string.uninstall) { activity.catalog.uninstall(app.key.packageName) }
+        action(R.string.uninstall) {
+            activity.dismissSheet()
+            activity.catalog.uninstall(app.key.packageName)
+        }
     }
 
     fun folderApp(app: AppTile) = sheet(activity.labelOf(app)) {

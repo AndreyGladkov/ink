@@ -27,7 +27,7 @@ class PagerBar(context: Context, onPrev: () -> Unit, onNext: () -> Unit, onDots:
     }
     private val hint = InkTextView(context).apply {
         textScale = InkStyle.SECONDARY_SCALE
-        gravity = Gravity.CENTER
+        gravity = Gravity.START or Gravity.CENTER_VERTICAL
         maxLines = 2
     }
     private val cancel = InkButton(context).apply {
@@ -42,6 +42,9 @@ class PagerBar(context: Context, onPrev: () -> Unit, onNext: () -> Unit, onDots:
         addView(hint, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
         addView(cancel, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
     }
+
+    private var movingHint: String? = null
+    private val restoreHint = Runnable { hint.text = movingHint }
 
     init {
         orientation = HORIZONTAL
@@ -63,10 +66,18 @@ class PagerBar(context: Context, onPrev: () -> Unit, onNext: () -> Unit, onDots:
     }
 
     fun showMoving(text: String?, onCancel: () -> Unit) {
+        removeCallbacks(restoreHint)
+        movingHint = text
         moving.visibility = if (text == null) GONE else VISIBLE
         dots.visibility = if (text == null) VISIBLE else GONE
         hint.text = text
         cancel.setOnClickListener { onCancel() }
+    }
+
+    fun flashHint(text: String) {
+        removeCallbacks(restoreHint)
+        hint.text = text
+        postDelayed(restoreHint, FLASH_MS)
     }
 
     private fun arrow(icon: Int, description: Int, onClick: () -> Unit) = InkButton(context).apply {
@@ -124,6 +135,7 @@ class PagerBar(context: Context, onPrev: () -> Unit, onNext: () -> Unit, onDots:
     }
 
     private companion object {
+        const val FLASH_MS = 2500L
         const val MAX_DOTS = 9
         const val DOT_DP = 10f
         const val SMALL_DOT_DP = 4f

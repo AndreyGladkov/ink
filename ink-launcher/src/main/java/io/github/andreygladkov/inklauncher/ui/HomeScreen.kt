@@ -2,7 +2,10 @@ package io.github.andreygladkov.inklauncher.ui
 
 import android.view.View
 import android.widget.LinearLayout
+import androidx.annotation.StringRes
 import io.github.andreygladkov.ink.eink.A9Panel
+import io.github.andreygladkov.ink.haptics.HapticChannel
+import io.github.andreygladkov.ink.haptics.Haptics
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.inklauncher.HomeActivity
 import io.github.andreygladkov.inklauncher.R
@@ -15,6 +18,7 @@ import io.github.andreygladkov.inklauncher.home.Placed
 import io.github.andreygladkov.inklauncher.home.ScreenTimeTile
 import io.github.andreygladkov.inklauncher.home.Sheet
 import io.github.andreygladkov.inklauncher.home.Spot
+import io.github.andreygladkov.inklauncher.home.Tile
 import io.github.andreygladkov.inklauncher.home.WidgetTile
 import io.github.andreygladkov.inklauncher.notify.NotificationBadge
 import io.github.andreygladkov.inklauncher.notify.NotificationFeed
@@ -144,14 +148,21 @@ class HomeScreen(private val activity: HomeActivity) : LinearLayout(activity) {
     private fun fill(grid: CellGrid?, sheet: Sheet) {
         grid ?: return
         grid.removeAllViews()
+        grid.framed = null
         layout.on(sheet).forEach { placed ->
-            grid.add(view(placed), placed.spot.column, placed.spot.row, placed.spot.width, placed.spot.height)
+            val view = view(placed)
+            grid.add(view, placed.spot.column, placed.spot.row, placed.spot.width, placed.spot.height)
+            if (placed.tile is WidgetTile && placed.tile.id == movingId) grid.framed = view
         }
+        grid.marked = movingId?.let { layout.dropSpots(it, sheet) }.orEmpty().map { CellGrid.Area(it.column, it.row, it.width, it.height) }
     }
 
     private fun view(placed: Placed): View = when (val tile = placed.tile) {
         is LabeledTile -> activity.tileView(tile).apply { isSelected = tile.id == movingId }.withMenu(placed)
-        is WidgetTile -> activity.widgets.view(tile.widgetId)?.apply { monochrome = tile.monochrome } ?: activity.missingWidget(tile).withMenu(placed)
+        is WidgetTile -> activity.widgets.view(tile.widgetId)?.apply {
+            monochrome = tile.monochrome
+            onTapInstead = if (movingId == null) null else { { tapped(placed, pressBuzzed = false) } }
+        } ?: activity.missingWidget(tile).withMenu(placed)
         is ScreenTimeTile -> activity.screenTimeView().apply { isSelected = tile.id == movingId }.withMenu(placed)
     }
 
@@ -167,11 +178,12 @@ class HomeScreen(private val activity: HomeActivity) : LinearLayout(activity) {
         (0 until grid.childCount).mapNotNull { grid.getChildAt(it) as? ScreenTimeView }
     }
 
-    private fun tapped(placed: Placed) {
+    private fun tapped(placed: Placed, pressBuzzed: Boolean = true) {
         val moving = movingId
         if (moving != null) {
             if (moving == placed.tile.id) return
-            val dropped = layout.drop(moving, placed.tile.id, context.getString(R.string.folder_default_name)) ?: return
+            val dropped = layout.drop(moving, placed.tile.id, context.getString(R.string.folder_default_name))
+                ?: return explainRefusedDrop(moving, placed.tile, vibrate = !pressBuzzed)
             endMove()
             activity.update { dropped }
             return
@@ -186,11 +198,22 @@ class HomeScreen(private val activity: HomeActivity) : LinearLayout(activity) {
 
     private fun cellTapped(spot: Spot) {
         val moving = movingId ?: return
-        val current = layout.find(moving) ?: return
-        val target = spot.copy(width = current.spot.width, height = current.spot.height)
-        if (!layout.fits(target, ignoring = moving)) return
+        val target = layout.dropSpots(moving, spot.sheet).firstOrNull { it.contains(spot.column, spot.row) }
+            ?: layout.placementCovering(moving, spot.sheet, spot.column, spot.row)
+            ?: return refuse(R.string.move_no_room, vibrate = true)
         endMove()
         activity.update { it.move(moving, target) }
         (layout.find(moving)?.spot?.sheet as? Sheet.Page)?.let { showPage(it.index) }
+    }
+
+    private fun explainRefusedDrop(moving: Long, target: Tile, vibrate: Boolean) {
+        val intoFolder = target is AppTile || target is FolderTile
+        val message = if (intoFolder && layout.find(moving)?.tile !is AppTile) R.string.move_only_apps_into_folders else R.string.move_no_room
+        refuse(message, vibrate)
+    }
+
+    private fun refuse(@StringRes message: Int, vibrate: Boolean) {
+        if (vibrate) Haptics.of(context).perform(HapticChannel.BUTTONS)
+        bar.flashHint(context.getString(message))
     }
 }
