@@ -8,7 +8,9 @@
     <string name="cancel">Cancel</string>
     <string name="done">Done</string>
 
-    <string name="move_hint">Tap where to put it</string>
+    <string name="move_hint">Tap a marked spot</string>
+    <string name="move_no_room">It does not fit here</string>
+    <string name="move_only_apps_into_folders">Only apps go into folders</string>
     <string name="all_apps">All apps</string>
     <string name="search_apps">Search by name</string>
     <string name="search_widgets">Search by widget or app</string>

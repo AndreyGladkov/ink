@@ -22,6 +22,7 @@ import android.os.Process
 import android.provider.Settings
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowInsets
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.ink.A9_QUALIFIERS
@@ -437,6 +438,90 @@ class HomeActivityTest {
         assertNull(activity.home.movingId)
     }
 
+    @Test fun movingMarksTheFreeCellsUntilTheTileIsPut() {
+        seed(HomeLayout().place(AppTile(1, mail), Spot(Sheet.Page(0), 0, 0)))
+        val activity = open()
+        render(contentRoot(activity))
+        tile(activity, "Почта").performLongClick()
+        button(activity, "Переместить").performClick()
+        val bottom = contentRoot(activity).find<CellGrid>().last()
+        assertEquals((0..3).map { CellGrid.Area(it, 0) }, bottom.marked)
+        assertFalse(CellGrid.Area(0, 0) in pagedGrid(activity).marked)
+        assertEquals(7, pagedGrid(activity).marked.size)
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+        touch(bottom, bottom.width / 8f, bottom.height / 2f)
+        assertTrue(contentRoot(activity).find<CellGrid>().all { it.marked.isEmpty() })
+    }
+
+    @Test fun aWidgetIsMarkedWithWholeSpotsAndLandsInTheOneTapped() {
+        val inbox = addWidget(mail, "Входящие")
+        placeWidget(inbox, Spot(Sheet.Top, 0, 0, 2, 2))
+        val activity = open()
+        render(contentRoot(activity))
+        val top = contentRoot(activity).find<CellGrid>().first()
+        val widget = top.getChildAt(0)
+        activity.home.startMove(store.load()!!.placed.single().tile.id)
+        assertEquals(widget, top.framed)
+        assertEquals(listOf(CellGrid.Area(2, 0, 2, 2), CellGrid.Area(0, 2, 2, 2), CellGrid.Area(2, 2, 2, 2)), top.marked)
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+        touch(top, top.width / 8f * 7, top.height / 8f * 3)
+        assertEquals(Spot(Sheet.Top, 2, 0, 2, 2), store.load()!!.placed.single().spot)
+        assertNull(top.framed)
+    }
+
+    @Test fun aTapWhereTheTileCannotGoSaysSoAndKeepsMoving() {
+        val inbox = addWidget(mail, "Входящие")
+        placeWidget(inbox, Spot(Sheet.Top, 0, 0, 2, 2))
+        val activity = open()
+        render(contentRoot(activity))
+        activity.home.startMove(store.load()!!.placed.single().tile.id)
+        val bottom = contentRoot(activity).find<CellGrid>().last()
+        assertTrue(bottom.marked.isEmpty())
+        touch(bottom, bottom.width / 8f, bottom.height / 2f)
+        assertNotNull(activity.home.movingId)
+        val hint = { contentRoot(activity).find<PagerBar>().single().find<InkTextView>().single { it !is InkButton }.text.toString() }
+        assertEquals("Сюда не помещается", hint())
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(3))
+        assertEquals("Нажмите на отмеченное место", hint())
+    }
+
+    @Test fun aWidgetTappedWhileMovingKeepsTheTapAndRefusesTheDrop() {
+        seed(HomeLayout().place(AppTile(1, mail), Spot(Sheet.Page(0), 0, 0)))
+        val inbox = addWidget(chat, "Входящие")
+        placeWidget(inbox, Spot(Sheet.Top, 0, 0, 2, 2))
+        val activity = open()
+        render(contentRoot(activity))
+        val widget = contentRoot(activity).find<CellGrid>().first().getChildAt(0) as ViewGroup
+        var widgetTaps = 0
+        widget.addView(View(context).apply { setOnClickListener { widgetTaps++ } }, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        render(contentRoot(activity))
+        tile(activity, "Почта").performLongClick()
+        button(activity, "Переместить").performClick()
+        touch(widget, widget.width / 2f, widget.height / 2f)
+        assertEquals(0, widgetTaps)
+        assertEquals(1L, activity.home.movingId)
+        val hint = contentRoot(activity).find<PagerBar>().single().find<InkTextView>().single { it !is InkButton }
+        assertEquals("Сюда не помещается", hint.text.toString())
+        activity.home.cancelMove()
+        touch(widget, widget.width / 2f, widget.height / 2f)
+        assertEquals(1, widgetTaps)
+    }
+
+    @Test fun aFolderDroppedOnAnAppIsRefusedWithTheReason() {
+        seed(HomeLayout()
+            .place(AppTile(1, mail), Spot(Sheet.Page(0), 0, 0))
+            .place(FolderTile(2, "Карты", listOf(AppTile(3, maps))), Spot(Sheet.Page(0), 1, 0)))
+        val activity = open()
+        render(contentRoot(activity))
+        tile(activity, "Карты").performLongClick()
+        button(activity, "Переместить").performClick()
+        tile(activity, "Почта").performClick()
+        assertEquals(2L, activity.home.movingId)
+        assertEquals(Spot(Sheet.Page(0), 1, 0), store.load()!!.find(2)!!.spot)
+        val hint = contentRoot(activity).find<PagerBar>().single().find<InkTextView>().single { it !is InkButton }
+        assertEquals("В папку кладутся только приложения", hint.text.toString())
+    }
+
     @Test fun anAppMovedOntoAnotherMakesAFolderThatOpens() {
         seed(HomeLayout()
             .place(AppTile(1, mail), Spot(Sheet.Page(0), 0, 0))
@@ -518,6 +603,25 @@ class HomeActivityTest {
         activity.sendBroadcast(Intent(Intent.ACTION_PACKAGE_REMOVED, android.net.Uri.fromParts("package", chat.packageName, null)).setPackage(context.packageName))
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals(listOf(1L), store.load()!!.placed.map { it.tile.id })
+    }
+
+    @Test fun anAppUninstalledFromTheListLeavesTheListAndTheHomeScreenUntouched() {
+        seed(HomeLayout().place(AppTile(1, mail), Spot(Sheet.Page(0), 0, 0)))
+        val activity = open()
+        val homeTile = tile(activity, "Почта")
+        activity.showAllApps()
+        laidOut(activity)
+        val screen = contentRoot(activity).find<AllAppsScreen>().single()
+        screen.find<AppRow>().single { it.text.toString() == "Чат" }.performLongClick()
+        button(activity, "Удалить").performClick()
+        assertNull(contentRoot(activity).find<ActionSheet>().singleOrNull())
+        shadowOf(context.packageManager).removeActivity(ComponentName(chat.packageName, chat.className))
+        shadowOf(context.packageManager).removePackage(chat.packageName)
+        activity.sendBroadcast(Intent(Intent.ACTION_PACKAGE_REMOVED, android.net.Uri.fromParts("package", chat.packageName, null)).setPackage(context.packageName))
+        shadowOf(Looper.getMainLooper()).idle()
+        laidOut(activity)
+        assertEquals(listOf("Карты", "Почта"), listed(screen))
+        assertNotNull(homeTile.parent)
     }
 
     @Test fun backReturnsHomeFromASideScreen() {

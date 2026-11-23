@@ -19,6 +19,9 @@ class InkWidgetView(context: Context, private val onLongPress: () -> Unit) : App
     private var downX = 0f
     private var downY = 0f
     private var fired = false
+    private var tapping = false
+
+    var onTapInstead: (() -> Unit)? = null
 
     var monochrome = false
         set(value) {
@@ -35,6 +38,10 @@ class InkWidgetView(context: Context, private val onLongPress: () -> Unit) : App
     }
 
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        onTapInstead?.let { tap ->
+            divert(event, tap)
+            return true
+        }
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 fired = false
@@ -51,6 +58,19 @@ class InkWidgetView(context: Context, private val onLongPress: () -> Unit) : App
         }
         // Keeping the gesture even when no widget view wants it lets its end cancel the long press.
         return super.dispatchTouchEvent(event) || event.actionMasked == MotionEvent.ACTION_DOWN
+    }
+
+    private fun divert(event: MotionEvent, tap: () -> Unit) {
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                downX = event.x
+                downY = event.y
+                tapping = true
+            }
+            MotionEvent.ACTION_MOVE -> if (abs(event.x - downX) > slop || abs(event.y - downY) > slop) tapping = false
+            MotionEvent.ACTION_UP -> if (tapping) tap()
+            MotionEvent.ACTION_CANCEL -> tapping = false
+        }
     }
 
     private fun cancelChildren(event: MotionEvent) {

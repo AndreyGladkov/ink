@@ -107,14 +107,15 @@ class HomeActivity : Activity() {
             screenTimeDefaultsChanged()
             IconPack.forget(pkg)
             icons.forgetMemory()
+            val before = layout
             if (removed) {
                 layout.widgetsOf(pkg).forEach { widgets.remove(it.widgetId) }
                 update { it.withoutPackage(pkg) }
             } else {
-                val before = layout
                 update { it.relinked(launchable()) }
-                if (layout === before) refresh()
             }
+            if (layout !== before) return
+            if (removed && pkg != icons.selectedPack) side?.refresh() else refresh()
         }
     }
 

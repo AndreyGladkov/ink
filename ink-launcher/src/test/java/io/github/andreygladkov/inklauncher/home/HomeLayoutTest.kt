@@ -155,6 +155,42 @@ class HomeLayoutTest {
         assertEquals(Spot(Sheet.Top, 0, 0, 2, 3), layout.resized(1, 2, 3)!!.find(1)!!.spot)
     }
 
+    @Test fun aWidgetLandsWithTheTappedCellAsItsCornerWhenThereIsRoom() {
+        val layout = HomeLayout(spec).place(WidgetTile(1, 5, AppKey("w", "w.W")), Spot(Sheet.Top, 0, 0, 2, 2))
+        assertEquals(Spot(Sheet.Top, 1, 2, 2, 2), layout.placementCovering(1, Sheet.Top, 1, 2))
+    }
+
+    @Test fun aWidgetTappedNearTheEdgeShiftsBackJustEnoughToCoverTheCell() {
+        val layout = HomeLayout(spec).place(WidgetTile(1, 5, AppKey("w", "w.W")), Spot(Sheet.Top, 0, 0, 2, 2))
+        assertEquals(Spot(Sheet.Top, 2, 2, 2, 2), layout.placementCovering(1, Sheet.Top, 3, 3))
+        assertEquals(Spot(page(0), 2, 0, 2, 2), layout.placementCovering(1, page(0), 3, 1))
+    }
+
+    @Test fun aWidgetTallerThanTheSheetCoversNothingThere() {
+        val layout = HomeLayout(spec).place(WidgetTile(1, 5, AppKey("w", "w.W")), Spot(Sheet.Top, 0, 0, 2, 2))
+        assertNull(layout.placementCovering(1, Sheet.Bottom, 0, 0))
+        assertTrue(layout.dropSpots(1, Sheet.Bottom).isEmpty())
+    }
+
+    @Test fun aSingleCellTileCanBeDroppedOnEveryFreeCell() {
+        val layout = HomeLayout(spec)
+            .place(app(1), Spot(Sheet.Top, 0, 0))
+            .place(WidgetTile(2, 5, AppKey("w", "w.W")), Spot(Sheet.Top, 1, 0, 3, 3))
+        val free = listOf(0 to 1, 0 to 2, 0 to 3, 1 to 3, 2 to 3, 3 to 3).map { (column, row) -> Spot(Sheet.Top, column, row) }
+        assertEquals(free.sortedBy { it.row * 10 + it.column }, layout.dropSpots(1, Sheet.Top))
+    }
+
+    @Test fun aWidgetIsOfferedWholeSpotsThatNeitherOverlapEachOtherNorItself() {
+        val widget = WidgetTile(1, 5, AppKey("w", "w.W"))
+        val alone = HomeLayout(spec).place(widget, Spot(Sheet.Top, 0, 0, 2, 2))
+        assertEquals(listOf(Spot(Sheet.Top, 2, 0, 2, 2), Spot(Sheet.Top, 0, 2, 2, 2), Spot(Sheet.Top, 2, 2, 2, 2)), alone.dropSpots(1, Sheet.Top))
+        val crowded = alone
+            .place(app(2), Spot(Sheet.Top, 2, 0))
+            .place(app(3), Spot(Sheet.Top, 3, 1))
+            .place(app(4), Spot(Sheet.Top, 0, 3))
+        assertEquals(listOf(Spot(Sheet.Top, 1, 2, 2, 2)), crowded.dropSpots(1, Sheet.Top))
+    }
+
     @Test fun aSmallerGridMovesWhatNoLongerFitsAfterTheLastPageAndDropsNothing() {
         val layout = HomeLayout(spec)
             .place(WidgetTile(1, 5, AppKey("w", "w.W")), Spot(Sheet.Top, 0, 0, 4, 2))
