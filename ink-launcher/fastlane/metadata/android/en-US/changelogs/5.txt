@@ -1,0 +1,1 @@
+While moving a tile, free cells are marked with corners, and a widget gets each whole spot it fits marked with a "+" in the middle; the widget itself is framed. When a tile cannot go somewhere, the bar says why, and tapping a widget mid-move no longer triggers the widget. An app uninstalled from the app list disappears from it right away.
