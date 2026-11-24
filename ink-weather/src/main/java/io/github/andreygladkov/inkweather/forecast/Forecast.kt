@@ -55,6 +55,14 @@ data class Forecast(
         }
     }
 
+    /** From the hour under way, so rain that has already fallen today is not counted. */
+    fun precipitationLeftToday(instant: Instant): Double? {
+        val from = current(instant)?.instant ?: instant
+        val midnight = localTime(instant).toLocalDate().plusDays(1).atStartOfDay(zone).toInstant()
+        val falling = hours.filter { !it.instant.isBefore(from) && it.instant.isBefore(midnight) }.mapNotNull { it.precipitationMm }
+        return falling.takeIf { it.isNotEmpty() }?.sum()
+    }
+
     fun daysFrom(instant: Instant, count: Int): List<Day> {
         val today = localTime(instant).toLocalDate()
         return days.filter { !it.date.isBefore(today) }.take(count)

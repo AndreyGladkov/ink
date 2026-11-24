@@ -22,15 +22,19 @@ class WidgetContentTest {
     private val format = WeatherFormat(context, fahrenheit = false, zone = ZoneOffset.ofHours(3))
     private val forecast = Source.MET_NO.forecast(Fixtures.forecast(), Fixtures.NOW, Fixtures.MOSCOW.zone)
 
-    @Test fun aWidgetShowsNowTodaysRangeTheNextHoursAndTheFollowingDays() {
+    @Test fun aWidgetShowsNowTodaysPrecipitationTheNextHoursAndTheFollowingDays() {
         val content = WidgetContent.of(Fixtures.MOSCOW, forecast, Fixtures.NOW, format)
         assertEquals("Москва", content.place)
         assertEquals(WidgetContent.Slot("Москва", R.drawable.ic_sky_overcast, "−3°"), content.now)
         assertEquals("Пасмурно", content.description)
-        assertEquals("18° / −4°", content.range)
+        assertEquals("2 мм", content.precipitation)
         assertEquals(listOf("15" to "10°", "18" to "13°", "21" to "16°", "0" to "−5°"), content.hours.map { it.label to it.value })
         assertEquals(listOf("Вт", "Ср", "Чт", "Пт"), content.days.map { it.label })
         assertNull(content.note)
+    }
+
+    @Test fun rainThatHasAlreadyFallenTodayIsNotShown() {
+        assertNull(WidgetContent.of(Fixtures.MOSCOW, forecast, Fixtures.NOW.plus(Duration.ofHours(9)), format).precipitation)
     }
 
     @Test fun aForecastOlderThanThreeHoursIsMarkedWithItsTime() {

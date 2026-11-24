@@ -17,6 +17,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.time.Duration
 import java.time.ZoneOffset
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -63,6 +64,14 @@ class WidgetPainterTest {
         val inverted = WidgetPainter(context, InkStyle(inverted = true)).draw(content, px(183f), px(95f))
         assertPureBlackAndWhite(inverted)
         assertEquals(Color.BLACK, inverted.getPixel(1, 1))
+    }
+
+    @Test fun aTwoCellWidgetCentersItsContent() {
+        val bitmap = draw(content, 183f, 95f)
+        val inked = (0 until bitmap.width).filter { x -> (0 until bitmap.height).any { y -> bitmap.getPixel(x, y) == Color.BLACK } }
+        val leftMargin = inked.first()
+        val rightMargin = bitmap.width - 1 - inked.last()
+        assertTrue(abs(leftMargin - rightMargin) <= px(2f), "left $leftMargin px, right $rightMargin px")
     }
 
     @Test fun aStaleOrMissingForecastIsStillDrawn() {

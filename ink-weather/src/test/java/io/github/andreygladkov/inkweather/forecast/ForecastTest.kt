@@ -56,6 +56,11 @@ class ForecastTest {
         assertTrue(later.size > 1 && later.zipWithNext { a, b -> (b - a + 24) % 24 }.all { it == 6 }, "$later")
     }
 
+    @Test fun precipitationLeftTodayCountsFromTheHourUnderWayToTheCitysMidnight() {
+        assertEquals(2.0, forecast.precipitationLeftToday(Fixtures.NOW)!!, 1e-9)
+        assertEquals(0.0, forecast.precipitationLeftToday(Fixtures.NOW.plus(Duration.ofHours(9)))!!, 1e-9)
+    }
+
     @Test fun daysStartToday() {
         assertEquals(LocalDate.of(2026, 11, 9), forecast.daysFrom(Fixtures.NOW, 7).first().date)
         assertEquals(LocalDate.of(2026, 11, 11), forecast.daysFrom(Fixtures.NOW.plus(Duration.ofDays(2)), 7).first().date)
