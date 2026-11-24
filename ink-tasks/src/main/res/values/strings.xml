@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ink_prefs_file" translatable="false">ink_tasks</string>
+    <string name="app_name" translatable="false">Ink Tasks</string>
+    <string name="launcher_label">Tasks</string>
+    <string name="default_list">My tasks</string>
+
+    <string name="new_task">New task</string>
+    <string name="no_tasks">No tasks</string>
+    <string name="done_count">Done (%1$d)</string>
+    <string name="check">Mark “%1$s” done</string>
+    <string name="uncheck">Mark “%1$s” not done</string>
+    <string name="move_where">Move where?</string>
+    <string name="move_here">Here</string>
+
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="yesterday">Yesterday</string>
+
+    <string name="task">Task</string>
+    <string name="new_subtask">New subtask</string>
+    <string name="title_hint">Title</string>
+    <string name="notes">Notes</string>
+    <string name="notes_hint">Details</string>
+    <string name="due">Due date</string>
+    <string name="no_due">No due date</string>
+    <string name="in_a_week">In a week</string>
+    <string name="other_date">Other date…</string>
+    <string name="remove_due">Remove</string>
+    <string name="subtasks">Subtasks</string>
+    <string name="add_subtask">Add a subtask</string>
+    <string name="mark_done">Mark done</string>
+    <string name="mark_open">Mark not done</string>
+    <string name="move">Move</string>
+    <string name="delete">Delete</string>
+    <string name="delete_confirm">Delete?</string>
+    <string name="prev_month">Previous month</string>
+    <string name="next_month">Next month</string>
+
+    <string name="done">Done</string>
+    <string name="no_done">Nothing done yet</string>
+    <string name="done_on">Done %1$s</string>
+    <string name="delete_done">Delete done tasks</string>
+    <string name="delete_done_confirm">Delete them all?</string>
+
+    <string name="lists">Lists</string>
+    <string name="new_list">New list</string>
+    <string name="list">List</string>
+    <string name="edit_list">Edit “%1$s”</string>
+    <string name="list_name_hint">List name</string>
+    <string name="ready">Done</string>
+    <string name="list_exists">There is already such a list</string>
+    <string name="sort">Sort</string>
+    <string name="sort_manual">My order</string>
+    <string name="sort_due">By date</string>
+    <string name="delete_list">Delete list</string>
+    <string name="delete_list_confirm">Delete the list?</string>
+
+    <string name="about_license">Ink Tasks is free software under the GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Tasks does not use the internet. Tasks are kept in Markdown files on the phone or in the folder you choose.</string>
+</resources>
