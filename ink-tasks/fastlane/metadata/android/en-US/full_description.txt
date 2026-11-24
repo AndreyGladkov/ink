@@ -1,0 +1,13 @@
+Ink Tasks is a to-do list in the manner of Google Tasks for Android phones with e-ink screens, built for the Hisense A9 as a companion to the other Ink apps. Tasks are kept in plain Markdown files in the format of the Obsidian Tasks plugin.
+
+Every pixel is pure black or white, with no antialiasing and no animations.
+
+<ul>
+<li>Several lists, tasks with notes, due dates and subtasks, done tasks on a page of their own.</li>
+<li>Due dates by Today, Tomorrow, In a week or a month calendar; overdue dates stand out white on black.</li>
+<li>Tasks are moved by tapping marks between them, with no dragging; deleting asks for a second tap instead of a dialog.</li>
+<li>Kept on the phone, or in a folder you choose, such as one in an Obsidian vault, to sync with a computer.</li>
+<li>Only the lines a change is about are rewritten; everything else in the file stays as it is.</li>
+</ul>
+
+The app does not use the internet and asks for no permissions.

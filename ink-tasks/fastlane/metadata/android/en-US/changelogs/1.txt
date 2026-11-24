@@ -1,0 +1,1 @@
+First release: lists in the manner of Google Tasks with notes, due dates and subtasks, kept in Markdown files on the phone or in a folder you choose, such as one in an Obsidian vault.

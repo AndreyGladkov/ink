@@ -9,6 +9,7 @@ Android apps for black-and-white e-ink phones: pure black and white, no antialia
 - [Ink Launcher](ink-launcher/README.md) — a paged home screen with pinned rows, folders, widgets and a notification screen.
 - [Ink Weather](ink-weather/README.md) — the forecast on one screen and a black-and-white home screen widget, from MET Norway.
 - [Ink Gallery](ink-gallery/README.md) — photos, videos and albums a page at a time, photos in real greys on the Hisense A9.
+- [Ink Tasks](ink-tasks/README.md) — a to-do list in the manner of Google Tasks, kept in Markdown files that sync with Obsidian.
 
 I build these apps in my spare time because I find it interesting myself. They are free, and you don't need to pay for them. But if something here has helped you and you'd like to say thanks, you can [support me on Boosty](https://boosty.to/a.gladkov/donate). Any support, even just a kind word, keeps me going.
 
@@ -21,5 +22,6 @@ Android-приложения для чёрно-белых e-ink телефоно
 - [Ink Launcher](ink-launcher/README.md#ink-launcher-1) — домашний экран со страницами, закреплёнными рядами, папками, виджетами и экраном уведомлений.
 - [Ink Weather](ink-weather/README.md#ink-weather-1) — прогноз на одном экране и чёрно-белый виджет, по данным MET Norway.
 - [Ink Gallery](ink-gallery/README.md#ink-gallery-1) — фото, видео и альбомы страницами, фото на Hisense A9 в настоящих оттенках серого.
+- [Ink Tasks](ink-tasks/README.md#ink-tasks-1) — список задач в духе Google Tasks в md-файлах, которые синхронизируются через Obsidian.
 
 Я делаю эти приложения в свободное время, потому что мне самому это интересно. Они бесплатные, и платить за них не нужно. Но если что-то из сделанного вам помогло и хочется отблагодарить, можно [поддержать меня на Boosty](https://boosty.to/a.gladkov/donate). Любая поддержка, даже просто доброе слово, мотивирует продолжать.
