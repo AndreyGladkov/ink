@@ -35,6 +35,8 @@ Requires Android 11 or newer.
 - **GitHub:** download `InkTasks-<version>-release.apk` from [Releases](https://github.com/AndreyGladkov/ink/releases).
 - **[Obtainium](https://github.com/ImranR98/Obtainium):** add `https://github.com/AndreyGladkov/ink` as an app and set "Filter release titles by regular expression" to `^Ink Tasks `, because the repository also publishes other apps.
 
+Signing certificate SHA-256: `3F:24:1B:4F:6F:12:03:4B:D3:2D:6F:26:46:F5:3B:0E:91:B2:83:52:33:4C:80:8F:06:6D:A5:8E:6E:4F:13:A1`.
+
 ## Building
 
 ```
@@ -74,3 +76,5 @@ Ink Tasks не ходит в интернет и не просит разреш�
 
 - **GitHub:** скачайте `InkTasks-<версия>-release.apk` в [Releases](https://github.com/AndreyGladkov/ink/releases).
 - **[Obtainium](https://github.com/ImranR98/Obtainium):** добавьте `https://github.com/AndreyGladkov/ink` и в поле «Filter release titles by regular expression» укажите `^Ink Tasks ` — в репозитории публикуются и другие приложения.
+
+SHA-256 сертификата подписи: `3F:24:1B:4F:6F:12:03:4B:D3:2D:6F:26:46:F5:3B:0E:91:B2:83:52:33:4C:80:8F:06:6D:A5:8E:6E:4F:13:A1`.
