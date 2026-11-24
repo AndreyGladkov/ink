@@ -14,7 +14,7 @@ import io.github.andreygladkov.inktasks.store.TaskLists
 import java.text.Collator
 
 class ListsActivity : InkPagedActivity() {
-    private val lists by lazy { TaskLists.of(this) }
+    private val lists get() = TaskLists.of(this)
 
     override fun headerTitle(): String = getString(R.string.lists)
 

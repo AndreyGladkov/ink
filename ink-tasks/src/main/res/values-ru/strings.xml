@@ -54,6 +54,18 @@
     <string name="delete_list">Удалить список</string>
     <string name="delete_list_confirm">Удалить список?</string>
 
+    <string name="settings_storage">Хранение</string>
+    <string name="storage_phone">Задачи хранятся только на этом телефоне.</string>
+    <string name="storage_folder">Папка: %1$s</string>
+    <string name="storage_unavailable">Нет доступа к папке</string>
+    <string name="storage_failed">Не удалось записать в эту папку</string>
+    <string name="storage_hint">Выберите папку в хранилище Obsidian, например Vault/Tasks, чтобы списки синхронизировались с компьютером.</string>
+    <string name="choose_folder">Выбрать папку…</string>
+    <string name="choose_other_folder">Выбрать другую папку…</string>
+    <string name="keep_on_phone">Хранить на телефоне</string>
+    <string name="from_phone">" (телефон)"</string>
+    <string name="from_folder">" (папка)"</string>
+
     <string name="about_license">Ink Tasks — свободная программа под лицензией GNU General Public License v3.</string>
     <string name="about_privacy">Ink Tasks не ходит в интернет. Задачи хранятся в md-файлах на телефоне или в выбранной вами папке.</string>
 </resources>

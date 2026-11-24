@@ -14,10 +14,14 @@ import io.github.andreygladkov.ink.render
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inktasks.lists.ListsActivity
+import io.github.andreygladkov.inktasks.store.Storage
 import io.github.andreygladkov.inktasks.store.TaskLists
+import io.github.andreygladkov.inktasks.store.TestDocumentsProvider
 import io.github.andreygladkov.inktasks.task.TaskActivity
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -25,6 +29,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -33,6 +38,7 @@ import kotlin.test.assertTrue
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = A9_QUALIFIERS)
 class MainActivityTest {
+    @get:Rule val temp = TemporaryFolder()
     private val context = ApplicationProvider.getApplicationContext<Application>()
     private val home = """
         # Дом
@@ -135,6 +141,19 @@ class MainActivityTest {
         assertTrue(!activity.isFinishing)
     }
 
+    @Test fun aFolderThatIsGoneIsSaidAndCanBeChosenAgain() {
+        val tree = TestDocumentsProvider.install(temp.root, "Tasks")
+        Storage(context).choose(tree)
+        File(temp.root, "Tasks").deleteRecursively()
+        val activity = open().get()
+        assertTrue(contentRoot(activity).find<InkTextView>().any { it.text.toString() == "Нет доступа к папке" && it.visibility == View.VISIBLE })
+        val pick = contentRoot(activity).find<InkButton>().single { it.text.toString() == "Выбрать папку…" }
+        assertEquals(View.VISIBLE, pick.visibility)
+        assertEquals(View.GONE, contentRoot(activity).find<InkButton>().single { it.contentDescription == "Новая задача" }.visibility)
+        pick.performClick()
+        assertEquals(Intent.ACTION_OPEN_DOCUMENT_TREE, shadowOf(activity).nextStartedActivityForResult.intent.action)
+    }
+
     private fun open(intent: Intent = Intent(context, MainActivity::class.java)): ActivityController<MainActivity> =
         Robolectric.buildActivity(MainActivity::class.java, intent).setup()
 
@@ -143,7 +162,7 @@ class MainActivityTest {
     private fun buttons(activity: MainActivity) = contentRoot(activity).findOnPages<InkButton>()
 
     private fun titles(activity: MainActivity) = buttons(activity)
-        .filter { it.contentDescription == null && it.isClickable && it.icon == 0 && it.text.isNotEmpty() && it.text.toString() !in setOf("Сюда") && !it.text.startsWith("Выполнено") }
+        .filter { it.visibility == View.VISIBLE && it.contentDescription == null && it.isClickable && it.icon == 0 && it.text.isNotEmpty() && it.text.toString() !in setOf("Сюда") && !it.text.startsWith("Выполнено") }
         .map { it.text.toString() }
 
     private fun box(activity: MainActivity, description: String) = contentRoot(activity).firstOnPages<InkButton> { it.contentDescription == description }

@@ -56,6 +56,18 @@
     <string name="delete_list">Delete list</string>
     <string name="delete_list_confirm">Delete the list?</string>
 
+    <string name="settings_storage">Storage</string>
+    <string name="storage_phone">Tasks are kept only on this phone.</string>
+    <string name="storage_folder">Folder: %1$s</string>
+    <string name="storage_unavailable">No access to the folder</string>
+    <string name="storage_failed">Could not write to that folder</string>
+    <string name="storage_hint">Choose a folder in your Obsidian vault, such as Vault/Tasks, to sync the lists with a computer.</string>
+    <string name="choose_folder">Choose a folder…</string>
+    <string name="choose_other_folder">Choose another folder…</string>
+    <string name="keep_on_phone">Keep on the phone</string>
+    <string name="from_phone">" (phone)"</string>
+    <string name="from_folder">" (folder)"</string>
+
     <string name="about_license">Ink Tasks is free software under the GNU General Public License v3.</string>
     <string name="about_privacy">Ink Tasks does not use the internet. Tasks are kept in Markdown files on the phone or in the folder you choose.</string>
 </resources>
