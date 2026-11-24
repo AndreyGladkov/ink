@@ -27,11 +27,11 @@ class TaskLists(private val context: Context, private val folder: Folder) {
     }
 
     /** The list opened last; until a list has a file, the default list that its first task will create. */
-    val current: String
-        get() {
-            val names = names()
-            return prefs.getString(PREF_CURRENT, null)?.takeIf { it in names } ?: names.firstOrNull() ?: context.getString(R.string.default_list)
-        }
+    val current: String get() = current(names())
+
+    /** [current] out of [names] already read, so a screen that shows them too lists the folder once. */
+    fun current(names: List<String>): String =
+        prefs.getString(PREF_CURRENT, null)?.takeIf { it in names } ?: names.firstOrNull() ?: context.getString(R.string.default_list)
 
     fun open(name: String) = prefs.edit { putString(PREF_CURRENT, name) }
 
