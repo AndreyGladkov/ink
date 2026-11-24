@@ -17,6 +17,7 @@ jobs:
       launcher: ${{ steps.filter.outputs.launcher }}
       weather: ${{ steps.filter.outputs.weather }}
       gallery: ${{ steps.filter.outputs.gallery }}
+      tasks: ${{ steps.filter.outputs.tasks }}
     steps:
       - uses: actions/checkout@v4
 
@@ -53,6 +54,9 @@ jobs:
             gallery:
               - *ui
               - 'ink-gallery/**'
+            tasks:
+              - *ui
+              - 'ink-tasks/**'
 
   ui:
     needs: changes
@@ -325,3 +329,39 @@ jobs:
         with:
           name: gallery-reports
           path: ink-gallery/build/reports
+
+  tasks:
+    needs: changes
+    if: ${{ needs.changes.outputs.tasks == 'true' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - uses: gradle/actions/setup-gradle@v3
+
+      - name: Unit tests
+        run: ./gradlew :ink-tasks:testDebugUnitTest
+
+      - name: Lint
+        run: ./gradlew :ink-tasks:lintRelease
+
+      - name: Build release APK
+        run: ./gradlew :ink-tasks:assembleRelease
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: InkTasks-unsigned
+          path: ink-tasks/build/outputs/apk/release/*.apk
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: tasks-reports
+          path: ink-tasks/build/reports
+

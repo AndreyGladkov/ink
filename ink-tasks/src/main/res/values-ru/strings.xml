@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Задачи</string>
+    <string name="default_list">Мои задачи</string>
+
+    <string name="new_task">Новая задача</string>
+    <string name="no_tasks">Задач нет</string>
+    <string name="done_count">Выполнено (%1$d)</string>
+    <string name="check">Отметить «%1$s»</string>
+    <string name="uncheck">Снять отметку с «%1$s»</string>
+    <string name="move_where">Куда переместить?</string>
+    <string name="move_here">Сюда</string>
+
+    <string name="today">Сегодня</string>
+    <string name="tomorrow">Завтра</string>
+    <string name="yesterday">Вчера</string>
+
+    <string name="task">Задача</string>
+    <string name="new_subtask">Новая подзадача</string>
+    <string name="title_hint">Название</string>
+    <string name="notes">Заметка</string>
+    <string name="notes_hint">Подробности</string>
+    <string name="due">Срок</string>
+    <string name="no_due">Без срока</string>
+    <string name="in_a_week">Через неделю</string>
+    <string name="other_date">Другая дата…</string>
+    <string name="remove_due">Убрать</string>
+    <string name="subtasks">Подзадачи</string>
+    <string name="add_subtask">Добавить подзадачу</string>
+    <string name="mark_done">Отметить выполненной</string>
+    <string name="mark_open">Вернуть в невыполненные</string>
+    <string name="move">Переместить</string>
+    <string name="delete">Удалить</string>
+    <string name="delete_confirm">Удалить?</string>
+    <string name="prev_month">Предыдущий месяц</string>
+    <string name="next_month">Следующий месяц</string>
+
+    <string name="done">Выполнено</string>
+    <string name="no_done">Выполненных нет</string>
+    <string name="done_on">Выполнено %1$s</string>
+    <string name="delete_done">Удалить выполненные</string>
+    <string name="delete_done_confirm">Удалить все?</string>
+
+    <string name="lists">Списки</string>
+    <string name="new_list">Новый список</string>
+    <string name="list">Список</string>
+    <string name="edit_list">Изменить «%1$s»</string>
+    <string name="list_name_hint">Название списка</string>
+    <string name="ready">Готово</string>
+    <string name="list_exists">Такой список уже есть</string>
+    <string name="sort">Сортировка</string>
+    <string name="sort_manual">По порядку</string>
+    <string name="sort_due">По сроку</string>
+    <string name="delete_list">Удалить список</string>
+    <string name="delete_list_confirm">Удалить список?</string>
+
+    <string name="about_license">Ink Tasks — свободная программа под лицензией GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Tasks не ходит в интернет. Задачи хранятся в md-файлах на телефоне или в выбранной вами папке.</string>
+</resources>
