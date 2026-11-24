@@ -33,7 +33,7 @@ import kotlin.math.roundToInt
 
 /** Each field is written to the file when it is left, so there is no Save button and nothing is lost on Back. */
 class TaskActivity : Activity() {
-    private val lists by lazy { TaskLists.of(this) }
+    private val lists get() = TaskLists.of(this)
     private lateinit var list: String
     private var ref: TaskRef? = null
     private var parent: TaskRef? = null

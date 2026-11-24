@@ -5,7 +5,7 @@ import androidx.core.content.edit
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.inktasks.R
 import io.github.andreygladkov.inktasks.tasks.TaskFile
-import java.io.File
+import java.io.IOException
 import java.text.Collator
 import java.time.Clock
 import java.time.LocalDate
@@ -19,9 +19,11 @@ class TaskLists(private val context: Context, private val folder: Folder) {
 
     private val prefs get() = context.inkPrefs()
 
+    val isAvailable: Boolean get() = folder.isAvailable
+
     fun names(): List<String> {
         val collator = Collator.getInstance()
-        return folder.names().sortedWith { a, b -> collator.compare(a, b) }
+        return attempt { folder.names() }.orEmpty().sortedWith { a, b -> collator.compare(a, b) }
     }
 
     /** The list opened last; until a list has a file, the default list that its first task will create. */
@@ -33,12 +35,13 @@ class TaskLists(private val context: Context, private val folder: Folder) {
 
     fun open(name: String) = prefs.edit { putString(PREF_CURRENT, name) }
 
-    fun read(name: String): TaskFile = TaskFile.parse(folder.read(name).orEmpty())
+    fun read(name: String): TaskFile = TaskFile.parse(attempt { folder.read(name) }.orEmpty())
 
+    /** Null when the task is gone or the folder can no longer be written, which the screens treat alike. */
     fun change(name: String, change: (TaskFile) -> TaskFile.Change?): TaskFile.Change? {
-        val changed = change(read(name)) ?: return null
-        folder.write(name, changed.file.toText())
-        return changed
+        val text = attempt { folder.read(name) } ?: if (attempt { folder.names() } == null) return null else ""
+        val changed = change(TaskFile.parse(text)) ?: return null
+        return attempt { folder.write(name, changed.file.toText()) }?.let { changed }
     }
 
     fun sort(name: String): Sort = if (prefs.getBoolean(sortKey(name), false)) Sort.DUE else Sort.MANUAL
@@ -48,7 +51,7 @@ class TaskLists(private val context: Context, private val folder: Folder) {
     /** Obsidian vaults are often synced to case-insensitive file systems, where "Home" and "home" are one file. */
     fun exists(name: String) = names().any { it.equals(name, ignoreCase = true) }
 
-    fun create(name: String): Boolean = !exists(name) && folder.create(name)
+    fun create(name: String): Boolean = !exists(name) && attempt { folder.create(name) } == true
 
     fun rename(from: String, to: String): Boolean {
         if (from == to) return true
@@ -66,23 +69,35 @@ class TaskLists(private val context: Context, private val folder: Folder) {
 
     /** A case-insensitive file system takes a rename that only changes case as a rename to itself and keeps the old name. */
     private fun renameFile(from: String, to: String): Boolean {
-        if (!from.equals(to, ignoreCase = true)) return folder.rename(from, to)
+        if (!from.equals(to, ignoreCase = true)) return attempt { folder.rename(from, to) } == true
         val step = "$to$CASE_STEP"
-        if (!folder.rename(from, step)) return false
-        if (folder.rename(step, to)) return true
-        folder.rename(step, from)
+        if (attempt { folder.rename(from, step) } != true) return false
+        if (attempt { folder.rename(step, to) } == true) return true
+        attempt { folder.rename(step, from) }
         return false
     }
 
     fun delete(name: String) {
-        folder.delete(name)
+        attempt { folder.delete(name) }
         prefs.edit { remove(sortKey(name)) }
     }
 
     private fun sortKey(name: String) = PREF_SORT_PREFIX + name
 
+    /** A chosen folder can vanish or have its permission revoked at any moment, which a provider reports by throwing. */
+    private fun <T> attempt(action: () -> T): T? = try {
+        action()
+    } catch (_: IOException) {
+        null
+    } catch (_: SecurityException) {
+        null
+    } catch (_: IllegalArgumentException) {
+        null
+    } catch (_: IllegalStateException) {
+        null
+    }
+
     companion object {
-        internal const val DIR = "tasks"
         private const val PREF_CURRENT = "current_list"
         private const val PREF_SORT_PREFIX = "sort_by_due:"
         private const val CASE_STEP = " (renaming)"
@@ -91,6 +106,6 @@ class TaskLists(private val context: Context, private val folder: Folder) {
 
         fun today(): LocalDate = LocalDate.now(clock)
 
-        fun of(context: Context) = TaskLists(context, LocalFolder(File(context.filesDir, DIR)))
+        fun of(context: Context) = TaskLists(context, Storage(context).folder)
     }
 }

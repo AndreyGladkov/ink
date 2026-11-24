@@ -24,7 +24,7 @@ import io.github.andreygladkov.inktasks.store.TaskLists
 import kotlin.math.roundToInt
 
 class ListEditActivity : Activity() {
-    private val lists by lazy { TaskLists.of(this) }
+    private val lists get() = TaskLists.of(this)
     private var original: String? = null
     private lateinit var nameField: InkEditText
     private lateinit var error: InkTextView

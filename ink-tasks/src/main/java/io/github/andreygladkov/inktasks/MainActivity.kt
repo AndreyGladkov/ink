@@ -17,6 +17,7 @@ import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.inktasks.lists.ListsActivity
+import io.github.andreygladkov.inktasks.settings.FolderPicker
 import io.github.andreygladkov.inktasks.settings.SettingsActivity
 import io.github.andreygladkov.inktasks.store.TaskLists
 import io.github.andreygladkov.inktasks.task.TaskActivity
@@ -32,13 +33,14 @@ class MainActivity : Activity() {
     private data class DoneRow(val count: Int) : Row
     private data class Slot(val before: TaskRef?) : Row
 
-    private val lists by lazy { TaskLists.of(this) }
+    private val lists get() = TaskLists.of(this)
     private lateinit var style: InkStyle
     private lateinit var title: InkButton
     private lateinit var add: View
     private lateinit var settings: View
     private lateinit var list: InkPagedList
     private lateinit var empty: InkTextView
+    private lateinit var pickFolder: InkButton
     private lateinit var back: BackToStart
     private var rows = emptyList<Row>()
     private var moving: TaskRef? = null
@@ -51,23 +53,31 @@ class MainActivity : Activity() {
             show()
         }
         takeMove(intent)
-        title = InkHeader.action(this, R.drawable.ic_list, "") { if (moving == null) startActivity(ListsActivity.intent(this)) }.apply {
+        title = InkHeader.action(this, R.drawable.ic_list, "") { if (moving == null && lists.isAvailable) startActivity(ListsActivity.intent(this)) }.apply {
             textScale = InkStyle.TITLE_SCALE
             isBold = true
         }
         add = InkHeader.button(this, R.drawable.ic_add, getString(R.string.new_task)) { startActivity(TaskActivity.create(this, lists.current)) }
         settings = InkHeader.settings(this) { startActivity(SettingsActivity.intent(this)) }
         list = InkPagedList(this)
-        empty = InkTextView(this).apply {
-            setText(R.string.no_tasks)
-            gravity = Gravity.CENTER
+        empty = InkTextView(this).apply { gravity = Gravity.CENTER }
+        pickFolder = InkButton(this).apply {
+            setText(R.string.choose_folder)
+            setOnClickListener { FolderPicker.open(this@MainActivity) }
         }
         InkWindow.setContent(this, LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             addView(InkHeader.of(this@MainActivity, title, null, add, settings))
             addView(FrameLayout(this@MainActivity).apply {
                 addView(list)
-                addView(empty)
+                addView(LinearLayout(this@MainActivity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    gravity = Gravity.CENTER
+                    addView(empty)
+                    addView(pickFolder, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                        topMargin = dp(PADDING_DP)
+                    })
+                })
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         })
     }
@@ -81,6 +91,13 @@ class MainActivity : Activity() {
         super.onResume()
         if (InkStyle.of(this) != style) return recreate()
         show()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+        if (FolderPicker.chosen(this, requestCode, resultCode, data) != null) show()
     }
 
     @SuppressLint("GestureBackNavigation")
@@ -97,6 +114,11 @@ class MainActivity : Activity() {
     }
 
     private fun show() {
+        val lists = lists
+        val available = lists.isAvailable
+        pickFolder.visibility = if (available) View.GONE else View.VISIBLE
+        empty.setText(if (available) R.string.no_tasks else R.string.storage_unavailable)
+        if (!available) moving = null
         val name = lists.current
         val tasks = lists.read(name).tasks
         val open = tasks.filter { !it.isDone }
@@ -105,8 +127,8 @@ class MainActivity : Activity() {
         back.isAway = moving != null
         title.text = if (moving != null) getString(R.string.move_where) else name
         title.icon = if (moving != null) 0 else R.drawable.ic_list
-        add.visibility = if (moving != null) View.GONE else View.VISIBLE
-        settings.visibility = add.visibility
+        add.visibility = if (moving != null || !available) View.GONE else View.VISIBLE
+        settings.visibility = if (moving != null) View.GONE else View.VISIBLE
         val done = tasks.count { it.isDone }
         rows = when {
             moving != null -> moveRows(open, moving)

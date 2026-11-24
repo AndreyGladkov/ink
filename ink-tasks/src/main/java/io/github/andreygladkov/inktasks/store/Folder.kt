@@ -1,6 +1,8 @@
 package io.github.andreygladkov.inktasks.store
 
 interface Folder {
+    val isAvailable: Boolean get() = true
+
     fun names(): List<String>
 
     fun read(name: String): String?

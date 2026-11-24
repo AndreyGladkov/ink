@@ -13,7 +13,7 @@ import io.github.andreygladkov.inktasks.ui.DueLabels
 import io.github.andreygladkov.inktasks.ui.TaskRows
 
 class DoneActivity : InkPagedActivity() {
-    private val lists by lazy { TaskLists.of(this) }
+    private val lists get() = TaskLists.of(this)
     private val list get() = intent.getStringExtra(EXTRA_LIST).orEmpty()
 
     override fun headerTitle(): String = getString(R.string.done)

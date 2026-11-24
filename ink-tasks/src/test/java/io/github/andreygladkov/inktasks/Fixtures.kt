@@ -1,6 +1,7 @@
 package io.github.andreygladkov.inktasks
 
 import android.content.Context
+import io.github.andreygladkov.inktasks.store.Storage
 import io.github.andreygladkov.inktasks.store.TaskLists
 import java.io.File
 import java.time.Clock
@@ -18,7 +19,7 @@ object Fixtures {
         TaskLists.clock = Clock.systemDefaultZone()
     }
 
-    fun file(context: Context, name: String) = File(File(context.filesDir, TaskLists.DIR), "$name.md")
+    fun file(context: Context, name: String) = File(File(context.filesDir, Storage.DIR), "$name.md")
 
     fun write(context: Context, name: String, text: String) {
         file(context, name).apply { parentFile!!.mkdirs() }.writeText(text)
