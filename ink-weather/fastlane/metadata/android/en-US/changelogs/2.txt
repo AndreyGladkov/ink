@@ -1,0 +1,1 @@
+The widget's second line now shows how much rain or snow is still to fall today, behind a drop, instead of the day's range, which the next days already show.
