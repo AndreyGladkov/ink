@@ -2,6 +2,7 @@ package io.github.andreygladkov.inkweather
 
 import io.github.andreygladkov.inkweather.forecast.Place
 import io.github.andreygladkov.inkweather.forecast.Transport
+import io.github.andreygladkov.inkweather.forecast.Weather
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
@@ -119,6 +120,16 @@ object Fixtures {
     }
 
     fun offline() = FakeTransport { throw IOException("offline") }
+
+    /**
+     * The executors outlive a test, so a fetch it left queued would otherwise run in the next test, on the real
+     * transport the first one restored, and hold the single fetch thread for up to its 15 s timeout.
+     * Fetches go first: they queue drawing, never the other way round.
+     */
+    fun finishBackgroundWork() {
+        Weather.fetches.submit {}.get()
+        Weather.drawing.submit {}.get()
+    }
 
     private fun cycled(index: Int, localHour: Int): String {
         val part = if (localHour in 8..16) "_day" else "_night"

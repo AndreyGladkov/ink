@@ -59,6 +59,7 @@ class MainActivityTest {
     }
 
     @After fun restore() {
+        Fixtures.finishBackgroundWork()
         TimeZone.setDefault(machineZone)
         Weather.transport = HttpTransport
         Weather.clock = Clock.systemDefaultZone()

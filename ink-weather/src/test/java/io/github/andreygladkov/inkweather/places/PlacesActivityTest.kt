@@ -35,6 +35,7 @@ class PlacesActivityTest {
     private val london = Place(2643743, "Лондон", "Англия", "Великобритания", 51.50853, -0.12574)
 
     @After fun restore() {
+        Fixtures.finishBackgroundWork()
         Weather.transport = HttpTransport
     }
 

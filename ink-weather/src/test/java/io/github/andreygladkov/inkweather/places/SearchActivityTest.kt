@@ -37,6 +37,7 @@ class SearchActivityTest {
     private val context = ApplicationProvider.getApplicationContext<Application>()
 
     @After fun restore() {
+        Fixtures.finishBackgroundWork()
         Weather.transport = HttpTransport
     }
 

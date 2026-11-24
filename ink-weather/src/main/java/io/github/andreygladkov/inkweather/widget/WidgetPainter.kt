@@ -13,6 +13,7 @@ import androidx.core.graphics.createBitmap
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.eink.MonochromeIcons
 import io.github.andreygladkov.ink.eink.StemFit
+import io.github.andreygladkov.inkweather.R
 import kotlin.math.ceil
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -45,7 +46,7 @@ class WidgetPainter(private val context: Context, private val style: InkStyle = 
         }
     }
 
-    private data class Line(val text: String, val scale: Float, val bold: Boolean = false)
+    private data class Line(val text: String, val scale: Float, val bold: Boolean = false, @param:DrawableRes val icon: Int? = null)
 
     fun draw(content: WidgetContent, width: Int, height: Int): Bitmap {
         val bitmap = createBitmap(width, height)
@@ -90,12 +91,15 @@ class WidgetPainter(private val context: Context, private val style: InkStyle = 
     private fun drawNow(canvas: Canvas, content: WidgetContent, now: WidgetContent.Slot, area: Rect) {
         val icon = min(area.height(), area.width() * 2 / 5).coerceAtMost(dp(MAX_ICON_DP))
         val temperature = Line(now.value, InkStyle.DISPLAY_SCALE, bold = true)
-        val range = content.range?.let { Line(it, InkStyle.SECONDARY_SCALE) }
+        val precipitation = content.precipitation?.let { Line(it, InkStyle.SECONDARY_SCALE, icon = R.drawable.ic_drop) }
         val place = Line(content.place, InkStyle.SECONDARY_SCALE)
-        val lines = listOf(listOfNotNull(temperature, range, place), listOfNotNull(temperature, range), listOf(temperature))
+        val lines = listOf(listOfNotNull(temperature, precipitation, place), listOf(temperature, place), listOf(temperature))
             .first { height(it) <= area.height() || it.size == 1 }
-        drawIcon(canvas, now.icon, area.left, area.centerY() - icon / 2, icon)
-        drawLines(canvas, lines, Rect(area.left + icon + dp(GAP_DP), area.top, area.right, area.bottom), Paint.Align.LEFT)
+        val textWidth = lines.maxOf(::width).coerceAtMost(area.width() - icon - dp(GAP_DP))
+        val left = area.centerX() - (icon + dp(GAP_DP) + textWidth) / 2
+        drawIcon(canvas, now.icon, left, area.centerY() - icon / 2, icon)
+        val textLeft = left + icon + dp(GAP_DP)
+        drawLines(canvas, lines, Rect(textLeft, area.top, area.right, area.bottom), Paint.Align.LEFT)
     }
 
     private fun drawSlots(canvas: Canvas, slots: List<WidgetContent.Slot>, area: Rect, valueScale: Float) {
@@ -133,19 +137,34 @@ class WidgetPainter(private val context: Context, private val style: InkStyle = 
 
     private fun drawLine(canvas: Canvas, line: Line, left: Int, top: Int, width: Int, align: Paint.Align) {
         use(line)
-        val text = TextUtils.ellipsize(line.text, paint, width.toFloat(), TextUtils.TruncateAt.END).toString()
-        paint.textAlign = align
-        val x = when (align) {
+        val lead = lead(line)
+        val text = TextUtils.ellipsize(line.text, paint, (width - lead).toFloat(), TextUtils.TruncateAt.END).toString()
+        val used = lead + ceil(paint.measureText(text)).toInt()
+        val start = when (align) {
             Paint.Align.LEFT -> left
-            Paint.Align.CENTER -> left + width / 2
-            Paint.Align.RIGHT -> left + width
+            Paint.Align.CENTER -> left + (width - used) / 2
+            Paint.Align.RIGHT -> left + width - used
         }
-        canvas.drawText(text, x.toFloat(), (top - paint.ascent()).roundToInt().toFloat(), paint)
+        val baseline = (top - paint.ascent()).roundToInt()
+        line.icon?.let { drawIcon(canvas, it, start, baseline - capHeight() / 2 - iconSize() / 2, iconSize()) }
+        paint.textAlign = Paint.Align.LEFT
+        canvas.drawText(text, (start + lead).toFloat(), baseline.toFloat(), paint)
     }
+
+    private fun lead(line: Line): Int = if (line.icon == null) 0 else iconSize() + iconSize() / ICON_GAP_DIVISOR
+
+    private fun iconSize(): Int = (capHeight() * ICON_TO_CAP_HEIGHT).roundToInt()
+
+    private fun capHeight(): Int = Rect().also { paint.getTextBounds(CAP_SAMPLE, 0, CAP_SAMPLE.length, it) }.height()
 
     private fun drawIcon(canvas: Canvas, @DrawableRes icon: Int, left: Int, top: Int, size: Int) {
         if (size <= 0) return
         canvas.drawBitmap(MonochromeIcons.bitmap(context, icon, size, style.foreground), left.toFloat(), top.toFloat(), null)
+    }
+
+    private fun width(line: Line): Int {
+        use(line)
+        return lead(line) + ceil(paint.measureText(line.text)).toInt()
     }
 
     private fun height(lines: List<Line>): Int = lines.sumOf(::height)
@@ -171,5 +190,8 @@ class WidgetPainter(private val context: Context, private val style: InkStyle = 
         const val MIN_SLOT_DP = 44f
         const val NOW_SHARE_PERCENT = 45
         const val NOTE_SCALE = 0.7f
+        const val CAP_SAMPLE = "0"
+        const val ICON_TO_CAP_HEIGHT = 1.3f
+        const val ICON_GAP_DIVISOR = 4
     }
 }

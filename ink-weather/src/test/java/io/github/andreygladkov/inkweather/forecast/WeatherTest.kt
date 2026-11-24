@@ -31,6 +31,7 @@ class WeatherTest {
     }
 
     @After fun restore() {
+        Fixtures.finishBackgroundWork()
         Weather.transport = HttpTransport
         Weather.clock = Clock.systemDefaultZone()
     }
