@@ -1,0 +1,1 @@
+Tasks in Markdown files that sync with Obsidian, for e-ink phones
