@@ -9,6 +9,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import io.github.andreygladkov.ink.eink.A9Panel
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.BackToStart
 import io.github.andreygladkov.ink.ui.InkButton
@@ -24,6 +25,7 @@ import io.github.andreygladkov.inktasks.task.TaskActivity
 import io.github.andreygladkov.inktasks.tasks.Task
 import io.github.andreygladkov.inktasks.tasks.TaskRef
 import io.github.andreygladkov.inktasks.ui.DueLabels
+import io.github.andreygladkov.inktasks.ui.ListDots
 import io.github.andreygladkov.inktasks.ui.TaskRows
 import kotlin.math.roundToInt
 
@@ -39,6 +41,9 @@ class MainActivity : Activity() {
     private lateinit var add: View
     private lateinit var settings: View
     private lateinit var list: InkPagedList
+    private lateinit var prevList: InkButton
+    private lateinit var nextList: InkButton
+    private lateinit var dots: ListDots
     private lateinit var empty: InkTextView
     private lateinit var pickFolder: InkButton
     private lateinit var back: BackToStart
@@ -60,6 +65,12 @@ class MainActivity : Activity() {
         add = InkHeader.button(this, R.drawable.ic_add, getString(R.string.new_task)) { startActivity(TaskActivity.create(this, lists.current)) }
         settings = InkHeader.settings(this) { startActivity(SettingsActivity.intent(this)) }
         list = InkPagedList(this)
+        prevList = listButton(R.drawable.ic_chevron_left, R.string.prev_list, -1)
+        nextList = listButton(R.drawable.ic_chevron_right, R.string.next_list, 1)
+        list.addFooterView(prevList, atStart = true)
+        list.addFooterView(nextList)
+        dots = ListDots(this)
+        list.addFooterCenterView(dots)
         empty = InkTextView(this).apply { gravity = Gravity.CENTER }
         pickFolder = InkButton(this).apply {
             setText(R.string.choose_folder)
@@ -113,13 +124,14 @@ class MainActivity : Activity() {
         intent.removeExtra(EXTRA_MOVE_LINE)
     }
 
-    private fun show() {
+    private fun show(position: Int = list.firstPosition) {
         val lists = lists
         val available = lists.isAvailable
         pickFolder.visibility = if (available) View.GONE else View.VISIBLE
         empty.setText(if (available) R.string.no_tasks else R.string.storage_unavailable)
         if (!available) moving = null
-        val name = lists.current
+        val names = lists.names()
+        val name = lists.current(names)
         val tasks = lists.read(name).tasks
         val open = tasks.filter { !it.isDone }
         if (open.none { it.ref == moving }) moving = null
@@ -129,6 +141,11 @@ class MainActivity : Activity() {
         title.icon = if (moving != null) 0 else R.drawable.ic_list
         add.visibility = if (moving != null || !available) View.GONE else View.VISIBLE
         settings.visibility = if (moving != null) View.GONE else View.VISIBLE
+        val switches = if (moving == null && available && names.size > 1) View.VISIBLE else View.GONE
+        prevList.visibility = switches
+        nextList.visibility = switches
+        dots.visibility = switches
+        dots.show(names.indexOf(name), names.size)
         val done = tasks.count { it.isDone }
         rows = when {
             moving != null -> moveRows(open, moving)
@@ -142,7 +159,24 @@ class MainActivity : Activity() {
             override val count get() = shown.size
             override fun itemId(position: Int) = shown[position].hashCode().toLong()
             override fun createView(position: Int) = view(shown[position], taskRows)
-        }, list.firstPosition.coerceAtMost(shown.size - 1).coerceAtLeast(0))
+        }, position.coerceAtMost(shown.size - 1).coerceAtLeast(0))
+    }
+
+    private fun listButton(icon: Int, description: Int, step: Int) = InkButton(this).apply {
+        this.icon = icon
+        contentDescription = getString(description)
+        isBordered = false
+        setOnClickListener { switchList(step) }
+    }
+
+    private fun switchList(step: Int) {
+        val lists = lists
+        val names = lists.names()
+        val at = names.indexOf(lists.current(names))
+        if (moving != null || names.size < 2 || at < 0) return
+        lists.open(names[(at + step).mod(names.size)])
+        show(position = 0)
+        A9Panel.onPageFlipped(this)
     }
 
     private fun taskRows(tasks: List<Task>): List<Row> = tasks.flatMap { task -> listOf(TaskRow(task, false)) + task.subtasks.map { TaskRow(it, true) } }

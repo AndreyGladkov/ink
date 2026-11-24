@@ -14,7 +14,6 @@ import android.widget.AbsListView
 import android.widget.BaseAdapter
 import android.widget.LinearLayout
 import android.widget.ListView
-import android.widget.Space
 import io.github.andreygladkov.ink.R
 import io.github.andreygladkov.ink.eink.A9Panel
 import io.github.andreygladkov.ink.eink.InkStyle
@@ -52,6 +51,10 @@ class InkPagedList(
     private val label = InkTextView(context).apply {
         gravity = Gravity.CENTER
         textScale = InkStyle.SECONDARY_SCALE
+    }
+    private val middle = LinearLayout(context).apply {
+        orientation = VERTICAL
+        gravity = Gravity.CENTER
     }
     private var footer: LinearLayout? = null
     private val heights = HashMap<Long, Int>()
@@ -99,10 +102,10 @@ class InkPagedList(
     }
 
     private fun addPager() {
-        footer = LinearLayout(context).apply {
-            orientation = HORIZONTAL
+        footer = FooterRow(context).apply {
             addView(prev, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
-            addView(label, LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
+            middle.addView(label, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+            addView(middle, LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
             addView(next, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
         }.also { addView(it, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)) }
     }
@@ -112,14 +115,8 @@ class InkPagedList(
      * where the thumb already is. A scrolling list gets a row of its own for it.
      */
     fun addFooterView(view: View, atStart: Boolean = false) {
-        val row = footer ?: LinearLayout(context).apply {
-            orientation = HORIZONTAL
-            addView(Space(context), LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
-        }.also {
-            footer = it
-            addView(it, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
-        }
-        val divider = FooterDivider(context).takeIf { scrollList == null }
+        val row = footerRow()
+        val divider = FooterDivider(context, view).takeIf { scrollList == null }
         val parts = listOfNotNull(divider, view).let { if (atStart) it.reversed() else it }
         parts.forEachIndexed { index, part ->
             row.addView(part, if (atStart) index else row.childCount, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
@@ -127,15 +124,44 @@ class InkPagedList(
     }
 
     /**
+     * A view keeps its last measure while the spec it is given stays the same, so a line beside a view that was just
+     * hidden would keep its width; the row, laid out again by that change, makes its lines measure afresh.
+     */
+    private class FooterRow(context: Context) : LinearLayout(context) {
+        init {
+            orientation = HORIZONTAL
+        }
+
+        override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+            for (index in 0 until childCount) (getChildAt(index) as? FooterDivider)?.forceLayout()
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        }
+    }
+
+    fun addFooterCenterView(view: View) {
+        footerRow()
+        middle.addView(view, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+    }
+
+    private fun footerRow(): LinearLayout = footer ?: LinearLayout(context).apply {
+        orientation = HORIZONTAL
+        addView(middle, LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
+    }.also {
+        footer = it
+        addView(it, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+    }
+
+    /**
      * Takes the row's height without adding to it: a plain View asks for all the height offered, and a fixed
      * height makes the row's LinearLayout size every match-parent button to that line instead of the buttons.
      */
-    private class FooterDivider(context: Context) : View(context) {
+    private class FooterDivider(context: Context, private val partner: View) : View(context) {
         init {
             background = VerticalLineDrawable(context)
         }
 
         override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+            if (partner.visibility == GONE) return setMeasuredDimension(0, 0)
             val height = if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY) MeasureSpec.getSize(heightMeasureSpec) else 0
             setMeasuredDimension(background.intrinsicWidth, height)
         }

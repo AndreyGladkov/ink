@@ -8,7 +8,7 @@ Every pixel is pure black or white, with no antialiasing and no animations.
 
 ## Features
 
-- Several lists, each a Markdown file: "Groceries.md" is the list "Groceries".
+- Several lists, each a Markdown file: "Groceries.md" is the list "Groceries". The arrows at the bottom of a list go to the next or previous one, and dots under the page number show which is open, as on Ink Launcher's home screens.
 - A task has a title, notes, a due date and one level of subtasks. A tap on its box marks it done; done tasks go to a page of their own, from where they come back or are deleted together.
 - Due dates are set with Today, Tomorrow and In a week, or on a month calendar. An overdue date is drawn white on black.
 - A list is shown in its own order or by due date. A task is moved by tapping one of the "Here" marks between the others, with no dragging.
@@ -35,6 +35,8 @@ Requires Android 11 or newer.
 - **GitHub:** download `InkTasks-<version>-release.apk` from [Releases](https://github.com/AndreyGladkov/ink/releases).
 - **[Obtainium](https://github.com/ImranR98/Obtainium):** add `https://github.com/AndreyGladkov/ink` as an app and set "Filter release titles by regular expression" to `^Ink Tasks `, because the repository also publishes other apps.
 
+Signing certificate SHA-256: `3F:24:1B:4F:6F:12:03:4B:D3:2D:6F:26:46:F5:3B:0E:91:B2:83:52:33:4C:80:8F:06:6D:A5:8E:6E:4F:13:A1`.
+
 ## Building
 
 ```
@@ -57,7 +59,7 @@ Bundled components: Noto Emoji font (SIL Open Font License 1.1) and Material ico
 
 Каждый пиксель чисто чёрный или белый, без сглаживания и анимаций.
 
-- Несколько списков, каждый — md-файл: «Покупки.md» — это список «Покупки».
+- Несколько списков, каждый — md-файл: «Покупки.md» — это список «Покупки». Стрелки внизу списка листают списки, а точки под номером страницы показывают, какой открыт, как экраны в Ink Launcher.
 - У задачи есть название, заметка, срок и один уровень подзадач. Нажатие на квадрат отмечает её выполненной; выполненные уходят на свою страницу, откуда их можно вернуть или удалить все разом.
 - Срок ставится кнопками «Сегодня», «Завтра», «Через неделю» или по календарю месяца. Просроченный срок — белым по чёрному.
 - Список показывается в своём порядке или по сроку. Задача перемещается нажатием на одну из отметок «Сюда» между другими, без перетаскивания.
@@ -74,3 +76,5 @@ Ink Tasks не ходит в интернет и не просит разреш�
 
 - **GitHub:** скачайте `InkTasks-<версия>-release.apk` в [Releases](https://github.com/AndreyGladkov/ink/releases).
 - **[Obtainium](https://github.com/ImranR98/Obtainium):** добавьте `https://github.com/AndreyGladkov/ink` и в поле «Filter release titles by regular expression» укажите `^Ink Tasks ` — в репозитории публикуются и другие приложения.
+
+SHA-256 сертификата подписи: `3F:24:1B:4F:6F:12:03:4B:D3:2D:6F:26:46:F5:3B:0E:91:B2:83:52:33:4C:80:8F:06:6D:A5:8E:6E:4F:13:A1`.

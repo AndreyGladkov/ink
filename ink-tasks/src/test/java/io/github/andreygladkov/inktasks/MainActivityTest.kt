@@ -18,6 +18,7 @@ import io.github.andreygladkov.inktasks.store.Storage
 import io.github.andreygladkov.inktasks.store.TaskLists
 import io.github.andreygladkov.inktasks.store.TestDocumentsProvider
 import io.github.andreygladkov.inktasks.task.TaskActivity
+import io.github.andreygladkov.inktasks.ui.ListDots
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -116,6 +117,40 @@ class MainActivityTest {
         assertEquals(TaskActivity::class.java.name, shadowOf(activity).nextStartedActivity.component?.className)
     }
 
+    @Test fun theArrowsAtTheBottomGoThroughTheListsInTheirOrderAndRoundFromTheLastToTheFirstWithDotsForWhereYouAre() {
+        Fixtures.write(context, "Дом", home)
+        Fixtures.write(context, "Работа", "- [ ] Отправить отчёт\n")
+        Fixtures.write(context, "Книги", "")
+        val activity = open().get()
+        assertEquals("Дом", header(activity).text.toString())
+        assertEquals(listOf("Список 1 из 3"), dots(activity))
+        switch(activity, "Следующий список").performClick()
+        assertEquals("Книги", header(activity).text.toString())
+        assertEquals(listOf("Список 2 из 3"), dots(activity))
+        switch(activity, "Следующий список").performClick()
+        assertEquals("Работа", header(activity).text.toString())
+        assertEquals(listOf("Отправить отчёт"), titles(activity))
+        switch(activity, "Следующий список").performClick()
+        assertEquals("Дом", header(activity).text.toString())
+        switch(activity, "Предыдущий список").performClick()
+        assertEquals("Работа", header(activity).text.toString())
+        assertEquals("Работа", TaskLists.of(context).current)
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+    }
+
+    @Test fun theArrowsAndDotsAreHiddenWithOneListAndWhileMoving() {
+        Fixtures.write(context, "Дом", home)
+        val alone = open().get()
+        assertEquals(View.GONE, switch(alone, "Следующий список").visibility)
+        assertEquals(emptyList(), dots(alone))
+        Fixtures.write(context, "Работа", "")
+        val milk = TaskLists.of(context).read("Дом").tasks[0].ref
+        val moving = open(MainActivity.move(context, milk)).get()
+        assertEquals(View.GONE, switch(moving, "Следующий список").visibility)
+        assertEquals(View.GONE, switch(moving, "Предыдущий список").visibility)
+        assertEquals(emptyList(), dots(moving))
+    }
+
     @Test fun aMovedTaskGoesWhereTheMarkIsTapped() {
         Fixtures.write(context, "Дом", home)
         val milk = TaskLists.of(context).read("Дом").tasks[0].ref
@@ -164,6 +199,10 @@ class MainActivityTest {
     private fun titles(activity: MainActivity) = buttons(activity)
         .filter { it.visibility == View.VISIBLE && it.contentDescription == null && it.isClickable && it.icon == 0 && it.text.isNotEmpty() && it.text.toString() !in setOf("Сюда") && !it.text.startsWith("Выполнено") }
         .map { it.text.toString() }
+
+    private fun switch(activity: MainActivity, description: String) = contentRoot(activity).find<InkButton>().single { it.contentDescription == description }
+
+    private fun dots(activity: MainActivity) = contentRoot(activity).find<ListDots>().filter { it.visibility == View.VISIBLE && it.contentDescription != null }.map { it.contentDescription.toString() }
 
     private fun box(activity: MainActivity, description: String) = contentRoot(activity).firstOnPages<InkButton> { it.contentDescription == description }
 }

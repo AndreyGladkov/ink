@@ -96,6 +96,11 @@ class InkPagedListTest {
         render(paged, A9_WIDTH, A9_HEIGHT)
         assertEquals(next.minHeight, row.height)
         assertEquals(row.height, home.height)
+        val line = row.getChildAt(row.childCount - 2)
+        assertTrue(line.width > 0)
+        home.visibility = View.GONE
+        render(paged, A9_WIDTH, A9_HEIGHT)
+        assertEquals(0, line.width)
 
         activity.inkPrefs().edit().putBoolean(InkPagedList.PREF_SCROLL, true).commit()
         val scrolling = InkPagedList(activity)
@@ -106,6 +111,31 @@ class InkPagedListTest {
         assertEquals(2, own.childCount)
         render(scrolling, A9_WIDTH, A9_HEIGHT)
         assertEquals(back.minHeight, own.height)
+    }
+
+    @Test fun aCenterViewSitsUnderThePageNumbersWhichKeepTheirPlaceWhenThereAreNone() {
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        val paged = InkPagedList(activity)
+        val dots = TextView(activity).apply { text = "•" }
+        paged.addFooterCenterView(dots)
+        val middle = dots.parent as LinearLayout
+        val label = middle.getChildAt(0) as InkTextView
+        assertEquals(1, middle.indexOfChild(dots))
+        activity.setContentView(FrameLayout(activity).apply { addView(paged, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, 1200)) })
+        paged.setAdapter(object : InkPagedList.Adapter {
+            override val count = 0
+            override fun itemId(position: Int) = position.toLong()
+            override fun createView(position: Int) = View(activity)
+        })
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals("", label.text.toString())
+        assertTrue(dots.top > label.top)
+
+        activity.inkPrefs().edit().putBoolean(InkPagedList.PREF_SCROLL, true).commit()
+        val scrolling = InkPagedList(activity)
+        val more = TextView(activity)
+        scrolling.addFooterCenterView(more)
+        assertEquals(scrolling, (more.parent.parent as View).parent)
     }
 
     @Test fun aScrollingListKeepsItsOffsetWhenItsRowsAreReplaced() {
