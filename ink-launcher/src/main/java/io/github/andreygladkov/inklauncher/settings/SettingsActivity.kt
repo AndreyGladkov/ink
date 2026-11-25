@@ -33,6 +33,7 @@ class SettingsActivity : InkPagedActivity() {
     override fun InkPagedItems.build() {
         addLauncherRole()
         addGrid()
+        addAllApps()
         addIcons()
         addNotifications()
         section(getString(InkR.string.settings_display))
@@ -74,6 +75,16 @@ class SettingsActivity : InkPagedActivity() {
                 inkPrefs().edit { putBoolean(LauncherPrefs.LABELS, shown) }
             }
         }
+    }
+
+    private fun InkPagedItems.addAllApps() {
+        section(getString(R.string.all_apps))
+        item {
+            InkSettings.onOff(this@SettingsActivity, R.string.open_only_match, inkPrefs().getBoolean(LauncherPrefs.OPEN_ONLY_MATCH, true)) { open ->
+                inkPrefs().edit { putBoolean(LauncherPrefs.OPEN_ONLY_MATCH, open) }
+            }
+        }
+        item { hint(getString(R.string.open_only_match_hint)) }
     }
 
     private fun setSpec(spec: GridSpec) {

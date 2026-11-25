@@ -33,6 +33,7 @@ import io.github.andreygladkov.ink.firstOnPages
 import io.github.andreygladkov.ink.render
 import io.github.andreygladkov.ink.ui.DottedDrawable
 import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.ui.InkEditText
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inklauncher.home.AppKey
@@ -250,6 +251,7 @@ class HomeActivityTest {
     }
 
     @Test fun theMagnifierFiltersAllAppsByNameUntilClosed() {
+        context.inkPrefs().edit().putBoolean(LauncherPrefs.OPEN_ONLY_MATCH, false).commit()
         val activity = open()
         arrow(activity, "Следующая страница").performClick()
         val screen = contentRoot(activity).find<AllAppsScreen>().single()
@@ -270,6 +272,37 @@ class HomeActivityTest {
         assertTrue(!screen.isSearching)
         assertEquals(listOf("Карты", "Почта", "Чат"), listed(screen))
         assertTrue(contentRoot(activity).find<AllAppsScreen>().isNotEmpty())
+    }
+
+    @Test fun aSearchThatLeavesOneAppOpensItAndClosesTheSearch() {
+        val activity = open()
+        activity.showAllApps()
+        val screen = search(activity, "поч")
+        assertEquals(mail.className, shadowOf(activity).nextStartedActivity?.component?.className)
+        assertTrue(!screen.isSearching)
+        assertEquals(listOf("Карты", "Почта", "Чат"), listed(screen))
+    }
+
+    @Test fun theOnlyAppFoundIsNotOpenedWhenTurnedOffOrWhenPickingAnAppForACell() {
+        context.inkPrefs().edit().putBoolean(LauncherPrefs.OPEN_ONLY_MATCH, false).commit()
+        val off = open()
+        off.showAllApps()
+        assertEquals(listOf("Почта"), listed(search(off, "поч")))
+        assertEquals(null, shadowOf(off).nextStartedActivity)
+
+        context.inkPrefs().edit().putBoolean(LauncherPrefs.OPEN_ONLY_MATCH, true).commit()
+        val picking = open()
+        picking.showAllApps(target = Spot(Sheet.Page(0), 0, 0))
+        assertEquals(listOf("Почта"), listed(search(picking, "поч")))
+        assertEquals(null, shadowOf(picking).nextStartedActivity)
+    }
+
+    private fun search(activity: HomeActivity, query: String): AllAppsScreen {
+        val screen = contentRoot(activity).find<AllAppsScreen>().single()
+        screen.find<InkButton>().single { it.contentDescription == "Поиск по названию" }.performClick()
+        screen.find<InkEditText>().single().setText(query)
+        laidOut(activity)
+        return screen
     }
 
     @Config(shadows = [RecordingAppWidgetHost::class])
