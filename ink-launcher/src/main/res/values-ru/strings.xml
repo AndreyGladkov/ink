@@ -11,6 +11,8 @@
     <string name="move_only_apps_into_folders">В папку кладутся только приложения</string>
     <string name="all_apps">Все приложения</string>
     <string name="search_apps">Поиск по названию</string>
+    <string name="open_only_match">Открывать единственное найденное</string>
+    <string name="open_only_match_hint">Когда поиск оставляет одно приложение, оно открывается без нажатия.</string>
     <string name="search_widgets">Поиск по виджету или приложению</string>
     <string name="search_icons">Поиск по иконке или приложению</string>
     <string name="loading">Загрузка…</string>

@@ -6,11 +6,13 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.search.SearchQuery
 import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.LetterIndexView
 import io.github.andreygladkov.inklauncher.HomeActivity
+import io.github.andreygladkov.inklauncher.LauncherPrefs
 import io.github.andreygladkov.inklauncher.R
 import io.github.andreygladkov.inklauncher.apps.LauncherApp
 import io.github.andreygladkov.inklauncher.home.Spot
@@ -22,6 +24,7 @@ class AllAppsScreen(private val activity: HomeActivity, private val target: Spot
     private val search = SearchHeader(activity, activity.getString(if (target == null) R.string.all_apps else R.string.pick_app),
         R.string.search_apps, null, listOfNotNull(InkHeader.settings(activity) { activity.openSettings() }.takeIf { target == null })) {
         show(keepPage = false)
+        openOnlyMatch()
     }
     private val empty = nothingFound(activity)
     private val style = InkStyle.of(activity)
@@ -57,6 +60,17 @@ class AllAppsScreen(private val activity: HomeActivity, private val target: Spot
         index.letters = apps.map(::letter).distinct()
         list.setAdapter(adapter(), if (keepPage) apps.indexOfFirst { it.key == anchor }.coerceAtLeast(0) else 0)
         empty.visibility = if (apps.isEmpty()) VISIBLE else GONE
+    }
+
+    private fun openOnlyMatch() {
+        if (target != null || search.query.isEmpty || !activity.inkPrefs().getBoolean(LauncherPrefs.OPEN_ONLY_MATCH, true)) return
+        val app = apps.singleOrNull() ?: return
+        // The query arrives from inside the field's text watcher, and clearing the field there would re-enter it mid-change.
+        post {
+            if (search.query.isEmpty || apps.singleOrNull()?.key != app.key) return@post
+            search.close()
+            activity.launch(app.key)
+        }
     }
 
     private fun jumpTo(letter: String) {

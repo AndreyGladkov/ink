@@ -8,6 +8,7 @@ object LauncherPrefs {
     const val ON_PURPOSE_APPS = "on_purpose_apps"
     const val UNCOUNTED_APPS = "uncounted_apps"
     const val NOTIFICATION_BADGE = "notification_badge"
+    const val OPEN_ONLY_MATCH = "open_only_match"
 
     fun packInvertKey(packageName: String) = "icon_pack_invert_$packageName"
 }
