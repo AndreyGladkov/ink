@@ -26,11 +26,6 @@
     <string name="full_screen_needed">Allow full screen notifications, otherwise a ringing alarm will not open over the lock screen.</string>
 
     <string name="save">Save</string>
-    <string name="time_invalid">No such time</string>
-    <string name="half_of_day">Half of day</string>
-    <string name="am">AM</string>
-    <string name="pm">PM</string>
-    <string name="erase">Erase</string>
     <string name="repeat">Repeat</string>
     <string name="label">Label</string>
     <string name="label_hint">Wake up</string>

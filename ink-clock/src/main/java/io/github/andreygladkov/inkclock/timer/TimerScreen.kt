@@ -5,14 +5,14 @@ import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import io.github.andreygladkov.ink.eink.InkStyle
+import io.github.andreygladkov.ink.ui.DigitEntry
+import io.github.andreygladkov.ink.ui.DigitKeypad
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkButtonRow
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkclock.R
 import io.github.andreygladkov.inkclock.TabScreen
 import io.github.andreygladkov.inkclock.alarm.AlarmLabels
-import io.github.andreygladkov.inkclock.ui.DigitEntry
-import io.github.andreygladkov.inkclock.ui.DigitKeypad
 import java.time.Instant
 import java.time.ZoneId
 import kotlin.math.roundToInt

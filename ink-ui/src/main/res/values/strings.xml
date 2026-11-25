@@ -39,4 +39,9 @@
     <string name="about_components">Components</string>
     <string name="about_noto">Noto Emoji font — SIL Open Font License 1.1</string>
     <string name="about_material">Material icons — Apache License 2.0</string>
+    <string name="time_invalid">No such time</string>
+    <string name="half_of_day">Half of day</string>
+    <string name="am">AM</string>
+    <string name="pm">PM</string>
+    <string name="erase">Erase</string>
 </resources>

@@ -1,11 +1,10 @@
-package io.github.andreygladkov.inkclock.ui
+package io.github.andreygladkov.ink.ui
 
 import android.content.Context
 import android.widget.LinearLayout
+import io.github.andreygladkov.ink.R
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.haptics.HapticChannel
-import io.github.andreygladkov.ink.ui.InkButton
-import io.github.andreygladkov.inkclock.R
 import kotlin.math.roundToInt
 
 class DigitKeypad(context: Context, private val onKey: (String) -> Unit, private val onErase: () -> Unit) : LinearLayout(context) {

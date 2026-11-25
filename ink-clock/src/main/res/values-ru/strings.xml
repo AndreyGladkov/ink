@@ -24,11 +24,6 @@
     <string name="full_screen_needed">Разрешите полноэкранные уведомления, иначе будильник не откроется поверх экрана блокировки.</string>
 
     <string name="save">Сохранить</string>
-    <string name="time_invalid">Такого времени нет</string>
-    <string name="half_of_day">Половина дня</string>
-    <string name="am">AM</string>
-    <string name="pm">PM</string>
-    <string name="erase">Стереть</string>
     <string name="repeat">Повтор</string>
     <string name="label">Подпись</string>
     <string name="label_hint">Подъём</string>
