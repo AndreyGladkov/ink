@@ -1,8 +1,11 @@
 package io.github.andreygladkov.inktasks.task
 
+import android.Manifest
 import android.app.Activity
 import android.app.Application
+import android.app.NotificationManager
 import android.content.Intent
+import android.provider.Settings
 import android.view.View
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.ink.A9_QUALIFIERS
@@ -15,6 +18,7 @@ import io.github.andreygladkov.ink.ui.InkEditText
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inktasks.Fixtures
 import io.github.andreygladkov.inktasks.MainActivity
+import io.github.andreygladkov.inktasks.remind.ReminderNotifications
 import io.github.andreygladkov.inktasks.store.TaskLists
 import io.github.andreygladkov.inktasks.tasks.TaskRef
 import org.junit.After
@@ -27,6 +31,7 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.time.LocalDate
+import java.time.LocalTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -168,6 +173,76 @@ class TaskActivityTest {
         button(controller.get(), "Сегодня").performClick()
         assertTrue("- [ ] Купить кефир 📅 2026-11-24\n" in Fixtures.read(context, "Дом"))
         assertFalse(controller.get().isFinishing)
+    }
+
+    @Test fun aTaskWithoutADueDateOffersNoReminder() {
+        val activity = edit(TaskRef("- [ ] Полить цветы", 0)).get()
+        assertFalse(button(activity, "Задать время…").isShown)
+    }
+
+    @Test fun aTimeSetsAReminderOnTheDueDateAndIsRemoved() {
+        val activity = edit(milk).get()
+        assertTrue(texts(activity).contains("Без напоминания"))
+        assertFalse(button(activity, "Убрать время").isShown)
+        pickTime(activity, "Задать время…", LocalTime.of(10, 0))
+        assertTrue("- [ ] Купить молоко ⏰ 2026-11-25 10:00 📅 2026-11-25\n" in Fixtures.read(context, "Дом"))
+        assertTrue(texts(activity).contains("В 10:00"))
+        assertTrue(button(activity, "Убрать время").isShown)
+        button(activity, "Убрать время").performClick()
+        assertEquals(home, Fixtures.read(context, "Дом"))
+    }
+
+    @Test fun aNewTimeKeepsTheReminderOnItsOwnDay() {
+        val line = "- [ ] Заплатить ⏰ 2026-11-24 20:00 📅 2026-11-25"
+        Fixtures.write(context, "Дом", "$line\n")
+        val activity = edit(TaskRef(line, 0)).get()
+        assertTrue(texts(activity).contains("Сегодня, 24 нояб., 20:00"))
+        pickTime(activity, "Изменить время…", LocalTime.of(21, 0))
+        assertEquals("- [ ] Заплатить ⏰ 2026-11-24 21:00 📅 2026-11-25\n", Fixtures.read(context, "Дом"))
+    }
+
+    @Test fun aTurnedOffRemindersChannelIsSaidUnderTheReminder() {
+        shadowOf(context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        val manager = context.getSystemService(NotificationManager::class.java)
+        ReminderNotifications.createChannel(context)
+        manager.createNotificationChannel(manager.getNotificationChannel("reminders").apply { importance = NotificationManager.IMPORTANCE_NONE })
+        val activity = edit(milk).get()
+        pickTime(activity, "Задать время…", LocalTime.of(10, 0))
+        assertTrue(contentRoot(activity).find<InkTextView>().single { it.text.startsWith("Уведомления выключены") }.isShown)
+    }
+
+    @Test fun theFirstReminderAsksForNotifications() {
+        val activity = edit(milk).get()
+        pickTime(activity, "Задать время…", LocalTime.of(10, 0))
+        assertEquals(Manifest.permission.POST_NOTIFICATIONS, shadowOf(activity).lastRequestedPermission.requestedPermissions.single())
+    }
+
+    @Test fun notificationsTurnedOffAreSaidUnderTheReminderWithAWayToSettings() {
+        shadowOf(context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        shadowOf(context.getSystemService(NotificationManager::class.java)).setNotificationsEnabled(false)
+        val activity = edit(milk).get()
+        val notice = contentRoot(activity).find<InkTextView>().single { it.text.startsWith("Уведомления выключены") }
+        assertFalse(notice.isShown)
+        pickTime(activity, "Задать время…", LocalTime.of(10, 0))
+        assertTrue(notice.isShown)
+        button(activity, "Открыть настройки").performClick()
+        assertEquals(Settings.ACTION_APP_NOTIFICATION_SETTINGS, shadowOf(activity).nextStartedActivity.action)
+    }
+
+    @Test fun aNewTaskIsWrittenWithItsReminder() {
+        val controller = create()
+        fields(controller.get())[0].setText("Вынести мусор")
+        button(controller.get(), "Завтра").performClick()
+        pickTime(controller.get(), "Задать время…", LocalTime.of(8, 15))
+        controller.pause()
+        assertTrue(Fixtures.read(context, "Дом").startsWith("# Дом\n- [ ] Вынести мусор ⏰ 2026-11-25 08:15 📅 2026-11-25\n"))
+    }
+
+    private fun pickTime(activity: TaskActivity, label: String, time: LocalTime) {
+        button(activity, label).performClick()
+        val asked = shadowOf(activity).nextStartedActivityForResult
+        assertEquals(TimeActivity::class.java.name, asked.intent.component?.className)
+        shadowOf(activity).receiveResult(asked.intent, Activity.RESULT_OK, Intent().putExtra("time", time.toSecondOfDay()))
     }
 
     private fun edit(ref: TaskRef): ActivityController<TaskActivity> =

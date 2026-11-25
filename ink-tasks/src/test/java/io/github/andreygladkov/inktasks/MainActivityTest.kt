@@ -189,6 +189,18 @@ class MainActivityTest {
         assertEquals(Intent.ACTION_OPEN_DOCUMENT_TREE, shadowOf(activity).nextStartedActivityForResult.intent.action)
     }
 
+    @Test fun aReminderOnTheDueDateShowsItsTimeNextToTheDate() {
+        Fixtures.write(context, "Дом", "- [ ] Купить молоко ⏰ 2026-11-25 10:00 📅 2026-11-25\n- [ ] Полить цветы ⏰ 2026-11-26 09:00\n")
+        assertEquals(listOf("Купить молоко\nЗавтра, 10:00", "Полить цветы"), titles(open().get()))
+    }
+
+    @Test fun aListNamedInTheIntentIsOpened() {
+        Fixtures.write(context, "Дом", home)
+        Fixtures.write(context, "Работа", "- [ ] Отчёт\n")
+        assertEquals("Работа", header(open(MainActivity.open(context, "Работа")).get()).text.toString())
+        assertEquals("Работа", TaskLists.of(context).current)
+    }
+
     private fun open(intent: Intent = Intent(context, MainActivity::class.java)): ActivityController<MainActivity> =
         Robolectric.buildActivity(MainActivity::class.java, intent).setup()
 

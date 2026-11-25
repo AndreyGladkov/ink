@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.core.content.edit
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.inktasks.R
+import io.github.andreygladkov.inktasks.remind.Reminders
 import io.github.andreygladkov.inktasks.tasks.TaskFile
 import java.io.IOException
 import java.text.Collator
@@ -40,8 +41,11 @@ class TaskLists(private val context: Context, private val folder: Folder) {
     /** Null when the task is gone or the folder can no longer be written, which the screens treat alike. */
     fun change(name: String, change: (TaskFile) -> TaskFile.Change?): TaskFile.Change? {
         val text = attempt { folder.read(name) } ?: if (attempt { folder.names() } == null) return null else ""
-        val changed = change(TaskFile.parse(text)) ?: return null
-        return attempt { folder.write(name, changed.file.toText()) }?.let { changed }
+        val before = TaskFile.parse(text)
+        val changed = change(before) ?: return null
+        attempt { folder.write(name, changed.file.toText()) } ?: return null
+        if (Reminders.inFile(name, before) != Reminders.inFile(name, changed.file)) Reminders.update(context)
+        return changed
     }
 
     fun sort(name: String): Sort = if (prefs.getBoolean(sortKey(name), false)) Sort.DUE else Sort.MANUAL
@@ -57,6 +61,7 @@ class TaskLists(private val context: Context, private val folder: Folder) {
         if (from == to) return true
         if (names().any { it.equals(to, ignoreCase = true) && !it.equals(from, ignoreCase = true) }) return false
         if (!renameFile(from, to)) return false
+        Reminders.update(context)
         val wasCurrent = prefs.getString(PREF_CURRENT, null) == from
         val sort = sort(from)
         prefs.edit {
@@ -80,6 +85,7 @@ class TaskLists(private val context: Context, private val folder: Folder) {
     fun delete(name: String) {
         attempt { folder.delete(name) }
         prefs.edit { remove(sortKey(name)) }
+        Reminders.update(context)
     }
 
     private fun sortKey(name: String) = PREF_SORT_PREFIX + name
@@ -102,7 +108,10 @@ class TaskLists(private val context: Context, private val folder: Folder) {
         private const val PREF_SORT_PREFIX = "sort_by_due:"
         private const val CASE_STEP = " (renaming)"
 
-        var clock: Clock = Clock.systemDefaultZone()
+        var fixedClock: Clock? = null
+
+        /** A system clock keeps the time zone it was made in, so it is made anew to follow the phone into another zone. */
+        val clock: Clock get() = fixedClock ?: Clock.systemDefaultZone()
 
         fun today(): LocalDate = LocalDate.now(clock)
 

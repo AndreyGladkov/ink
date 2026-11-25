@@ -18,8 +18,10 @@ import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.inktasks.lists.ListsActivity
+import io.github.andreygladkov.inktasks.remind.Reminders
 import io.github.andreygladkov.inktasks.settings.FolderPicker
 import io.github.andreygladkov.inktasks.settings.SettingsActivity
+import io.github.andreygladkov.inktasks.store.Storage
 import io.github.andreygladkov.inktasks.store.TaskLists
 import io.github.andreygladkov.inktasks.task.TaskActivity
 import io.github.andreygladkov.inktasks.tasks.Task
@@ -58,6 +60,7 @@ class MainActivity : Activity() {
             show()
         }
         takeMove(intent)
+        takeList(intent)
         title = InkHeader.action(this, R.drawable.ic_list, "") { if (moving == null && lists.isAvailable) startActivity(ListsActivity.intent(this)) }.apply {
             textScale = InkStyle.TITLE_SCALE
             isBold = true
@@ -96,11 +99,13 @@ class MainActivity : Activity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         takeMove(intent)
+        takeList(intent)
     }
 
     override fun onResume() {
         super.onResume()
         if (InkStyle.of(this) != style) return recreate()
+        if (Storage(this).chosen != null) Reminders.update(this)
         show()
     }
 
@@ -122,6 +127,12 @@ class MainActivity : Activity() {
         val line = intent.getStringExtra(EXTRA_MOVE_LINE) ?: return
         moving = TaskRef(line, intent.getIntExtra(EXTRA_MOVE_OCCURRENCE, 0))
         intent.removeExtra(EXTRA_MOVE_LINE)
+    }
+
+    private fun takeList(intent: Intent) {
+        val name = intent.getStringExtra(EXTRA_LIST) ?: return
+        lists.open(name)
+        intent.removeExtra(EXTRA_LIST)
     }
 
     private fun show(position: Int = list.firstPosition) {
@@ -235,11 +246,14 @@ class MainActivity : Activity() {
     companion object {
         private const val EXTRA_MOVE_LINE = "move_line"
         private const val EXTRA_MOVE_OCCURRENCE = "move_occurrence"
+        private const val EXTRA_LIST = "list"
         private const val PADDING_DP = 16f
 
         fun move(context: Context, ref: TaskRef): Intent = Intent(context, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             .putExtra(EXTRA_MOVE_LINE, ref.line)
             .putExtra(EXTRA_MOVE_OCCURRENCE, ref.occurrence)
+
+        fun open(context: Context, list: String): Intent = Intent(context, MainActivity::class.java).putExtra(EXTRA_LIST, list)
     }
 }

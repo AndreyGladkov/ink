@@ -23,10 +23,16 @@ class PermissionGate(private val activity: Activity, private val permissions: Li
             if (deniedForever) {
                 activity.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", activity.packageName, null)))
             } else {
-                prefs.edit { missing.forEach { putBoolean(askedKey(it), true) } }
-                activity.requestPermissions(missing.toTypedArray(), requestCode)
+                request()
             }
         }
+    }
+
+    fun request() {
+        val missing = missing()
+        if (missing.isEmpty()) return
+        activity.inkPrefs().edit { missing.forEach { putBoolean(askedKey(it), true) } }
+        activity.requestPermissions(missing.toTypedArray(), requestCode)
     }
 
     private fun missing() = permissions.filter { activity.checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
