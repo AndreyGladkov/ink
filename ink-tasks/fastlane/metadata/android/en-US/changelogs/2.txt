@@ -1,0 +1,1 @@
+A task with a due date can get a time: a notification comes then, with Done and In an hour. Reminders are written in the Obsidian Reminder format, so those set in Obsidian come on the phone too.
