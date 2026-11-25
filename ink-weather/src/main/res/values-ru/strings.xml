@@ -27,6 +27,7 @@
     <string name="updated_on">Обновлено %1$s</string>
     <string name="millimetres">%1$s мм</string>
     <string name="source_failed">%1$s не ответил, показан прогноз %2$s</string>
+    <string name="source_not_saved">Прогноз %1$s не удалось сохранить, показан прогноз %2$s</string>
     <string name="attribution_met_no">Данные: MET Norway, Open-Meteo</string>
     <string name="attribution_open_meteo">Данные: Open-Meteo</string>
 

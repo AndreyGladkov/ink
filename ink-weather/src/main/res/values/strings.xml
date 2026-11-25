@@ -29,6 +29,7 @@
     <string name="updated_on">Updated %1$s</string>
     <string name="millimetres">%1$s mm</string>
     <string name="source_failed">%1$s did not answer; this is %2$s\'s forecast</string>
+    <string name="source_not_saved">%1$s\'s forecast could not be saved; this is %2$s\'s</string>
     <string name="attribution_met_no">Data: MET Norway, Open-Meteo</string>
     <string name="attribution_open_meteo">Data: Open-Meteo</string>
 

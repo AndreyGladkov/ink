@@ -36,8 +36,7 @@ class ForecastView(context: Context, private val format: WeatherFormat, private 
         gravity = if (current == null) Gravity.CENTER else Gravity.TOP
         if (forecast == null || current == null) return showMessage(loading, failure)
         addView(current(current))
-        val unanswered = chosen.takeIf { forecast.source != chosen && (failure in UNANSWERED || forecast.requested == chosen) }
-        addView(details(forecast, current, unanswered, now), wide().apply { bottomMargin = dp(SECTION_GAP_DP) })
+        addView(details(forecast, current, sourceNote(forecast, failure, chosen), now), wide().apply { bottomMargin = dp(SECTION_GAP_DP) })
         addView(InkHeader.line(context))
         addView(hours(forecast, now), wide().apply { topMargin = dp(GAP_DP); bottomMargin = dp(GAP_DP) })
         addView(InkHeader.line(context))
@@ -75,10 +74,17 @@ class ForecastView(context: Context, private val format: WeatherFormat, private 
         })
     }
 
-    private fun details(forecast: Forecast, current: Forecast.Hour, unanswered: Source?, now: Instant) = LinearLayout(context).apply {
+    private fun sourceNote(forecast: Forecast, failure: Weather.Failure?, chosen: Source): String? = when {
+        forecast.source == chosen -> null
+        failure == Weather.Failure.STORAGE -> context.getString(R.string.source_not_saved, chosen.title, forecast.source.title)
+        failure in UNANSWERED || forecast.requested == chosen -> context.getString(R.string.source_failed, chosen.title, forecast.source.title)
+        else -> null
+    }
+
+    private fun details(forecast: Forecast, current: Forecast.Hour, sourceNote: String?, now: Instant) = LinearLayout(context).apply {
         orientation = VERTICAL
         listOfNotNull(
-            unanswered?.let { context.getString(R.string.source_failed, it.title, forecast.source.title) },
+            sourceNote,
             current.feelsLike?.let(format::feelsLike),
             current.windSpeed?.let { format.wind(it, current.windDegrees) },
             current.pressureHpa?.let(format::pressure),

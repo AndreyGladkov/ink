@@ -119,7 +119,7 @@ class MainActivity : Activity() {
         val source = Source.of(this)
         if (loading[place.id] == source) return
         val shown = cache.load(place)?.takeIf { it.current(Weather.now()) != null }
-        if (!force && Weather.isFresh(shown, source)) return
+        if (!force && Weather.isFresh(shown, source, Source.chosenAt(this))) return
         loading[place.id] = source
         if (shown == null) {
             failures.remove(place.id)

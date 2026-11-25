@@ -32,6 +32,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.io.File
 import java.io.IOException
 import java.time.Clock
 import java.time.Duration
@@ -172,6 +173,15 @@ class MainActivityTest {
         val activity = open()
         idleUntil { "Open-Meteo не ответил, показан прогноз MET Norway" in texts(activity) }
         assertTrue("Данные: MET Norway, Open-Meteo" in texts(activity))
+    }
+
+    @Test fun aChosenSourcesForecastThatCannotBeSavedIsSaidOverTheOtherSourcesForecast() {
+        seed(Fixtures.MOSCOW)
+        File(context.filesDir, "forecasts/${Fixtures.MOSCOW.id}.tmp/blocked").apply { parentFile!!.mkdirs(); writeText("") }
+        Source.choose(context, Source.OPEN_METEO)
+        Weather.transport = Fixtures.FakeTransport { Fixtures.openMeteo() }
+        val activity = open()
+        idleUntil { "Прогноз Open-Meteo не удалось сохранить, показан прогноз MET Norway" in texts(activity) }
     }
 
     @Test fun aChosenSourceThatDoesNotAnswerIsReplacedByAFreshForecastFromTheOther() {

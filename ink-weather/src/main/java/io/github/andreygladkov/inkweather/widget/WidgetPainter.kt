@@ -85,7 +85,7 @@ class WidgetPainter(private val context: Context, private val style: InkStyle = 
 
     private fun drawWide(canvas: Canvas, content: WidgetContent, now: WidgetContent.Slot, area: Rect) {
         val split = area.left + area.width() * NOW_SHARE_PERCENT / 100
-        drawNow(canvas, content, now, Rect(area.left, area.top, split, area.bottom))
+        drawNow(canvas, content, now, Rect(area.left, area.top, split - dp(COLUMN_GAP_DP - GAP_DP), area.bottom))
         val hours = Rect(split + dp(GAP_DP), area.top, area.right, area.bottom)
         drawSlots(canvas, content.hours.take(hours.width() / dp(MIN_SLOT_DP)), hours, 1f)
     }

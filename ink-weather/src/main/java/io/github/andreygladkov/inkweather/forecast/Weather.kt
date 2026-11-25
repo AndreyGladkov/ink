@@ -36,30 +36,40 @@ object Weather {
 
     fun now(): Instant = clock.instant()
 
-    /** A forecast from another source after the chosen one failed counts too, so the failing one is not waited on at every look. */
-    fun isFresh(forecast: Forecast?, source: Source): Boolean =
-        forecast != null && (forecast.requested == source || forecast.source == source) && forecast.age(now()) < FRESH_FOR
+    /**
+     * A forecast from another source after the chosen one failed counts too, so the failing one is not waited on at
+     * every look; but only one fetched since [source] was chosen, so choosing it again asks it anew.
+     */
+    fun isFresh(forecast: Forecast?, source: Source, chosenAt: Instant): Boolean =
+        forecast != null && forecast.age(now()) < FRESH_FOR &&
+            (forecast.source == source || forecast.requested == source && !forecast.fetchedAt.isBefore(chosenAt))
 
-    fun refresh(context: Context, place: Place, source: Source): Outcome {
-        val chosen = refreshFrom(context, place, source, source)
-        if (chosen !is Outcome.Failed || !canFallBack(context, chosen.failure)) return chosen
+    /** Without [askChosen] the other source is asked straight away, as when the chosen one has just failed for another place. */
+    fun refresh(context: Context, place: Place, source: Source, askChosen: Boolean = true): Outcome {
+        val online = isOnline(context)
+        val chosen = if (askChosen) refreshFrom(context, place, source, source) else null
+        if (chosen != null && (chosen !is Outcome.Failed || !canFallBack(chosen.failure, online))) return chosen
+        var last: Outcome? = null
         for (other in Source.entries.filter { it != source }) {
-            val outcome = refreshFrom(context, place, other, source)
-            if (outcome is Outcome.Updated || outcome == Outcome.Failed(Failure.STORAGE)) return outcome
+            last = refreshFrom(context, place, other, source)
+            if (last is Outcome.Updated || last == Outcome.Failed(Failure.STORAGE)) return last
         }
-        return chosen
+        return chosen ?: checkNotNull(last)
     }
 
     /**
      * A network error on a phone that is online means this service cannot be reached from here, so the other one may
-     * be; offline or behind a captive portal the other one would only make the user wait out a second timeout.
+     * be; offline or behind a captive portal the other one would only make the user wait out a second timeout. Whether
+     * the phone is online is read before the fetch: a network that changed while it waited says nothing about why it failed.
      */
-    private fun canFallBack(context: Context, failure: Failure): Boolean = when (failure) {
+    private fun canFallBack(failure: Failure, online: Boolean): Boolean = when (failure) {
         Failure.SERVICE -> true
         Failure.STORAGE -> false
-        Failure.NETWORK -> context.getSystemService(ConnectivityManager::class.java).let { manager ->
-            manager.getNetworkCapabilities(manager.activeNetwork)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
-        }
+        Failure.NETWORK -> online
+    }
+
+    private fun isOnline(context: Context): Boolean = context.getSystemService(ConnectivityManager::class.java).let { manager ->
+        manager.getNetworkCapabilities(manager.activeNetwork)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
     }
 
     private fun refreshFrom(context: Context, place: Place, source: Source, requested: Source): Outcome {

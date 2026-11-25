@@ -13,6 +13,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.time.Clock
 import java.time.Duration
+import java.time.Instant
 import java.time.ZoneOffset
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -68,10 +69,44 @@ class WeatherTest {
         assertEquals(2, transport.asked.size)
         val saved = cache.load(Fixtures.MOSCOW)!!
         assertEquals(outcome.forecast, saved)
-        assertTrue(Weather.isFresh(saved, Source.MET_NO))
-        assertTrue(Weather.isFresh(saved, Source.OPEN_METEO))
+        assertTrue(Weather.isFresh(saved, Source.MET_NO, Instant.EPOCH))
+        assertTrue(Weather.isFresh(saved, Source.OPEN_METEO, Instant.EPOCH))
         Weather.clock = Clock.fixed(Fixtures.NOW.plus(Weather.FRESH_FOR), ZoneOffset.UTC)
-        assertFalse(Weather.isFresh(saved, Source.MET_NO))
+        assertFalse(Weather.isFresh(saved, Source.MET_NO, Instant.EPOCH))
+    }
+
+    @Test fun choosingASourceAgainAsksItAnewThoughTheOtherStoodInForItJustNow() {
+        Fixtures.onValidatedNetwork(context)
+        Weather.transport = Fixtures.FakeTransport { url -> if ("met.no" in url) throw IOException("blocked") else Fixtures.openMeteo() }
+        Weather.refresh(context, Fixtures.MOSCOW, Source.MET_NO)
+        val saved = cache.load(Fixtures.MOSCOW)!!
+        Weather.clock = Clock.fixed(Fixtures.NOW.plus(Duration.ofMinutes(5)), ZoneOffset.UTC)
+        Source.choose(context, Source.MET_NO)
+        assertEquals(Weather.now(), Source.chosenAt(context))
+        assertFalse(Weather.isFresh(saved, Source.MET_NO, Source.chosenAt(context)))
+        assertTrue(Weather.isFresh(saved, Source.OPEN_METEO, Source.chosenAt(context)))
+    }
+
+    @Test fun theOtherSourceCanBeAskedStraightAway() {
+        val transport = Fixtures.FakeTransport { url -> if ("met.no" in url) Fixtures.forecast() else Fixtures.openMeteo() }
+        Weather.transport = transport
+        val outcome = assertIs<Weather.Outcome.Updated>(Weather.refresh(context, Fixtures.MOSCOW, Source.MET_NO, askChosen = false))
+        assertEquals(Source.OPEN_METEO, outcome.forecast.source)
+        assertEquals(Source.MET_NO, outcome.forecast.requested)
+        assertEquals(listOf("api.open-meteo.com"), transport.asked.map { URI(it).host })
+    }
+
+    @Test fun aNetworkThatComesUpWhileTheChosenSourceFailsDoesNotSendToTheOther() {
+        val transport = Fixtures.FakeTransport { url ->
+            if ("met.no" in url) {
+                Fixtures.onValidatedNetwork(context)
+                throw IOException("offline")
+            }
+            Fixtures.openMeteo()
+        }
+        Weather.transport = transport
+        assertEquals(Weather.Outcome.Failed(Weather.Failure.NETWORK), Weather.refresh(context, Fixtures.MOSCOW, Source.MET_NO))
+        assertEquals(1, transport.asked.size)
     }
 
     @Test fun withoutAWorkingNetworkTheOtherSourceIsNotWaitedOnButABadAnswerStillSendsThere() {
@@ -114,11 +149,11 @@ class WeatherTest {
     @Test fun aForecastIsFreshForHalfAnHour() {
         Weather.transport = Fixtures.FakeTransport { Fixtures.forecast() }
         Weather.refresh(context, Fixtures.MOSCOW, Source.of(context))
-        assertTrue(Weather.isFresh(cache.load(Fixtures.MOSCOW), Source.MET_NO))
-        assertFalse(Weather.isFresh(cache.load(Fixtures.MOSCOW), Source.OPEN_METEO))
+        assertTrue(Weather.isFresh(cache.load(Fixtures.MOSCOW), Source.MET_NO, Instant.EPOCH))
+        assertFalse(Weather.isFresh(cache.load(Fixtures.MOSCOW), Source.OPEN_METEO, Instant.EPOCH))
         Weather.clock = Clock.fixed(Fixtures.NOW.plus(Duration.ofMinutes(30)), ZoneOffset.UTC)
-        assertFalse(Weather.isFresh(cache.load(Fixtures.MOSCOW), Source.MET_NO))
-        assertFalse(Weather.isFresh(null, Source.MET_NO))
+        assertFalse(Weather.isFresh(cache.load(Fixtures.MOSCOW), Source.MET_NO, Instant.EPOCH))
+        assertFalse(Weather.isFresh(null, Source.MET_NO, Instant.EPOCH))
     }
 
     @Test fun theChosenSourceIsAskedAndRemembered() {
