@@ -1,0 +1,1 @@
+In the list of all apps, a search that leaves one app opens it right away. This can be turned off in the settings, under All apps.
