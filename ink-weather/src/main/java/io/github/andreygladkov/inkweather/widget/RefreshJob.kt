@@ -28,11 +28,20 @@ class RefreshJob : JobService() {
         private const val JOB_ID = 1
         private val PERIOD_MS = TimeUnit.HOURS.toMillis(1)
 
-        /** A city already fresh from the chosen source is skipped, so switching sources back and forth fetches each city once. */
+        /**
+         * A city already fresh from the chosen source is skipped, so switching sources back and forth fetches each city
+         * once. Once the chosen source has failed for one city, the rest go straight to the other source instead of each
+         * waiting out the same timeout.
+         */
         fun refreshWidgets(context: Context) {
             val source = Source.of(context)
+            val chosenAt = Source.chosenAt(context)
             val cache = ForecastCache(context)
-            PlaceStore.of(context).widgetPlaces().filterNot { Weather.isFresh(cache.load(it), source) }.forEach { Weather.refresh(context, it, source) }
+            var chosenAnswers = true
+            PlaceStore.of(context).widgetPlaces().filterNot { Weather.isFresh(cache.load(it), source, chosenAt) }.forEach { place ->
+                val outcome = Weather.refresh(context, place, source, askChosen = chosenAnswers)
+                if (outcome is Weather.Outcome.Updated && outcome.forecast.source != source) chosenAnswers = false
+            }
             WidgetUpdater.updateAll(context)
         }
 

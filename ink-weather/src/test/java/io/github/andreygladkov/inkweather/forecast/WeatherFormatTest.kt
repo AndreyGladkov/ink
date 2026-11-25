@@ -50,6 +50,11 @@ class WeatherFormatTest {
         assertEquals("Ветер 0 м/с", format.wind(0.2, null))
     }
 
+    @Test fun windSpeedAloneLeavesOutTheWord() {
+        assertEquals("4 м/с, СЗ", format.windSpeed(4.4, 315.0))
+        assertEquals("4 м/с", format.windSpeed(4.4))
+    }
+
     @Test fun precipitationThatRoundsToNothingSaysNothing() {
         assertNull(format.amount(0.04))
         assertNull(format.amount(null))

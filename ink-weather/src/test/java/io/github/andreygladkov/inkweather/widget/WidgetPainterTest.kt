@@ -66,12 +66,20 @@ class WidgetPainterTest {
         assertEquals(Color.BLACK, inverted.getPixel(1, 1))
     }
 
-    @Test fun aTwoCellWidgetCentersItsContent() {
-        val bitmap = draw(content, 183f, 95f)
-        val inked = (0 until bitmap.width).filter { x -> (0 until bitmap.height).any { y -> bitmap.getPixel(x, y) == Color.BLACK } }
-        val leftMargin = inked.first()
-        val rightMargin = bitmap.width - 1 - inked.last()
-        assertTrue(abs(leftMargin - rightMargin) <= px(2f), "left $leftMargin px, right $rightMargin px")
+    @Test fun aTwoCellWidgetCentersTheTemperatureWithTheWindAndPrecipitationUnderIt() {
+        val (left, right) = margins(draw(content, 183f, 95f))
+        assertTrue(abs(left - right) <= px(2f), "left $left px, right $right px")
+    }
+
+    @Test fun aLowTwoCellWidgetGivesUpTheCityAndMovesTheWindAndPrecipitationToItsRightEdge() {
+        val (left, right) = margins(draw(content.copy(place = "Санкт-Петербург"), 167f, 73f))
+        assertTrue(left <= px(10f) && right <= px(10f), "left $left px, right $right px")
+    }
+
+    @Test fun aTwoCellWidgetCentersWhatHasNoRoomBesideIt() {
+        val large = WidgetPainter(context, InkStyle(textSizeSp = InkStyle.TEXT_SIZES_SP.max()))
+        val (left, right) = margins(large.draw(content, px(183f), px(95f)))
+        assertTrue(abs(left - right) <= px(2f), "left $left px, right $right px")
     }
 
     @Test fun aStaleOrMissingForecastIsStillDrawn() {
@@ -83,6 +91,11 @@ class WidgetPainterTest {
     }
 
     private fun draw(content: WidgetContent, widthDp: Float, heightDp: Float) = WidgetPainter(context).draw(content, px(widthDp), px(heightDp))
+
+    private fun margins(bitmap: Bitmap): Pair<Int, Int> {
+        val inked = (0 until bitmap.width).filter { x -> (0 until bitmap.height).any { y -> bitmap.getPixel(x, y) == Color.BLACK } }
+        return inked.first() to bitmap.width - 1 - inked.last()
+    }
 
     private fun px(dp: Float) = (dp * density).roundToInt()
 

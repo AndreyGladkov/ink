@@ -54,7 +54,7 @@ class WidgetConfigActivity : Activity() {
         Weather.drawing.execute { WidgetUpdater.update(context, ids, force = true) }
         val source = Source.of(this)
         Weather.fetches.execute {
-            if (Weather.isFresh(ForecastCache(context).load(place), source)) return@execute
+            if (Weather.isFresh(ForecastCache(context).load(place), source, Source.chosenAt(context))) return@execute
             Weather.refresh(context, place, source)
             Weather.drawing.execute { WidgetUpdater.update(context, ids, force = false) }
         }

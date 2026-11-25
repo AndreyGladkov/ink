@@ -19,6 +19,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.GraphicsMode
+import java.io.IOException
+import java.net.URI
 import java.time.Clock
 import java.time.Duration
 import java.time.ZoneOffset
@@ -112,6 +114,20 @@ class RefreshJobTest {
         RefreshJob.refreshWidgets(context)
         RefreshJob.refreshWidgets(context)
         assertEquals(1, transport.asked.size)
+    }
+
+    @Test fun aChosenSourceThatFailsForOneCityIsNotWaitedOnForTheNext() {
+        Fixtures.onValidatedNetwork(context)
+        val transport = Fixtures.FakeTransport { url -> if ("met.no" in url) throw IOException("blocked") else Fixtures.openMeteo() }
+        Weather.transport = transport
+        val manager = shadowOf(AppWidgetManager.getInstance(context))
+        manager.bindAppWidgetId(3, ComponentName(context, WeatherWidget::class.java))
+        manager.bindAppWidgetId(4, ComponentName(context, WeatherWidget::class.java))
+        store.bind(3, Fixtures.MOSCOW)
+        store.bind(4, Fixtures.PARIS)
+        RefreshJob.refreshWidgets(context)
+        assertEquals(listOf("api.met.no", "api.open-meteo.com", "api.open-meteo.com"), transport.asked.map { URI(it).host })
+        assertEquals(Source.OPEN_METEO, ForecastCache(context).load(Fixtures.PARIS)!!.source)
     }
 
     @Test fun aRemovedWidgetForgetsItsPlace() {

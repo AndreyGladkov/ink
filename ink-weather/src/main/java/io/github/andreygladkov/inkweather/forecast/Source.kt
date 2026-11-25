@@ -24,11 +24,17 @@ enum class Source(val key: String, val title: String, @param:StringRes val attri
 
     companion object {
         private const val PREF = "forecast_source"
+        private const val PREF_CHOSEN_AT = "forecast_source_chosen_at"
 
         fun byKey(key: String?): Source? = entries.firstOrNull { it.key == key }
 
         fun of(context: Context): Source = byKey(context.inkPrefs().getString(PREF, null)) ?: MET_NO
 
-        fun choose(context: Context, source: Source) = context.inkPrefs().edit { putString(PREF, source.key) }
+        fun choose(context: Context, source: Source) = context.inkPrefs().edit {
+            putString(PREF, source.key)
+            putLong(PREF_CHOSEN_AT, Weather.now().toEpochMilli())
+        }
+
+        fun chosenAt(context: Context): Instant = Instant.ofEpochMilli(context.inkPrefs().getLong(PREF_CHOSEN_AT, 0))
     }
 }

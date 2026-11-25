@@ -46,6 +46,8 @@ class WidgetPainter(private val context: Context, private val style: InkStyle = 
         }
     }
 
+    private data class Spread(val icon: Int, val main: List<Line>, val textWidth: Int, val details: List<Line>)
+
     private data class Line(val text: String, val scale: Float, val bold: Boolean = false, @param:DrawableRes val icon: Int? = null)
 
     fun draw(content: WidgetContent, width: Int, height: Int): Bitmap {
@@ -83,7 +85,7 @@ class WidgetPainter(private val context: Context, private val style: InkStyle = 
 
     private fun drawWide(canvas: Canvas, content: WidgetContent, now: WidgetContent.Slot, area: Rect) {
         val split = area.left + area.width() * NOW_SHARE_PERCENT / 100
-        drawNow(canvas, content, now, Rect(area.left, area.top, split, area.bottom))
+        drawNow(canvas, content, now, Rect(area.left, area.top, split - dp(COLUMN_GAP_DP - GAP_DP), area.bottom))
         val hours = Rect(split + dp(GAP_DP), area.top, area.right, area.bottom)
         drawSlots(canvas, content.hours.take(hours.width() / dp(MIN_SLOT_DP)), hours, 1f)
     }
@@ -91,15 +93,44 @@ class WidgetPainter(private val context: Context, private val style: InkStyle = 
     private fun drawNow(canvas: Canvas, content: WidgetContent, now: WidgetContent.Slot, area: Rect) {
         val icon = min(area.height(), area.width() * 2 / 5).coerceAtMost(dp(MAX_ICON_DP))
         val temperature = Line(now.value, InkStyle.DISPLAY_SCALE, bold = true)
-        val precipitation = content.precipitation?.let { Line(it, InkStyle.SECONDARY_SCALE, icon = R.drawable.ic_drop) }
         val place = Line(content.place, InkStyle.SECONDARY_SCALE)
-        val lines = listOf(listOfNotNull(temperature, precipitation, place), listOf(temperature, place), listOf(temperature))
+        val wind = content.wind?.let { Line(it, InkStyle.SECONDARY_SCALE, icon = R.drawable.ic_air) }
+        val precipitation = content.precipitation?.let { Line(it, InkStyle.SECONDARY_SCALE, icon = R.drawable.ic_drop) }
+        val details = listOfNotNull(wind, precipitation)
+        val mostNeeded = listOfNotNull(precipitation ?: wind)
+        listOf(listOf(temperature) + details + place, listOf(temperature) + details).firstOrNull { height(it) <= area.height() }
+            ?.let { return drawStacked(canvas, now.icon, icon, it, area) }
+        val mains = listOf(listOf(temperature, place) to dp(MIN_NOW_ICON_BESIDE_PLACE_DP), listOf(temperature) to dp(MIN_NOW_ICON_DP))
+            .filter { (main, _) -> height(main) <= area.height() }
+        listOf(details, mostNeeded).distinct().filter { it.isNotEmpty() }
+            .flatMap { beside -> mains.map { (main, minIcon) -> fitBeside(beside, main, icon, minIcon, area) } }
+            .firstNotNullOfOrNull { it }
+            ?.let { return drawSpread(canvas, now.icon, it, area) }
+        val lines = listOf(listOf(temperature) + mostNeeded + place, listOf(temperature) + mostNeeded, listOf(temperature, place), listOf(temperature))
             .first { height(it) <= area.height() || it.size == 1 }
-        val textWidth = lines.maxOf(::width).coerceAtMost(area.width() - icon - dp(GAP_DP))
+        drawStacked(canvas, now.icon, icon, lines, area)
+    }
+
+    private fun drawStacked(canvas: Canvas, @DrawableRes nowIcon: Int, icon: Int, lines: List<Line>, area: Rect) {
+        val textWidth = width(lines).coerceAtMost(area.width() - icon - dp(GAP_DP))
         val left = area.centerX() - (icon + dp(GAP_DP) + textWidth) / 2
-        drawIcon(canvas, now.icon, left, area.centerY() - icon / 2, icon)
+        drawIcon(canvas, nowIcon, left, area.centerY() - icon / 2, icon)
         val textLeft = left + icon + dp(GAP_DP)
         drawLines(canvas, lines, Rect(textLeft, area.top, area.right, area.bottom), Paint.Align.LEFT)
+    }
+
+    private fun fitBeside(details: List<Line>, main: List<Line>, maxIcon: Int, minIcon: Int, area: Rect): Spread? {
+        if (height(details) > area.height()) return null
+        val textWidth = width(main)
+        val icon = min(maxIcon, area.width() - dp(GAP_DP) - textWidth - dp(COLUMN_GAP_DP) - width(details))
+        return Spread(icon, main, textWidth, details).takeIf { icon >= minIcon }
+    }
+
+    private fun drawSpread(canvas: Canvas, @DrawableRes nowIcon: Int, spread: Spread, area: Rect) {
+        drawIcon(canvas, nowIcon, area.left, area.centerY() - spread.icon / 2, spread.icon)
+        val textLeft = area.left + spread.icon + dp(GAP_DP)
+        drawLines(canvas, spread.main, Rect(textLeft, area.top, textLeft + spread.textWidth, area.bottom), Paint.Align.LEFT)
+        drawLines(canvas, spread.details, Rect(area.right - width(spread.details), area.top, area.right, area.bottom), Paint.Align.LEFT)
     }
 
     private fun drawSlots(canvas: Canvas, slots: List<WidgetContent.Slot>, area: Rect, valueScale: Float) {
@@ -167,6 +198,8 @@ class WidgetPainter(private val context: Context, private val style: InkStyle = 
         return lead(line) + ceil(paint.measureText(line.text)).toInt()
     }
 
+    private fun width(lines: List<Line>): Int = lines.maxOf(::width)
+
     private fun height(lines: List<Line>): Int = lines.sumOf(::height)
 
     private fun height(line: Line): Int {
@@ -186,6 +219,9 @@ class WidgetPainter(private val context: Context, private val style: InkStyle = 
         const val GAP_DP = 4f
         const val MIN_ICON_DP = 16f
         const val MAX_ICON_DP = 64f
+        const val MIN_NOW_ICON_DP = 28f
+        const val MIN_NOW_ICON_BESIDE_PLACE_DP = 40f
+        const val COLUMN_GAP_DP = 12f
         const val MAX_SLOT_ICON_DP = 32f
         const val MIN_SLOT_DP = 44f
         const val NOW_SHARE_PERCENT = 45
