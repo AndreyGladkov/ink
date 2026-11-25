@@ -12,6 +12,7 @@ data class WidgetContent(
     val place: String,
     val now: Slot?,
     val description: String,
+    val wind: String?,
     val precipitation: String?,
     val hours: List<Slot>,
     val days: List<Slot>,
@@ -27,13 +28,14 @@ data class WidgetContent(
         fun of(place: Place?, forecast: Forecast?, now: Instant, format: WeatherFormat): WidgetContent {
             val current = forecast?.current(now)
             if (place == null || forecast == null || current == null) {
-                return WidgetContent(place?.name.orEmpty(), null, format.noData(), null, emptyList(), emptyList(), null)
+                return WidgetContent(place?.name.orEmpty(), null, format.noData(), null, null, emptyList(), emptyList(), null)
             }
             val days = forecast.daysFrom(now, DAYS + 1)
             return WidgetContent(
                 place = place.name,
                 now = Slot(place.name, current.symbol.icon, format.temperature(current.temperature)),
                 description = format.description(current.symbol),
+                wind = current.windSpeed?.let { format.windSpeed(it) },
                 precipitation = format.amount(forecast.precipitationLeftToday(now)),
                 hours = forecast.hoursAfter(now, HOURS, HOUR_STEP).map { Slot(format.hour(it.time), it.symbol.icon, format.temperature(it.temperature)) },
                 days = days.drop(1).map { Slot(format.shortDay(it.date), it.symbol.icon, format.range(it.max, it.min)) },

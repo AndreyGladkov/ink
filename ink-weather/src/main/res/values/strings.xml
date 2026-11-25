@@ -34,8 +34,9 @@
 
     <string name="today">Today</string>
     <string name="feels_like">Feels like %1$s</string>
-    <string name="wind">Wind %1$s m/s</string>
-    <string name="wind_from">Wind %1$s m/s, %2$s</string>
+    <string name="wind">Wind %1$s</string>
+    <string name="wind_speed">%1$s m/s</string>
+    <string name="wind_speed_from">%1$s m/s, %2$s</string>
     <string name="precipitation">Precipitation %1$s mm</string>
     <string name="pressure_hpa">Pressure %1$d hPa</string>
     <string name="pressure_mmhg">Pressure %1$d mmHg</string>

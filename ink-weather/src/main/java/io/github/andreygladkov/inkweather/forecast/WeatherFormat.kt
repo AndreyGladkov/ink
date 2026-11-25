@@ -43,12 +43,14 @@ class WeatherFormat(
 
     fun feelsLike(celsius: Double): String = context.getString(R.string.feels_like, temperature(celsius))
 
-    fun wind(speed: Double, degrees: Double?): String {
+    fun wind(speed: Double, degrees: Double?): String = context.getString(R.string.wind, windSpeed(speed, degrees))
+
+    fun windSpeed(speed: Double, degrees: Double? = null): String {
         val value = speed.roundToInt().toString()
-        if (degrees == null) return context.getString(R.string.wind, value)
+        if (degrees == null) return context.getString(R.string.wind_speed, value)
         val directions = context.resources.getStringArray(R.array.directions)
         val index = ((degrees % 360 + 360) % 360 / (360.0 / directions.size)).roundToInt() % directions.size
-        return context.getString(R.string.wind_from, value, directions[index])
+        return context.getString(R.string.wind_speed_from, value, directions[index])
     }
 
     /** Russian forecasts give pressure in millimetres of mercury; everyone else gets hectopascals as the service sends them. */

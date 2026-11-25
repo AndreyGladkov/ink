@@ -32,8 +32,9 @@
 
     <string name="today">Сегодня</string>
     <string name="feels_like">Ощущается как %1$s</string>
-    <string name="wind">Ветер %1$s м/с</string>
-    <string name="wind_from">Ветер %1$s м/с, %2$s</string>
+    <string name="wind">Ветер %1$s</string>
+    <string name="wind_speed">%1$s м/с</string>
+    <string name="wind_speed_from">%1$s м/с, %2$s</string>
     <string name="precipitation">Осадки %1$s мм</string>
     <string name="pressure_hpa">Давление %1$d гПа</string>
     <string name="pressure_mmhg">Давление %1$d мм рт. ст.</string>
