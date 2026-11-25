@@ -1,4 +1,4 @@
-package io.github.andreygladkov.inkclock.ui
+package io.github.andreygladkov.ink.ui
 
 /**
  * Digits typed on a keypad shift in from the right, so "730" reads as 07:30 and a fourth digit is optional. Zeros typed

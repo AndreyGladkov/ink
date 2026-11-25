@@ -11,6 +11,7 @@ Every pixel is pure black or white, with no antialiasing and no animations.
 - Several lists, each a Markdown file: "Groceries.md" is the list "Groceries". The arrows at the bottom of a list go to the next or previous one, and dots under the page number show which is open, as on Ink Launcher's home screens.
 - A task has a title, notes, a due date and one level of subtasks. A tap on its box marks it done; done tasks go to a page of their own, from where they come back or are deleted together.
 - Due dates are set with Today, Tomorrow and In a week, or on a month calendar. An overdue date is drawn white on black.
+- A task with a due date can get a time, typed on a keypad; at that time a notification comes with Done and In an hour. The time is written in the format of the [Reminder](https://uphy.github.io/obsidian-reminder/) plugin, so reminders set in Obsidian ring on the phone too; with the lists in a chosen folder the app reads them again about every half hour to catch those.
 - A list is shown in its own order or by due date. A task is moved by tapping one of the "Here" marks between the others, with no dragging.
 - Deleting asks for a second tap of the same button instead of a dialog.
 - Without setup the lists are kept only on the phone. In Settings → Storage a folder can be chosen in the system picker, for example Vault/Tasks in an Obsidian vault; the lists on the phone move there, and from then on the files are synced by whatever syncs the vault (Obsidian Sync, Syncthing and so on).
@@ -20,13 +21,13 @@ Every pixel is pure black or white, with no antialiasing and no animations.
 The file format:
 
 ```
-- [ ] Buy milk 📅 2026-11-25
+- [ ] Buy milk ⏰ 2026-11-25 18:00 📅 2026-11-25
 	2.5%, not UHT
 	- [ ] And bread
 - [x] Call mum ✅ 2026-11-24
 ```
 
-Ink Tasks does not use the internet and asks for no permissions. See [PRIVACY.md](PRIVACY.md).
+Ink Tasks does not use the internet. It asks only to show notifications, for reminders, and sets alarms to show them on time. See [PRIVACY.md](PRIVACY.md).
 
 ## Installation
 
@@ -62,13 +63,14 @@ Bundled components: Noto Emoji font (SIL Open Font License 1.1) and Material ico
 - Несколько списков, каждый — md-файл: «Покупки.md» — это список «Покупки». Стрелки внизу списка листают списки, а точки под номером страницы показывают, какой открыт, как экраны в Ink Launcher.
 - У задачи есть название, заметка, срок и один уровень подзадач. Нажатие на квадрат отмечает её выполненной; выполненные уходят на свою страницу, откуда их можно вернуть или удалить все разом.
 - Срок ставится кнопками «Сегодня», «Завтра», «Через неделю» или по календарю месяца. Просроченный срок — белым по чёрному.
+- Задаче со сроком можно задать время, набрав его цифрами; в это время приходит уведомление с кнопками «Выполнено» и «Через час». Время записывается в формате плагина [Reminder](https://uphy.github.io/obsidian-reminder/), поэтому напоминания, поставленные в Obsidian, звонят и на телефоне; когда списки лежат в выбранной папке, приложение перечитывает их примерно раз в полчаса, чтобы такие не пропустить.
 - Список показывается в своём порядке или по сроку. Задача перемещается нажатием на одну из отметок «Сюда» между другими, без перетаскивания.
 - Удаление подтверждается повторным нажатием той же кнопки, без диалогов.
 - Без настройки списки хранятся только на телефоне. В «Настройках» → «Хранение» можно выбрать папку через системный выбор, например Vault/Tasks в хранилище Obsidian; списки с телефона переносятся туда, и дальше файлы синхронизирует то же, что синхронизирует хранилище (Obsidian Sync, Syncthing и т. п.).
 - Файл перечитывается при каждом открытии приложения и перед каждым изменением, а переписываются только изменённые строки: заголовки, абзацы, свойства в начале файла, код и метки других плагинов остаются как были, байт в байт.
 - Настройки размера текста, толщины шрифта, скругления кнопок, цветов, списков и вибрации — общие с другими приложениями Ink.
 
-Ink Tasks не ходит в интернет и не просит разрешений. Подробнее — в [PRIVACY.md](PRIVACY.md).
+Ink Tasks не ходит в интернет. Из разрешений приложение просит только показ уведомлений — для напоминаний — и ставит будильники, чтобы показать их вовремя. Подробнее — в [PRIVACY.md](PRIVACY.md).
 
 ### Установка
 

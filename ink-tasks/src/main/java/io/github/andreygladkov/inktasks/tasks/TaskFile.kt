@@ -1,6 +1,7 @@
 package io.github.andreygladkov.inktasks.tasks
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 /**
  * The tasks of one Markdown file. A change rewrites only the lines it is about and keeps every other byte, line
@@ -25,15 +26,15 @@ class TaskFile private constructor(private val bom: String, private val newline:
 
     fun toText(): String = bom + lines.joinToString("") { it.text + it.end }
 
-    fun add(title: String, due: LocalDate?, notes: String = ""): Change {
+    fun add(title: String, due: LocalDate?, notes: String = "", reminder: LocalDateTime? = null): Change {
         val at = nodes.firstOrNull()?.index ?: lines.size
-        return insert(at, listOf(TaskLine.create("", title, due).toString()) + noteLines("", notes)).changed(at)
+        return insert(at, listOf(TaskLine.create("", title, due, reminder).toString()) + noteLines("", notes)).changed(at)
     }
 
-    fun addSubtask(parent: TaskRef, title: String, due: LocalDate?, notes: String = ""): Change? {
+    fun addSubtask(parent: TaskRef, title: String, due: LocalDate?, notes: String = "", reminder: LocalDateTime? = null): Change? {
         val node = nodes.firstOrNull { it.index == indexOf(parent) } ?: return null
         val indent = node.children.firstOrNull()?.line?.indent ?: unit
-        return insert(node.end, listOf(TaskLine.create(indent, title, due).toString()) + noteLines(indent, notes)).changed(node.end)
+        return insert(node.end, listOf(TaskLine.create(indent, title, due, reminder).toString()) + noteLines(indent, notes)).changed(node.end)
     }
 
     fun setDone(ref: TaskRef, done: Boolean, today: LocalDate): Change? = replace(ref) { it.withDone(done, today) }
@@ -41,6 +42,8 @@ class TaskFile private constructor(private val bom: String, private val newline:
     fun setTitle(ref: TaskRef, title: String): Change? = replace(ref) { it.withTitle(title) }
 
     fun setDue(ref: TaskRef, due: LocalDate?): Change? = replace(ref) { it.withDue(due) }
+
+    fun setReminder(ref: TaskRef, at: LocalDateTime?): Change? = replace(ref) { it.withReminder(at) }
 
     fun setNotes(ref: TaskRef, notes: String): Change? {
         val node = node(ref) ?: return null
@@ -98,6 +101,7 @@ class TaskFile private constructor(private val bom: String, private val newline:
         isDone = node.line.isDone,
         due = node.line.due,
         doneOn = node.line.doneOn,
+        reminder = node.line.reminder,
         notes = node.notes.joinToString("\n") { dropIndent(lines[it].text, columns(node.line.indent) + columns(unit)) }.trimEnd(),
         subtasks = node.children.map(::task),
     )

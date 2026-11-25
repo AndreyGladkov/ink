@@ -1,6 +1,9 @@
 package io.github.andreygladkov.inktasks.tasks
 
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 internal class TaskLine private constructor(val indent: String, private val bullet: String, private val mark: Char, private val body: String) {
@@ -14,7 +17,15 @@ internal class TaskLine private constructor(val indent: String, private val bull
 
     val doneOn: LocalDate? get() = date(DONE)
 
-    val title: String get() = body.replace(DUE, "").replace(DONE, "").replace(SPACES, " ").trim()
+    /** Obsidian Reminder writes a date without a time for its default time of day, which is 09:00 unless changed there. */
+    val reminder: LocalDateTime?
+        get() = REMINDER.find(body)?.let { match ->
+            val date = date(match) ?: return null
+            val time = match.groupValues[2].takeIf { it.isNotEmpty() }?.let { parseTime(it) ?: return null } ?: DEFAULT_REMINDER_TIME
+            date.atTime(time)
+        }
+
+    val title: String get() = body.replace(DUE, "").replace(DONE, "").replace(REMINDER, "").replace(SPACES, " ").trim()
 
     fun withDone(done: Boolean, today: LocalDate): TaskLine = when {
         done == isDone -> this
@@ -22,8 +33,29 @@ internal class TaskLine private constructor(val indent: String, private val bull
         else -> TaskLine(indent, bullet, OPEN_MARK, body.replace(DONE, "").trimEnd())
     }
 
-    /** A new date goes before the done date, where the Tasks plugin writes it. */
     fun withDue(date: LocalDate?): TaskLine {
+        val moving = reminder?.takeIf { it.toLocalDate() == due }
+        val changed = withDueOnly(date)
+        return if (moving == null) changed else changed.withReminder(date?.atTime(moving.toLocalTime()))
+    }
+
+    /**
+     * Obsidian Reminder finds `⏰` only right after the description, before the Tasks plugin's fields, so a new one goes
+     * before the first of them.
+     */
+    fun withReminder(at: LocalDateTime?): TaskLine {
+        val token = at?.let { " $REMINDER_SIGN ${it.toLocalDate()} ${it.format(TIME)}" }.orEmpty()
+        val existing = REMINDER.find(body)
+        val changed = when {
+            existing != null -> body.replaceRange(existing.range, token)
+            at == null -> body
+            else -> FIELD.find(body)?.let { body.replaceRange(it.range.first, it.range.first, token) } ?: (body.trimEnd() + token)
+        }
+        return TaskLine(indent, bullet, mark, changed)
+    }
+
+    /** A new date goes before the done date, where the Tasks plugin writes it. */
+    private fun withDueOnly(date: LocalDate?): TaskLine {
         val token = date?.let { " $DUE_SIGN $it" }.orEmpty()
         val existing = DUE.find(body)
         val done = DONE.find(body)
@@ -37,18 +69,24 @@ internal class TaskLine private constructor(val indent: String, private val bull
     }
 
     fun withTitle(title: String): TaskLine {
-        val dates = (DUE.findAll(body) + DONE.findAll(body)).sortedBy { it.range.first }.joinToString("") { " " + it.value.trim() }
+        val dates = (REMINDER.findAll(body) + DUE.findAll(body) + DONE.findAll(body)).sortedBy { it.range.first }.joinToString("") { " " + it.value.trim() }
         return TaskLine(indent, bullet, mark, title.trim() + dates)
     }
 
     override fun toString() = "$indent$bullet [$mark] $body".trimEnd()
 
-    private fun date(pattern: Regex): LocalDate? = pattern.find(body)?.let {
-        try {
-            LocalDate.parse(it.groupValues[1])
-        } catch (_: DateTimeParseException) {
-            null
-        }
+    private fun date(pattern: Regex): LocalDate? = pattern.find(body)?.let { date(it) }
+
+    private fun date(match: MatchResult): LocalDate? = try {
+        LocalDate.parse(match.groupValues[1])
+    } catch (_: DateTimeParseException) {
+        null
+    }
+
+    private fun parseTime(text: String): LocalTime? = try {
+        LocalTime.parse(text.padStart(TIME_LENGTH, '0'))
+    } catch (_: DateTimeParseException) {
+        null
     }
 
     companion object {
@@ -56,9 +94,15 @@ internal class TaskLine private constructor(val indent: String, private val bull
         private const val DONE_MARK = 'x'
         private const val DUE_SIGN = "📅"
         private const val DONE_SIGN = "✅"
+        private const val REMINDER_SIGN = "⏰"
+        private const val TIME_LENGTH = 5
+        private val TIME = DateTimeFormatter.ofPattern("HH:mm")
+        private val DEFAULT_REMINDER_TIME = LocalTime.of(9, 0)
         private val LINE = Regex("""^(\s*)([-*+]) \[(.)](?: (.*))?$""")
         private val DUE = Regex("""\s*📅️?\s*(\d{4}-\d{2}-\d{2})""")
         private val DONE = Regex("""\s*✅️?\s*(\d{4}-\d{2}-\d{2})""")
+        private val REMINDER = Regex("""\s*⏰️?\s*(\d{4}-\d{2}-\d{2})(?:\s+(\d{1,2}:\d{2}))?""")
+        private val FIELD = Regex("""\s*(?:📅|✅|⏳|🛫|➕|❌|🔁|⏫|🔼|🔽|⏬|🔺|🆔|⛔)""")
         private val SPACES = Regex("""\s+""")
 
         fun parse(line: String): TaskLine? = LINE.matchEntire(line)?.let {
@@ -66,6 +110,7 @@ internal class TaskLine private constructor(val indent: String, private val bull
             TaskLine(indent, bullet, mark.single(), body)
         }
 
-        fun create(indent: String, title: String, due: LocalDate?) = TaskLine(indent, "-", OPEN_MARK, title.trim()).withDue(due)
+        fun create(indent: String, title: String, due: LocalDate?, reminder: LocalDateTime? = null) =
+            TaskLine(indent, "-", OPEN_MARK, title.trim()).withDue(due).withReminder(reminder)
     }
 }

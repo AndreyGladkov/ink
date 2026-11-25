@@ -62,7 +62,8 @@ class TaskRows(
             if (small.isNotEmpty()) text.append('\n')
             val overdue = labels.isOverdue(due)
             val from = text.length
-            text.append(if (overdue) " ${labels.day(due)} " else labels.day(due))
+            val day = task.reminder?.takeIf { it.toLocalDate() == due }?.let { "${labels.day(due)}, ${labels.time(it.toLocalTime())}" } ?: labels.day(due)
+            text.append(if (overdue) " $day " else day)
             if (overdue) {
                 text.setSpan(BackgroundColorSpan(style.foreground), from, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 text.setSpan(ForegroundColorSpan(style.background), from, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

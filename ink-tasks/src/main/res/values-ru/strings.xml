@@ -25,6 +25,16 @@
     <string name="in_a_week">Через неделю</string>
     <string name="other_date">Другая дата…</string>
     <string name="remove_due">Убрать</string>
+    <string name="reminder">Напоминание</string>
+    <string name="no_reminder">Без напоминания</string>
+    <string name="reminder_at">В %1$s</string>
+    <string name="set_time">Задать время…</string>
+    <string name="change_time">Изменить время…</string>
+    <string name="remove_reminder">Убрать время</string>
+    <string name="notifications_off">Уведомления выключены, поэтому напоминание не появится.</string>
+    <string name="channel_reminders">Напоминания</string>
+    <string name="reminder_done">Выполнено</string>
+    <string name="reminder_later">Через час</string>
     <string name="subtasks">Подзадачи</string>
     <string name="add_subtask">Добавить подзадачу</string>
     <string name="mark_done">Отметить выполненной</string>

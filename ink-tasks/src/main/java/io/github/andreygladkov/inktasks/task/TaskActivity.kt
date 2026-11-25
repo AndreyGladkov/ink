@@ -1,9 +1,12 @@
 package io.github.andreygladkov.inktasks.task
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
@@ -18,10 +21,12 @@ import io.github.andreygladkov.ink.ui.InkEditText
 import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
+import io.github.andreygladkov.ink.ui.PermissionGate
 import io.github.andreygladkov.ink.ui.addSection
 import io.github.andreygladkov.ink.ui.confirmBeforeAction
 import io.github.andreygladkov.inktasks.MainActivity
 import io.github.andreygladkov.inktasks.R
+import io.github.andreygladkov.inktasks.remind.ReminderNotifications
 import io.github.andreygladkov.inktasks.store.TaskLists
 import io.github.andreygladkov.inktasks.tasks.Task
 import io.github.andreygladkov.inktasks.tasks.TaskFile
@@ -29,7 +34,10 @@ import io.github.andreygladkov.inktasks.tasks.TaskRef
 import io.github.andreygladkov.inktasks.ui.DueLabels
 import io.github.andreygladkov.inktasks.ui.TaskRows
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import kotlin.math.roundToInt
+import io.github.andreygladkov.ink.R as InkR
 
 /** Each field is written to the file when it is left, so there is no Save button and nothing is lost on Back. */
 class TaskActivity : Activity() {
@@ -39,12 +47,20 @@ class TaskActivity : Activity() {
     private var parent: TaskRef? = null
     private var task: Task? = null
     private var newDue: LocalDate? = null
+    private var newTime: LocalTime? = null
     private var isClosed = false
     private lateinit var labels: DueLabels
     private lateinit var titleField: InkEditText
     private lateinit var notesField: InkEditText
     private lateinit var dueLabel: InkTextView
     private lateinit var quickDue: List<Pair<LocalDate, InkButton>>
+    private lateinit var reminderSection: View
+    private lateinit var reminderLabel: InkTextView
+    private lateinit var timeButton: InkButton
+    private lateinit var removeReminderButton: InkButton
+    private lateinit var notificationsOff: View
+    private lateinit var allowNotifications: InkButton
+    private val notificationGate by lazy { PermissionGate(this, Manifest.permission.POST_NOTIFICATIONS, REQUEST_NOTIFICATIONS) }
     private lateinit var subtasks: LinearLayout
     private lateinit var subtaskSection: View
     private lateinit var doneButton: InkButton
@@ -86,7 +102,15 @@ class TaskActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         @Suppress("DEPRECATION")
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_DATE) DateActivity.chosen(data)?.let(::setDue)
+        when (requestCode) {
+            REQUEST_DATE -> DateActivity.chosen(data)?.let(::setDue)
+            REQUEST_TIME -> TimeActivity.chosen(data)?.let(::setReminderTime)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_NOTIFICATIONS) show()
     }
 
     private fun headerTitle() = when {
@@ -127,6 +151,8 @@ class TaskActivity : Activity() {
         dueLabel = InkTextView(this@TaskActivity).apply { setPadding(0, dp(GAP_DP), 0, dp(GAP_DP)) }
         addView(dueLabel, wide())
         addView(dueButtons(), wide())
+        reminderSection = reminderSection()
+        addView(reminderSection, wide())
         subtaskSection = LinearLayout(this@TaskActivity).apply {
             orientation = LinearLayout.VERTICAL
             addSection(getString(R.string.subtasks))
@@ -170,6 +196,33 @@ class TaskActivity : Activity() {
         }
     }
 
+    private fun reminderSection() = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        addSection(getString(R.string.reminder))
+        reminderLabel = InkTextView(this@TaskActivity).apply { setPadding(0, dp(GAP_DP), 0, dp(GAP_DP)) }
+        addView(reminderLabel, wide())
+        timeButton = InkButton(this@TaskActivity).apply { setOnClickListener { pickTime() } }
+        removeReminderButton = InkButton(this@TaskActivity).apply {
+            setText(R.string.remove_reminder)
+            setOnClickListener { removeReminder() }
+        }
+        addView(InkButtonRow(this@TaskActivity, dp(BUTTON_GAP_DP), InkStyle.SECONDARY_SCALE).apply {
+            addButton(timeButton)
+            addButton(removeReminderButton)
+        }, wide())
+        allowNotifications = InkButton(this@TaskActivity)
+        notificationsOff = LinearLayout(this@TaskActivity).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(InkTextView(this@TaskActivity).apply {
+                setText(R.string.notifications_off)
+                textScale = InkStyle.SECONDARY_SCALE
+                setPadding(0, dp(GAP_DP), 0, dp(GAP_DP))
+            }, wide())
+            addView(allowNotifications, wide())
+        }
+        addView(notificationsOff, wide())
+    }
+
     private fun action(label: Int, icon: Int, onClick: () -> Unit) = InkButton(this).apply {
         setText(label)
         this.icon = icon
@@ -196,6 +249,7 @@ class TaskActivity : Activity() {
         val due = task?.due ?: newDue.takeIf { task == null }
         dueLabel.text = due?.let(labels::withDate) ?: getString(R.string.no_due)
         quickDue.forEach { (date, button) -> button.isSelected = date == due }
+        showReminder(due, task?.reminder ?: newReminder().takeIf { task == null })
         val file = lists.read(list)
         val isTop = task == null && parent == null || file.tasks.any { it.ref == ref }
         subtaskSection.visibility = if (isTop) View.VISIBLE else View.GONE
@@ -206,6 +260,26 @@ class TaskActivity : Activity() {
         moveButton.visibility = if (task != null && canMove(task, file)) View.VISIBLE else View.GONE
         deleteButton.visibility = doneButton.visibility
     }
+
+    private fun showReminder(due: LocalDate?, reminder: LocalDateTime?) {
+        reminderSection.visibility = if (due != null || reminder != null) View.VISIBLE else View.GONE
+        reminderLabel.text = reminder?.let { labels.reminder(it, due) } ?: getString(R.string.no_reminder)
+        timeButton.setText(if (reminder == null) R.string.set_time else R.string.change_time)
+        removeReminderButton.visibility = if (reminder != null) View.VISIBLE else View.GONE
+        val notifying = ReminderNotifications.canShow(this)
+        notificationsOff.visibility = if (reminder != null && !notifying) View.VISIBLE else View.GONE
+        if (notifying) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationGate.isGranted) {
+            notificationGate.bind(allowNotifications)
+        } else {
+            allowNotifications.setText(InkR.string.open_settings)
+            allowNotifications.setOnClickListener {
+                startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
+            }
+        }
+    }
+
+    private fun newReminder(): LocalDateTime? = newTime?.let { time -> newDue?.atTime(time) }
 
     private fun canMove(task: Task, file: TaskFile): Boolean {
         val open = file.tasks.filter { !it.isDone }
@@ -233,7 +307,8 @@ class TaskActivity : Activity() {
         if (current == null) {
             if (title.isEmpty()) return
             val parent = parent
-            apply { file -> if (parent != null) file.addSubtask(parent, title, newDue, notes) else file.add(title, newDue, notes) }
+            val reminder = newReminder()
+            apply { file -> if (parent != null) file.addSubtask(parent, title, newDue, notes, reminder) else file.add(title, newDue, notes, reminder) }
             return
         }
         val shown = task ?: return
@@ -251,7 +326,38 @@ class TaskActivity : Activity() {
     private fun setDue(date: LocalDate?) {
         saveFields()
         val current = ref
-        if (current == null) newDue = date else apply { it.setDue(current, date) }
+        if (current == null) {
+            newDue = date
+            if (date == null) newTime = null
+        } else {
+            apply { it.setDue(current, date) }
+        }
+        show()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun pickTime() {
+        val reminder = task?.reminder ?: newReminder().takeIf { task == null }
+        startActivityForResult(TimeActivity.intent(this, reminder?.toLocalTime() ?: newTime), REQUEST_TIME)
+    }
+
+    private fun setReminderTime(time: LocalTime) {
+        saveFields()
+        val current = ref
+        if (current == null) {
+            newTime = time
+        } else {
+            val day = task?.reminder?.toLocalDate() ?: task?.due ?: return show()
+            apply { it.setReminder(current, day.atTime(time)) }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) notificationGate.request()
+        show()
+    }
+
+    private fun removeReminder() {
+        saveFields()
+        val current = ref
+        if (current == null) newTime = null else apply { it.setReminder(current, null) }
         show()
     }
 
@@ -304,6 +410,8 @@ class TaskActivity : Activity() {
         private const val EXTRA_PARENT_LINE = "parent_line"
         private const val EXTRA_PARENT_OCCURRENCE = "parent_occurrence"
         private const val REQUEST_DATE = 1
+        private const val REQUEST_TIME = 2
+        private const val REQUEST_NOTIFICATIONS = 3
         private const val PADDING_DP = 16f
         private const val GAP_DP = 8f
         private const val BUTTON_GAP_DP = 4f

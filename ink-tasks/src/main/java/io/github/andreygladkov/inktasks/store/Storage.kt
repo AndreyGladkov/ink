@@ -7,6 +7,7 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.inktasks.R
+import io.github.andreygladkov.inktasks.remind.Reminders
 import java.io.File
 
 class Storage(private val context: Context) {
@@ -35,6 +36,7 @@ class Storage(private val context: Context) {
         moved.forEach(phone::delete)
         prefs.edit { putString(PREF_FOLDER, tree.toString()) }
         previous?.tree?.takeIf { it != tree }?.let(::release)
+        Reminders.update(context)
         return true
     }
 
@@ -44,6 +46,7 @@ class Storage(private val context: Context) {
         if (previous.isAvailable) runCatching { copy(previous, phone, context.getString(R.string.from_folder)) }
         prefs.edit { remove(PREF_FOLDER) }
         release(previous.tree)
+        Reminders.update(context)
     }
 
     private fun copy(from: Folder, to: Folder, suffix: String): List<String> {

@@ -1,6 +1,7 @@
 package io.github.andreygladkov.inktasks.tasks
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 /**
  * A task is found again by the text of its line, the [occurrence]-th line with that text, so a file changed on another
@@ -14,6 +15,7 @@ data class Task(
     val isDone: Boolean,
     val due: LocalDate?,
     val doneOn: LocalDate?,
+    val reminder: LocalDateTime?,
     val notes: String,
     val subtasks: List<Task>,
 )

@@ -1,6 +1,7 @@
 package io.github.andreygladkov.inktasks.tasks
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -179,5 +180,43 @@ class TaskFileTest {
         assertNull(file.setNotes(gone, "x"))
         assertNull(file.move(gone, null))
         assertNull(file.addSubtask(gone, "x", null))
+    }
+
+    @Test fun aReminderIsReadInObsidianRemindersFormatAndKeptOutOfTheTitle() {
+        val task = TaskFile.parse("- [ ] Позвонить ⏰ 2026-11-25 18:30 📅 2026-11-25\n").tasks.single()
+        assertEquals("Позвонить", task.title)
+        assertEquals(LocalDateTime.of(2026, 11, 25, 18, 30), task.reminder)
+        assertEquals(LocalDate.of(2026, 11, 25), task.due)
+        assertEquals(LocalDateTime.of(2026, 11, 25, 9, 0), TaskFile.parse("- [ ] a ⏰ 2026-11-25\n").tasks.single().reminder)
+        assertEquals(LocalDateTime.of(2026, 11, 25, 9, 5), TaskFile.parse("- [ ] a ⏰️ 2026-11-25 9:05\n").tasks.single().reminder)
+        assertNull(TaskFile.parse("- [ ] a ⏰ 2026-11-25 25:00\n").tasks.single().reminder)
+    }
+
+    @Test fun aReminderIsWrittenRightAfterTheDescriptionBeforeTheTasksFields() {
+        val tap = TaskRef("- [ ] Починить кран #дом ⏫", 0)
+        val at = LocalDateTime.of(2026, 11, 25, 9, 0)
+        assertEquals("- [ ] Починить кран #дом ⏰ 2026-11-25 09:00 ⏫", file.setReminder(tap, at)!!.ref!!.line)
+        val milk = TaskRef("- [ ] Купить молоко 📅 2026-11-25", 0)
+        val reminded = file.setReminder(milk, at.withHour(10))!!
+        assertEquals("- [ ] Купить молоко ⏰ 2026-11-25 10:00 📅 2026-11-25", reminded.ref!!.line)
+        val moved = reminded.file.setReminder(reminded.ref!!, at.withHour(11))!!
+        assertEquals("- [ ] Купить молоко ⏰ 2026-11-25 11:00 📅 2026-11-25", moved.ref!!.line)
+        assertEquals(sample, moved.file.setReminder(moved.ref!!, null)!!.file.toText())
+        assertEquals("- [ ] Позвонить ⏰ 2026-11-25 09:00", TaskFile.parse("- [ ] Позвонить").setReminder(TaskRef("- [ ] Позвонить", 0), at)!!.ref!!.line)
+    }
+
+    @Test fun aReminderOnTheDueDateMovesWithItAndGoesWithIt() {
+        val ref = TaskRef("- [ ] a ⏰ 2026-11-25 10:00 📅 2026-11-25", 0)
+        val parsed = TaskFile.parse(ref.line + "\n")
+        assertEquals("- [ ] a ⏰ 2026-11-27 10:00 📅 2026-11-27", parsed.setDue(ref, LocalDate.of(2026, 11, 27))!!.ref!!.line)
+        assertEquals("- [ ] a", parsed.setDue(ref, null)!!.ref!!.line)
+        val earlier = TaskRef("- [ ] a ⏰ 2026-11-24 20:00 📅 2026-11-25", 0)
+        assertEquals("- [ ] a ⏰ 2026-11-24 20:00 📅 2026-11-27", TaskFile.parse(earlier.line).setDue(earlier, LocalDate.of(2026, 11, 27))!!.ref!!.line)
+    }
+
+    @Test fun aNewTaskTakesItsReminderAndARenamedOneKeepsIt() {
+        val added = TaskFile.parse("").add("Вынести мусор", LocalDate.of(2026, 11, 25), reminder = LocalDateTime.of(2026, 11, 25, 8, 15))
+        assertEquals("- [ ] Вынести мусор ⏰ 2026-11-25 08:15 📅 2026-11-25\n", added.file.toText())
+        assertEquals("- [ ] Вынести всё ⏰ 2026-11-25 08:15 📅 2026-11-25", added.file.setTitle(added.ref!!, "Вынести всё")!!.ref!!.line)
     }
 }

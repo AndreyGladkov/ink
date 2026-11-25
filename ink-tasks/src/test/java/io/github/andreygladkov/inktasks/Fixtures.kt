@@ -12,11 +12,11 @@ object Fixtures {
     val TODAY: LocalDate = LocalDate.of(2026, 11, 24)
 
     fun fixToday() {
-        TaskLists.clock = Clock.fixed(TODAY.atTime(12, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC)
+        TaskLists.fixedClock = Clock.fixed(TODAY.atTime(12, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC)
     }
 
     fun restoreClock() {
-        TaskLists.clock = Clock.systemDefaultZone()
+        TaskLists.fixedClock = null
     }
 
     fun file(context: Context, name: String) = File(File(context.filesDir, Storage.DIR), "$name.md")

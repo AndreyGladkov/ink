@@ -27,6 +27,16 @@
     <string name="in_a_week">In a week</string>
     <string name="other_date">Other date…</string>
     <string name="remove_due">Remove</string>
+    <string name="reminder">Reminder</string>
+    <string name="no_reminder">No reminder</string>
+    <string name="reminder_at">At %1$s</string>
+    <string name="set_time">Set a time…</string>
+    <string name="change_time">Change the time…</string>
+    <string name="remove_reminder">Remove the time</string>
+    <string name="notifications_off">Notifications are off, so the reminder will not show.</string>
+    <string name="channel_reminders">Reminders</string>
+    <string name="reminder_done">Done</string>
+    <string name="reminder_later">In an hour</string>
     <string name="subtasks">Subtasks</string>
     <string name="add_subtask">Add a subtask</string>
     <string name="mark_done">Mark done</string>

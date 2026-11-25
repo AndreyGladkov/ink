@@ -16,30 +16,26 @@ import androidx.core.net.toUri
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkButtonRow
-import io.github.andreygladkov.ink.ui.InkChoiceRow
 import io.github.andreygladkov.ink.ui.InkEditText
 import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkSettings
-import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
+import io.github.andreygladkov.ink.ui.TimeInput
 import io.github.andreygladkov.ink.ui.addSection
 import io.github.andreygladkov.ink.ui.confirmBeforeAction
 import io.github.andreygladkov.inkclock.R
-import io.github.andreygladkov.inkclock.ui.DigitEntry
-import io.github.andreygladkov.inkclock.ui.DigitKeypad
 import java.time.DayOfWeek
+import java.time.LocalTime
 import kotlin.math.roundToInt
 
 class AlarmEditActivity : Activity() {
     private lateinit var labels: AlarmLabels
     private lateinit var original: Alarm
     private var isNew = false
-    private lateinit var time: AlarmTime
+    private lateinit var time: TimeInput
     private var days = emptySet<DayOfWeek>()
     private var ringtone: Ringtone = Ringtone.Default
     private var vibrates = true
-    private lateinit var timeView: InkTextView
-    private lateinit var timeError: InkTextView
     private lateinit var labelField: InkEditText
     private lateinit var ringtoneButton: InkButton
 
@@ -55,7 +51,6 @@ class AlarmEditActivity : Activity() {
             minute = intent.getIntExtra(EXTRA_MINUTE, 0),
             label = intent.getStringExtra(EXTRA_LABEL).orEmpty(),
         )
-        time = AlarmTime.of(original.hour, original.minute, labels.is24Hour)
         days = original.days
         ringtone = original.ringtone
         vibrates = original.vibrates
@@ -68,7 +63,6 @@ class AlarmEditActivity : Activity() {
                 addView(body())
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         })
-        showTime()
         showRingtone()
     }
 
@@ -99,23 +93,8 @@ class AlarmEditActivity : Activity() {
         orientation = LinearLayout.VERTICAL
         val padding = dp(PADDING_DP)
         setPadding(padding, 0, padding, padding)
-        timeView = InkTextView(this@AlarmEditActivity).apply {
-            textScale = TIME_SCALE
-            isBold = true
-            gravity = Gravity.CENTER_HORIZONTAL
-        }
-        addView(timeView, wide())
-        timeError = InkTextView(this@AlarmEditActivity).apply {
-            setText(R.string.time_invalid)
-            textScale = InkStyle.SECONDARY_SCALE
-            gravity = Gravity.CENTER_HORIZONTAL
-            visibility = View.INVISIBLE
-        }
-        addView(timeError, wide())
-        if (!time.is24Hour) addView(InkChoiceRow(this@AlarmEditActivity, getString(R.string.half_of_day),
-            listOf(false to getString(R.string.am), true to getString(R.string.pm)), time.isPm) { pm -> time = time.copy(isPm = pm) })
-        addView(DigitKeypad(this@AlarmEditActivity, onKey = { time = time.type(it); showTime() }, onErase = { time = time.erase(); showTime() }),
-            wide().apply { topMargin = dp(GAP_DP) })
+        time = TimeInput(this@AlarmEditActivity, LocalTime.of(original.hour, original.minute), labels.is24Hour)
+        addView(time, wide())
         addSection(getString(R.string.repeat))
         addView(dayButtons(), wide().apply { topMargin = dp(GAP_DP) })
         addSection(getString(R.string.label))
@@ -160,11 +139,6 @@ class AlarmEditActivity : Activity() {
         return row
     }
 
-    private fun showTime() {
-        timeView.text = time.display()
-        timeError.visibility = View.INVISIBLE
-    }
-
     private fun showRingtone() {
         val name = when (val current = ringtone) {
             Ringtone.Default -> getString(R.string.ringtone_default)
@@ -191,13 +165,10 @@ class AlarmEditActivity : Activity() {
     }
 
     private fun save() {
-        val (hour, minute) = time.toHourMinute() ?: run {
-            timeError.visibility = View.VISIBLE
-            return
-        }
+        val chosen = time.time() ?: return
         AlarmActions.save(this, original.copy(
-            hour = hour,
-            minute = minute,
+            hour = chosen.hour,
+            minute = chosen.minute,
             days = days,
             label = labelField.text.toString().trim(),
             ringtone = ringtone,
@@ -222,7 +193,6 @@ class AlarmEditActivity : Activity() {
         private const val GAP_DP = 8f
         private const val DAY_GAP_DP = 4f
         private const val SECTION_GAP_DP = 24f
-        private const val TIME_SCALE = 3f
 
         fun edit(context: Context, alarmId: Int): Intent = Intent(context, AlarmEditActivity::class.java).putExtra(EXTRA_ALARM_ID, alarmId)
 
@@ -232,30 +202,5 @@ class AlarmEditActivity : Activity() {
                 minute?.let { putExtra(EXTRA_MINUTE, it) }
                 label?.let { putExtra(EXTRA_LABEL, it) }
             }
-    }
-}
-
-data class AlarmTime(val entry: DigitEntry, val is24Hour: Boolean, val isPm: Boolean, val isFresh: Boolean) {
-    fun type(key: String) = copy(entry = (if (isFresh) entry.copy(digits = "") else entry).type(key), isFresh = false)
-
-    fun erase() = copy(entry = if (isFresh) entry.copy(digits = "") else entry.erase(), isFresh = false)
-
-    fun display(): String = entry.groups().let { (hours, minutes) -> "%02d:%02d".format(hours, minutes) }
-
-    fun toHourMinute(): Pair<Int, Int>? {
-        val (hours, minutes) = entry.groups()
-        if (minutes > 59) return null
-        return when {
-            is24Hour -> hours.takeIf { it <= 23 }?.let { it to minutes }
-            hours in 1..12 -> (hours % 12 + if (isPm) 12 else 0) to minutes
-            else -> null
-        }
-    }
-
-    companion object {
-        fun of(hour: Int, minute: Int, is24Hour: Boolean): AlarmTime {
-            val shown = if (is24Hour) hour else (hour % 12).takeIf { it != 0 } ?: 12
-            return AlarmTime(DigitEntry.of(4, shown, minute), is24Hour, isPm = hour >= 12, isFresh = true)
-        }
     }
 }
