@@ -36,7 +36,8 @@ class ForecastView(context: Context, private val format: WeatherFormat, private 
         gravity = if (current == null) Gravity.CENTER else Gravity.TOP
         if (forecast == null || current == null) return showMessage(loading, failure)
         addView(current(current))
-        addView(details(forecast, current, failure.takeIf { forecast.source != chosen }?.let { chosen }, now), wide().apply { bottomMargin = dp(SECTION_GAP_DP) })
+        val unanswered = chosen.takeIf { forecast.source != chosen && (failure in UNANSWERED || forecast.requested == chosen) }
+        addView(details(forecast, current, unanswered, now), wide().apply { bottomMargin = dp(SECTION_GAP_DP) })
         addView(InkHeader.line(context))
         addView(hours(forecast, now), wide().apply { topMargin = dp(GAP_DP); bottomMargin = dp(GAP_DP) })
         addView(InkHeader.line(context))
@@ -145,6 +146,7 @@ class ForecastView(context: Context, private val format: WeatherFormat, private 
     private fun dp(value: Float) = (value * density).roundToInt()
 
     private companion object {
+        val UNANSWERED = setOf(Weather.Failure.NETWORK, Weather.Failure.SERVICE)
         const val HOURS = 8
         const val HOUR_STEP = 3L
         const val DAYS = 7

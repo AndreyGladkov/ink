@@ -1,6 +1,8 @@
 package io.github.andreygladkov.inkweather.forecast
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.annotation.VisibleForTesting
 import java.io.IOException
 import java.time.Clock
@@ -34,9 +36,33 @@ object Weather {
 
     fun now(): Instant = clock.instant()
 
-    fun isFresh(forecast: Forecast?, source: Source): Boolean = forecast != null && forecast.source == source && forecast.age(now()) < FRESH_FOR
+    /** A forecast from another source after the chosen one failed counts too, so the failing one is not waited on at every look. */
+    fun isFresh(forecast: Forecast?, source: Source): Boolean =
+        forecast != null && (forecast.requested == source || forecast.source == source) && forecast.age(now()) < FRESH_FOR
 
     fun refresh(context: Context, place: Place, source: Source): Outcome {
+        val chosen = refreshFrom(context, place, source, source)
+        if (chosen !is Outcome.Failed || !canFallBack(context, chosen.failure)) return chosen
+        for (other in Source.entries.filter { it != source }) {
+            val outcome = refreshFrom(context, place, other, source)
+            if (outcome is Outcome.Updated || outcome == Outcome.Failed(Failure.STORAGE)) return outcome
+        }
+        return chosen
+    }
+
+    /**
+     * A network error on a phone that is online means this service cannot be reached from here, so the other one may
+     * be; offline or behind a captive portal the other one would only make the user wait out a second timeout.
+     */
+    private fun canFallBack(context: Context, failure: Failure): Boolean = when (failure) {
+        Failure.SERVICE -> true
+        Failure.STORAGE -> false
+        Failure.NETWORK -> context.getSystemService(ConnectivityManager::class.java).let { manager ->
+            manager.getNetworkCapabilities(manager.activeNetwork)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
+        }
+    }
+
+    private fun refreshFrom(context: Context, place: Place, source: Source, requested: Source): Outcome {
         val fetchedAt = now()
         val body = when (val fetched = fetch(source.url(place))) {
             is Fetched.Body -> fetched.text
@@ -44,11 +70,11 @@ object Weather {
         }
         val forecast = runCatching { source.forecast(body, fetchedAt, place.zone) }.getOrNull() ?: return Outcome.Failed(Failure.SERVICE)
         try {
-            ForecastCache(context).save(place.id, body, fetchedAt, source)
+            ForecastCache(context).save(place.id, body, fetchedAt, source, requested)
         } catch (_: IOException) {
             return Outcome.Failed(Failure.STORAGE)
         }
-        return Outcome.Updated(forecast)
+        return Outcome.Updated(forecast.copy(requested = requested))
     }
 
     sealed interface Found {

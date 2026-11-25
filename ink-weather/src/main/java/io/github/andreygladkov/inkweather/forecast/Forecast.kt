@@ -12,6 +12,7 @@ data class Forecast(
     val hours: List<Hour>,
     val days: List<Day>,
     val source: Source,
+    val requested: Source = source,
 ) {
     data class Hour(
         val instant: Instant,

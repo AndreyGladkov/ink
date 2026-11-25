@@ -1,10 +1,15 @@
 package io.github.andreygladkov.inkweather
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import io.github.andreygladkov.inkweather.forecast.Place
 import io.github.andreygladkov.inkweather.forecast.Transport
 import io.github.andreygladkov.inkweather.forecast.Weather
 import org.json.JSONArray
 import org.json.JSONObject
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.shadows.ShadowNetworkCapabilities
 import java.io.IOException
 import java.time.Instant
 
@@ -120,6 +125,13 @@ object Fixtures {
     }
 
     fun offline() = FakeTransport { throw IOException("offline") }
+
+    fun onValidatedNetwork(context: Context) {
+        val manager = context.getSystemService(ConnectivityManager::class.java)
+        val capabilities = ShadowNetworkCapabilities.newInstance()
+        shadowOf(capabilities).addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        shadowOf(manager).setNetworkCapabilities(manager.activeNetwork, capabilities)
+    }
 
     /**
      * The executors outlive a test, so a fetch it left queued would otherwise run in the next test, on the real

@@ -6,6 +6,7 @@ import io.github.andreygladkov.inkweather.Fixtures
 import org.junit.After
 import org.json.JSONObject
 import java.io.File
+import java.io.IOException
 import java.net.URI
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -55,6 +56,37 @@ class WeatherTest {
         assertEquals(Weather.Outcome.Failed(Weather.Failure.SERVICE), Weather.refresh(context, Fixtures.MOSCOW, Source.of(context)))
 
         assertEquals(7.0, cache.load(Fixtures.MOSCOW)!!.current(Fixtures.NOW)!!.temperature)
+    }
+
+    @Test fun aChosenSourceThatFailsIsReplacedByTheOtherUntilItIsFreshNoMore() {
+        Fixtures.onValidatedNetwork(context)
+        val transport = Fixtures.FakeTransport { url -> if ("met.no" in url) throw IOException("blocked") else Fixtures.openMeteo(current = 5.0) }
+        Weather.transport = transport
+        val outcome = assertIs<Weather.Outcome.Updated>(Weather.refresh(context, Fixtures.MOSCOW, Source.MET_NO))
+        assertEquals(Source.OPEN_METEO, outcome.forecast.source)
+        assertEquals(Source.MET_NO, outcome.forecast.requested)
+        assertEquals(2, transport.asked.size)
+        val saved = cache.load(Fixtures.MOSCOW)!!
+        assertEquals(outcome.forecast, saved)
+        assertTrue(Weather.isFresh(saved, Source.MET_NO))
+        assertTrue(Weather.isFresh(saved, Source.OPEN_METEO))
+        Weather.clock = Clock.fixed(Fixtures.NOW.plus(Weather.FRESH_FOR), ZoneOffset.UTC)
+        assertFalse(Weather.isFresh(saved, Source.MET_NO))
+    }
+
+    @Test fun withoutAWorkingNetworkTheOtherSourceIsNotWaitedOnButABadAnswerStillSendsThere() {
+        val transport = Fixtures.FakeTransport { url -> if ("met.no" in url) throw IOException("offline") else Fixtures.openMeteo() }
+        Weather.transport = transport
+        assertEquals(Weather.Outcome.Failed(Weather.Failure.NETWORK), Weather.refresh(context, Fixtures.MOSCOW, Source.MET_NO))
+        assertEquals(1, transport.asked.size)
+        Weather.transport = Fixtures.FakeTransport { url -> if ("met.no" in url) throw ServiceException("HTTP 503") else Fixtures.openMeteo() }
+        assertEquals(Source.OPEN_METEO, assertIs<Weather.Outcome.Updated>(Weather.refresh(context, Fixtures.MOSCOW, Source.MET_NO)).forecast.source)
+    }
+
+    @Test fun whenNeitherSourceAnswersTheChosenOnesFailureIsReported() {
+        Weather.transport = Fixtures.FakeTransport { url -> if ("met.no" in url) throw ServiceException("HTTP 403") else throw IOException("offline") }
+        assertEquals(Weather.Outcome.Failed(Weather.Failure.SERVICE), Weather.refresh(context, Fixtures.MOSCOW, Source.MET_NO))
+        assertNull(cache.load(Fixtures.MOSCOW))
     }
 
     @Test fun aForecastThatCannotBeSavedIsAStorageFailure() {
