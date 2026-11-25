@@ -1,0 +1,1 @@
+The widget shows the wind and how much rain or snow is still to fall today: under the temperature, or in a column on the right when the widget is low. When the chosen forecast source does not answer, the forecast comes from the other one, and the screen says so.
