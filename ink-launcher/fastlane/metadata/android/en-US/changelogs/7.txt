@@ -1,0 +1,3 @@
+A new setting under All apps opens the app list with the search field and the keyboard ready, also when picking an app for a cell. It is off by default.
+
+While searching, the button on the right shows a cross as you type and a magnifier once the keyboard is hidden: a tap on the magnifier brings the keyboard back.
