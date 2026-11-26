@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Календарь</string>
+
+    <string name="permission_explain">Ink Calendar показывает события календарей на телефоне: тех, что синхронизируют ваши аккаунты, и своего собственного.</string>
+    <string name="today">Сегодня</string>
+    <string name="tomorrow">Завтра</string>
+    <string name="no_events">Нет событий</string>
+    <string name="no_title">(Без названия)</string>
+    <string name="all_day">Весь день</string>
+    <string name="time_until">до %1$s</string>
+    <string name="time_from">с %1$s</string>
+    <string name="prev_year">Предыдущий год</string>
+    <string name="next_year">Следующий год</string>
+    <string name="choose_year">Выбрать другой месяц</string>
+
+    <string name="event">Событие</string>
+    <string name="event_gone">Этого события в календаре больше нет</string>
+    <string name="event_calendar">Календарь</string>
+    <string name="event_location">Место</string>
+    <string name="event_notes">Заметки</string>
+    <string name="event_reminders">Напоминания</string>
+    <string name="event_repeats">Повторяется</string>
+    <string name="reminder_at_start">В момент начала</string>
+    <plurals name="minutes_before">
+        <item quantity="one">За %d минуту</item>
+        <item quantity="few">За %d минуты</item>
+        <item quantity="many">За %d минут</item>
+        <item quantity="other">За %d минуты</item>
+    </plurals>
+    <plurals name="hours_before">
+        <item quantity="one">За %d час</item>
+        <item quantity="few">За %d часа</item>
+        <item quantity="many">За %d часов</item>
+        <item quantity="other">За %d часа</item>
+    </plurals>
+    <plurals name="days_before">
+        <item quantity="one">За %d день</item>
+        <item quantity="few">За %d дня</item>
+        <item quantity="many">За %d дней</item>
+        <item quantity="other">За %d дня</item>
+    </plurals>
+
+    <string name="settings_calendars">Календари</string>
+    <string name="no_calendars">На телефоне пока нет календарей</string>
+
+    <string name="widget_label">Календарь</string>
+    <string name="widget_description">Сегодняшняя дата и ближайшие события</string>
+    <string name="widget_no_access">Откройте календарь и разрешите доступ</string>
+
+    <string name="about_license">Ink Calendar — свободная программа под лицензией GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Calendar ничего никуда не отправляет: он читает и пишет календари на телефоне, а синхронизируют их только ваши аккаунты.</string>
+</resources>
