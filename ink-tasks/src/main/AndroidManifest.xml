@@ -31,7 +31,7 @@
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
-            android:name=".task.DateActivity"
+            android:name="io.github.andreygladkov.ink.ui.InkDateActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
@@ -56,7 +56,7 @@
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
-            android:name=".task.TimeActivity"
+            android:name="io.github.andreygladkov.ink.ui.InkTimeActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
         <receiver

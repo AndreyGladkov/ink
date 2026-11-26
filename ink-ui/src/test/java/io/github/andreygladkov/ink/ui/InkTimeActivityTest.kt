@@ -1,4 +1,4 @@
-package io.github.andreygladkov.inktasks.task
+package io.github.andreygladkov.ink.ui
 
 import android.app.Activity
 import android.app.Application
@@ -8,8 +8,6 @@ import io.github.andreygladkov.ink.assertPureBlackAndWhite
 import io.github.andreygladkov.ink.contentRoot
 import io.github.andreygladkov.ink.find
 import io.github.andreygladkov.ink.render
-import io.github.andreygladkov.ink.ui.InkButton
-import io.github.andreygladkov.ink.ui.InkTextView
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -25,18 +23,18 @@ import kotlin.test.assertTrue
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = A9_QUALIFIERS)
-class TimeActivityTest {
+class InkTimeActivityTest {
     private val context = ApplicationProvider.getApplicationContext<Application>()
 
     @Test fun theShownTimeStartsAtNineAndIsReplacedByTypedDigits() {
         val activity = open(null)
-        assertTrue(texts(activity).contains("09:00"))
+        assertTrue(texts(activity).containsAll(listOf("Напоминание", "09:00")))
         type(activity, "1", "8", "3", "0")
         assertTrue(texts(activity).contains("18:30"))
         button(activity, "Готово").performClick()
         assertTrue(activity.isFinishing)
         assertEquals(Activity.RESULT_OK, shadowOf(activity).resultCode)
-        assertEquals(LocalTime.of(18, 30), TimeActivity.chosen(shadowOf(activity).resultIntent))
+        assertEquals(LocalTime.of(18, 30), InkTimeActivity.chosen(shadowOf(activity).resultIntent))
         assertPureBlackAndWhite(render(contentRoot(activity)))
     }
 
@@ -49,12 +47,12 @@ class TimeActivityTest {
         assertTrue(contentRoot(activity).find<InkTextView>().single { it.text.toString() == "Такого времени нет" }.isShown)
     }
 
-    private fun open(time: LocalTime?): TimeActivity =
-        Robolectric.buildActivity(TimeActivity::class.java, TimeActivity.intent(context, time)).setup().get()
+    private fun open(time: LocalTime?): InkTimeActivity =
+        Robolectric.buildActivity(InkTimeActivity::class.java, InkTimeActivity.intent(context, "Напоминание", time)).setup().get()
 
-    private fun type(activity: TimeActivity, vararg keys: String) = keys.forEach { key -> button(activity, key).performClick() }
+    private fun type(activity: InkTimeActivity, vararg keys: String) = keys.forEach { key -> button(activity, key).performClick() }
 
-    private fun button(activity: TimeActivity, label: String) = contentRoot(activity).find<InkButton>().single { it.text.toString() == label }
+    private fun button(activity: InkTimeActivity, label: String) = contentRoot(activity).find<InkButton>().single { it.text.toString() == label }
 
-    private fun texts(activity: TimeActivity) = contentRoot(activity).find<InkTextView>().map { it.text.toString() }
+    private fun texts(activity: InkTimeActivity) = contentRoot(activity).find<InkTextView>().map { it.text.toString() }
 }

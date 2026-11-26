@@ -17,6 +17,7 @@ import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkPagedList
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
+import io.github.andreygladkov.ink.R as InkR
 import io.github.andreygladkov.inktasks.lists.ListsActivity
 import io.github.andreygladkov.inktasks.remind.Reminders
 import io.github.andreygladkov.inktasks.settings.FolderPicker
@@ -68,8 +69,8 @@ class MainActivity : Activity() {
         add = InkHeader.button(this, R.drawable.ic_add, getString(R.string.new_task)) { startActivity(TaskActivity.create(this, lists.current)) }
         settings = InkHeader.settings(this) { startActivity(SettingsActivity.intent(this)) }
         list = InkPagedList(this)
-        prevList = listButton(R.drawable.ic_chevron_left, R.string.prev_list, -1)
-        nextList = listButton(R.drawable.ic_chevron_right, R.string.next_list, 1)
+        prevList = listButton(InkR.drawable.ic_chevron_left, R.string.prev_list, -1)
+        nextList = listButton(InkR.drawable.ic_chevron_right, R.string.next_list, 1)
         list.addFooterView(prevList, atStart = true)
         list.addFooterView(nextList)
         dots = ListDots(this)

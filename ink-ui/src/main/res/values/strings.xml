@@ -44,4 +44,7 @@
     <string name="am">AM</string>
     <string name="pm">PM</string>
     <string name="erase">Erase</string>
+    <string name="ready">Done</string>
+    <string name="prev_month">Previous month</string>
+    <string name="next_month">Next month</string>
 </resources>
