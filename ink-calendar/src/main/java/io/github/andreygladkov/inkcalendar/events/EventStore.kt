@@ -25,6 +25,8 @@ class EventStore(private val resolver: ContentResolver, private val hidden: Set<
             }
         }.orEmpty().sortedWith(compareBy({ it.account }, { it.name }))
 
+    fun writableCalendars(): List<CalendarInfo> = calendars().filter { it.writable }
+
     /** Events of hidden calendars and of calendars the phone hides are left out; [until] is exclusive. */
     fun occurrences(from: LocalDate, until: LocalDate, zone: ZoneId): List<Occurrence> {
         val begin = from.minusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
@@ -71,6 +73,7 @@ class EventStore(private val resolver: ContentResolver, private val hidden: Set<
         location = cursor.getString(7).orEmpty(),
         notes = cursor.getString(8).orEmpty(),
         repeats = !cursor.getString(9).isNullOrEmpty(),
+        editable = cursor.getInt(11) >= Calendars.CAL_ACCESS_CONTRIBUTOR,
     )
 
     companion object {
@@ -80,7 +83,7 @@ class EventStore(private val resolver: ContentResolver, private val hidden: Set<
             Calendars.CALENDAR_ACCESS_LEVEL)
         private val INSTANCE_COLUMNS = arrayOf(Instances.EVENT_ID, Instances.BEGIN, Instances.END, Instances.ALL_DAY, Instances.TITLE,
             Instances.CALENDAR_ID, Instances.CALENDAR_DISPLAY_NAME, Instances.EVENT_LOCATION, Instances.DESCRIPTION, Instances.RRULE,
-            Instances.VISIBLE)
+            Instances.VISIBLE, Instances.CALENDAR_ACCESS_LEVEL)
 
         fun of(context: Context) = EventStore(context.contentResolver, hidden(context))
 

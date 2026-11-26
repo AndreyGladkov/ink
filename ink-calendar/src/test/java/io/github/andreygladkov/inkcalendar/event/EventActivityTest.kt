@@ -2,12 +2,15 @@ package io.github.andreygladkov.inkcalendar.event
 
 import android.app.Activity
 import android.app.Application
+import android.provider.CalendarContract
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.assertPureBlackAndWhite
 import io.github.andreygladkov.ink.contentRoot
 import io.github.andreygladkov.ink.findOnPages
+import io.github.andreygladkov.ink.firstOnPages
 import io.github.andreygladkov.ink.render
+import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkcalendar.FakeCalendarProvider
 import io.github.andreygladkov.inkcalendar.Fixtures
@@ -18,6 +21,7 @@ import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.test.Test
@@ -48,6 +52,28 @@ class EventActivityTest {
         assertEquals(listOf("Событие", "Врач", "Четверг, 26 ноября", "14:00–15:00", "Повторяется", "Календарь", "Личный", "Место", "Поликлиника №2",
             "Заметки", "Взять полис", "Напоминания", "За 1 час", "За 1 день"), texts(activity))
         assertPureBlackAndWhite(render(contentRoot(activity)))
+    }
+
+    @Test fun anEventOfAWritableCalendarCanBeEditedAndDeletedOnASecondTap() {
+        provider.instance(8, at(TODAY, 18), at(TODAY, 19), "Ужин")
+        val activity = open(8, at(TODAY, 18))
+        contentRoot(activity).firstOnPages<InkButton> { it.text.toString() == "Изменить" }.performClick()
+        val asked = shadowOf(activity).nextStartedActivityForResult
+        assertEquals(EditActivity::class.java.name, asked.intent.component?.className)
+        val delete = contentRoot(activity).firstOnPages<InkButton> { it.text.toString() == "Удалить" }
+        delete.performClick()
+        assertEquals(emptyList(), provider.deletedEvents)
+        delete.performClick()
+        assertEquals(listOf(8L), provider.deletedEvents)
+        assertTrue(activity.isFinishing)
+    }
+
+    @Test fun repeatingAndReadOnlyEventsCannotBeChangedHere() {
+        provider.calendar(2, "Праздники", accessLevel = CalendarContract.Calendars.CAL_ACCESS_READ)
+        provider.instance(9, at(TODAY, 18), at(TODAY, 19), "Новый год", calendarId = 2)
+        listOf(open(5, at(TODAY, 14)), open(9, at(TODAY, 18))).forEach { activity ->
+            assertTrue(texts(activity).none { it == "Изменить" || it == "Удалить" })
+        }
     }
 
     @Test fun anEventNoLongerThereSaysSo() {

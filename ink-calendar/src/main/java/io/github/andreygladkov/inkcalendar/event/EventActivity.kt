@@ -7,10 +7,12 @@ import io.github.andreygladkov.ink.ui.InkPagedActivity
 import io.github.andreygladkov.ink.ui.InkPagedItems
 import io.github.andreygladkov.ink.ui.InkSettings
 import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.ink.ui.confirmBeforeAction
 import io.github.andreygladkov.inkcalendar.R
 import io.github.andreygladkov.inkcalendar.events.CalendarClock
 import io.github.andreygladkov.inkcalendar.events.EventFormat
 import io.github.andreygladkov.inkcalendar.events.EventStore
+import io.github.andreygladkov.inkcalendar.events.EventWriter
 import io.github.andreygladkov.inkcalendar.events.Occurrence
 
 class EventActivity : InkPagedActivity() {
@@ -49,6 +51,29 @@ class EventActivity : InkPagedActivity() {
             section(getString(R.string.event_reminders))
             reminders.forEach { minutes -> item { text(format.reminder(minutes)) } }
         }
+        if (occurrence.editable && !occurrence.repeats) {
+            item { InkSettings.rowButton(this@EventActivity, getString(R.string.edit_event)) { edit() } }
+            item {
+                InkSettings.rowButton(this@EventActivity, getString(R.string.delete_event)) {}.apply {
+                    confirmBeforeAction(R.string.delete_confirm) { delete() }
+                }
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun edit() = startActivityForResult(EditActivity.edit(this, eventId, begin), REQUEST_EDIT)
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_EDIT) EditActivity.savedBegin(data)?.let { intent.putExtra(EXTRA_BEGIN, it) }
+    }
+
+    private fun delete() {
+        EventWriter.of(this).delete(eventId)
+        finish()
     }
 
     private fun load(): Shown {
@@ -62,6 +87,7 @@ class EventActivity : InkPagedActivity() {
     companion object {
         private const val EXTRA_EVENT = "event"
         private const val EXTRA_BEGIN = "begin"
+        private const val REQUEST_EDIT = 1
 
         fun intent(context: Context, eventId: Long, begin: Long): Intent =
             Intent(context, EventActivity::class.java).putExtra(EXTRA_EVENT, eventId).putExtra(EXTRA_BEGIN, begin)

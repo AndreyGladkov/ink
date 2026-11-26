@@ -1,6 +1,7 @@
 package io.github.andreygladkov.inkcalendar
 
 import android.content.ContentProvider
+import android.content.ContentUris
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.MatrixCursor
@@ -13,6 +14,10 @@ class FakeCalendarProvider : ContentProvider() {
     val calendars = mutableListOf<Map<String, Any?>>()
     val instances = mutableListOf<Map<String, Any?>>()
     val reminders = mutableListOf<Map<String, Any?>>()
+    val alerts = mutableListOf<Map<String, Any?>>()
+    val events = mutableMapOf<Long, ContentValues>()
+    val deletedEvents = mutableListOf<Long>()
+    private var nextId = 100L
 
     override fun onCreate() = true
 
@@ -26,6 +31,7 @@ class FakeCalendarProvider : ContentProvider() {
                 instances.filter { (it[CalendarContract.Instances.BEGIN] as Long) < end && (it[CalendarContract.Instances.END] as Long) > begin }
             }
             "reminders" -> reminders.filter { it[CalendarContract.Reminders.EVENT_ID].toString() == selectionArgs?.firstOrNull() }
+            "calendar_alerts" -> alerts.filter { it[CalendarContract.CalendarAlerts.ALARM_TIME].toString() == selectionArgs?.firstOrNull() }
             else -> error("unexpected query $uri")
         }
         val columns = projection ?: rows.firstOrNull()?.keys?.toTypedArray() ?: emptyArray()
@@ -34,11 +40,39 @@ class FakeCalendarProvider : ContentProvider() {
 
     override fun getType(uri: Uri): String? = null
 
-    override fun insert(uri: Uri, values: ContentValues?): Uri? = null
+    override fun insert(uri: Uri, values: ContentValues?): Uri? {
+        val id = nextId++
+        val row = values ?: ContentValues()
+        when (uri.pathSegments.first()) {
+            "events" -> events[id] = row
+            "reminders" -> reminders += row.keySet().associateWith { row.get(it) }
+            "calendars" -> {
+                check(uri.getQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER) == "true") { "only a sync adapter may add a calendar" }
+                calendars += row.keySet().associateWith { row.get(it) } + (CalendarContract.Calendars._ID to id)
+            }
+            else -> error("unexpected insert $uri")
+        }
+        return ContentUris.withAppendedId(uri, id)
+    }
 
-    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?) = 0
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int = when (uri.pathSegments.first()) {
+        "events" -> {
+            deletedEvents += ContentUris.parseId(uri)
+            1
+        }
+        "reminders" -> {
+            val before = reminders.size
+            reminders.removeAll { it[CalendarContract.Reminders.EVENT_ID].toString() == selectionArgs?.firstOrNull() }
+            before - reminders.size
+        }
+        else -> error("unexpected delete $uri")
+    }
 
-    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?) = 0
+    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?): Int {
+        check(uri.pathSegments.first() == "events") { "unexpected update $uri" }
+        events[ContentUris.parseId(uri)] = values ?: ContentValues()
+        return 1
+    }
 
     fun calendar(id: Long, name: String, account: String = "me@example.org", visible: Boolean = true, accessLevel: Int = CalendarContract.Calendars.CAL_ACCESS_OWNER) {
         calendars += mapOf(
@@ -74,6 +108,7 @@ class FakeCalendarProvider : ContentProvider() {
             CalendarContract.Instances.DESCRIPTION to notes,
             CalendarContract.Instances.RRULE to rrule,
             CalendarContract.Instances.VISIBLE to (calendar?.get(CalendarContract.Calendars.VISIBLE) ?: 1),
+            CalendarContract.Instances.CALENDAR_ACCESS_LEVEL to (calendar?.get(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL) ?: CalendarContract.Calendars.CAL_ACCESS_OWNER),
         )
     }
 
@@ -82,6 +117,19 @@ class FakeCalendarProvider : ContentProvider() {
             CalendarContract.Reminders.EVENT_ID to eventId,
             CalendarContract.Reminders.MINUTES to minutes,
             CalendarContract.Reminders.METHOD to method,
+        )
+    }
+
+    fun alert(alarmTime: Long, eventId: Long, begin: Long, end: Long, title: String, calendarId: Long = 1, location: String? = null) {
+        alerts += mapOf(
+            CalendarContract.CalendarAlerts.ALARM_TIME to alarmTime,
+            CalendarContract.CalendarAlerts.EVENT_ID to eventId,
+            CalendarContract.CalendarAlerts.BEGIN to begin,
+            CalendarContract.CalendarAlerts.END to end,
+            CalendarContract.CalendarAlerts.ALL_DAY to 0,
+            CalendarContract.CalendarAlerts.TITLE to title,
+            CalendarContract.CalendarAlerts.EVENT_LOCATION to location,
+            CalendarContract.CalendarAlerts.CALENDAR_ID to calendarId,
         )
     }
 

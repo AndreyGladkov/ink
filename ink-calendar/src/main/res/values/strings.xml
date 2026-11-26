@@ -38,6 +38,29 @@
         <item quantity="other">%d days before</item>
     </plurals>
 
+    <string name="new_event">New event</string>
+    <string name="edit_event">Edit</string>
+    <string name="delete_event">Delete</string>
+    <string name="delete_confirm">Delete?</string>
+    <string name="title_hint">Title</string>
+    <string name="event_start">Starts</string>
+    <string name="event_end">Ends</string>
+    <string name="event_reminder">Reminder</string>
+    <string name="reminder_none">None</string>
+    <string name="reminder_short_start">At start</string>
+    <string name="reminder_short_minutes">10 min</string>
+    <string name="reminder_short_hour">1 hour</string>
+    <string name="reminder_short_day">1 day</string>
+    <string name="end_before_start">The event ends before it starts</string>
+    <string name="not_saved">The calendar did not take the event</string>
+    <string name="local_calendar">Phone</string>
+    <string name="settings_new_events">Calendar for new events</string>
+    <string name="settings_reminders">Remind of events</string>
+    <string name="reminders_hint">Turn it off if another app, such as Google Calendar, already reminds you of events.</string>
+    <string name="channel_reminders">Event reminders</string>
+    <string name="snooze">In 10 minutes</string>
+    <string name="dismiss">Close</string>
+
     <string name="settings_calendars">Calendars</string>
     <string name="no_calendars">There are no calendars on the phone yet</string>
 
