@@ -1,0 +1,14 @@
+Ink Calendar is a calendar for Android phones with e-ink screens, laid out like the month view of the iPhone's Calendar, built for the Hisense A9 as a companion to the other Ink apps. It shows the calendars already on the phone, so whatever your Google or CalDAV account syncs is there.
+
+Every pixel is pure black or white, with no antialiasing and no animations.
+
+<ul>
+<li>The month on top, the chosen day's events below; today filled, the chosen day ringed, a dot under every day with events.</li>
+<li>Whole months turn with arrows or a swipe, with no scrolling; the month's title opens the year.</li>
+<li>Events with a time, a calendar, a place, notes and reminders; adding, changing and deleting them, with a second tap instead of a dialog.</li>
+<li>Reminders as notifications with In 10 minutes and Close.</li>
+<li>A home screen widget with the date and what is left of today and tomorrow, redrawn only when that changes.</li>
+<li>Any calendar can be hidden; with no account calendar, events stay in a calendar on the phone.</li>
+</ul>
+
+The app does not use the internet; it asks for access to the phone's calendars and to show notifications, for reminders.

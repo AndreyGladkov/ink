@@ -1,0 +1,1 @@
+A calendar like the iPhone's month view, with a widget, for e-ink phones
