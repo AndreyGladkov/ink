@@ -43,6 +43,14 @@ class SettingsActivityTest {
         assertFalse(context.inkPrefs().getBoolean(LauncherPrefs.OPEN_ONLY_MATCH, true))
     }
 
+    @Test fun openingTheKeyboardAtOnceIsASettingThatStartsOff() {
+        val activity = Robolectric.buildActivity(SettingsActivity::class.java).setup().get()
+        val row = contentRoot(activity).findOnPages<InkChoiceRow<*>>().single { it.find<InkTextView>().any { view -> view.text.toString() == "Сразу открывать клавиатуру" } }
+        assertTrue(row.find<InkButton>().single { it.text.toString() == "Выкл" }.isSelected)
+        row.find<InkButton>().single { it.text.toString() == "Вкл" }.performClick()
+        assertTrue(context.inkPrefs().getBoolean(LauncherPrefs.SEARCH_AT_ONCE, false))
+    }
+
     private fun texts() = Robolectric.buildActivity(SettingsActivity::class.java).setup().get()
         .let { contentRoot(it).findOnPages<InkTextView>().map { view -> view.text.toString() } }
 

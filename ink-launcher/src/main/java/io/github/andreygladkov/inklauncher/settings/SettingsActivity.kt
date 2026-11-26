@@ -85,6 +85,12 @@ class SettingsActivity : InkPagedActivity() {
             }
         }
         item { hint(getString(R.string.open_only_match_hint)) }
+        item {
+            InkSettings.onOff(this@SettingsActivity, R.string.search_at_once, inkPrefs().getBoolean(LauncherPrefs.SEARCH_AT_ONCE, false)) { atOnce ->
+                inkPrefs().edit { putBoolean(LauncherPrefs.SEARCH_AT_ONCE, atOnce) }
+            }
+        }
+        item { hint(getString(R.string.search_at_once_hint)) }
     }
 
     private fun setSpec(spec: GridSpec) {

@@ -15,6 +15,8 @@
     <string name="search_apps">Search by name</string>
     <string name="open_only_match">Open the only app found</string>
     <string name="open_only_match_hint">When a search leaves one app, it opens without a tap.</string>
+    <string name="search_at_once">Open the keyboard at once</string>
+    <string name="search_at_once_hint">The app list opens with the search field and the keyboard, also when picking an app for a cell.</string>
     <string name="search_widgets">Search by widget or app</string>
     <string name="search_icons">Search by icon or app name</string>
     <string name="loading">Loading…</string>
