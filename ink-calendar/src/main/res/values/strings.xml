@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ink_prefs_file" translatable="false">ink_calendar</string>
+    <string name="app_name" translatable="false">Ink Calendar</string>
+    <string name="launcher_label">Calendar</string>
+
+    <string name="permission_explain">Ink Calendar shows the events of the calendars on this phone: those your accounts sync and its own.</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="no_events">No events</string>
+    <string name="no_title">(No title)</string>
+    <string name="all_day">All day</string>
+    <string name="time_until">until %1$s</string>
+    <string name="time_from">from %1$s</string>
+    <string name="time_range" translatable="false">%1$s–%2$s</string>
+    <string name="prev_year">Previous year</string>
+    <string name="next_year">Next year</string>
+    <string name="choose_year">Choose another month</string>
+
+    <string name="event">Event</string>
+    <string name="event_gone">This event is no longer in the calendar</string>
+    <string name="event_calendar">Calendar</string>
+    <string name="event_location">Place</string>
+    <string name="event_notes">Notes</string>
+    <string name="event_reminders">Reminders</string>
+    <string name="event_repeats">Repeats</string>
+    <string name="reminder_at_start">When it starts</string>
+    <plurals name="minutes_before">
+        <item quantity="one">%d minute before</item>
+        <item quantity="other">%d minutes before</item>
+    </plurals>
+    <plurals name="hours_before">
+        <item quantity="one">%d hour before</item>
+        <item quantity="other">%d hours before</item>
+    </plurals>
+    <plurals name="days_before">
+        <item quantity="one">%d day before</item>
+        <item quantity="other">%d days before</item>
+    </plurals>
+
+    <string name="settings_calendars">Calendars</string>
+    <string name="no_calendars">There are no calendars on the phone yet</string>
+
+    <string name="widget_label">Calendar</string>
+    <string name="widget_description">Today\'s date and what is next</string>
+    <string name="widget_no_access">Open the calendar to allow access</string>
+
+    <string name="about_license">Ink Calendar is free software under the GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Calendar sends nothing anywhere: it reads and writes the calendars on the phone, and only your accounts sync them.</string>
+</resources>
