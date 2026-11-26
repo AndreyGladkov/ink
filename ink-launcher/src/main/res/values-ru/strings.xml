@@ -13,6 +13,8 @@
     <string name="search_apps">Поиск по названию</string>
     <string name="open_only_match">Открывать единственное найденное</string>
     <string name="open_only_match_hint">Когда поиск оставляет одно приложение, оно открывается без нажатия.</string>
+    <string name="search_at_once">Сразу открывать клавиатуру</string>
+    <string name="search_at_once_hint">Список приложений открывается с полем поиска и клавиатурой, и при выборе приложения для клетки тоже.</string>
     <string name="search_widgets">Поиск по виджету или приложению</string>
     <string name="search_icons">Поиск по иконке или приложению</string>
     <string name="loading">Загрузка…</string>

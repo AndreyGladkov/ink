@@ -20,10 +20,13 @@ import android.graphics.Rect
 import android.os.Looper
 import android.os.Process
 import android.provider.Settings
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.assertPureBlackAndWhite
@@ -62,6 +65,7 @@ import io.github.andreygladkov.inklauncher.ui.NotificationsScreen
 import io.github.andreygladkov.inklauncher.ui.PagerBar
 import io.github.andreygladkov.inklauncher.ui.ScreenTimeScreen
 import io.github.andreygladkov.inklauncher.ui.ScreenTimeView
+import io.github.andreygladkov.inklauncher.ui.SearchHeader
 import io.github.andreygladkov.inklauncher.ui.SheetAction
 import io.github.andreygladkov.inklauncher.ui.TileView
 import io.github.andreygladkov.inklauncher.ui.WidgetPickerScreen
@@ -295,6 +299,155 @@ class HomeActivityTest {
         picking.showAllApps(target = Spot(Sheet.Page(0), 0, 0))
         assertEquals(listOf("Почта"), listed(search(picking, "поч")))
         assertEquals(null, shadowOf(picking).nextStartedActivity)
+    }
+
+    @Test fun allAppsCanOpenWithTheSearchAndKeyboardReady() {
+        context.inkPrefs().edit().putBoolean(LauncherPrefs.SEARCH_AT_ONCE, true).putBoolean(LauncherPrefs.OPEN_ONLY_MATCH, false).commit()
+        val activity = open()
+        activity.showAllApps()
+        laidOut(activity)
+        val screen = contentRoot(activity).find<AllAppsScreen>().single()
+        val field = screen.find<InkEditText>().single()
+        assertTrue(screen.isSearching)
+        assertTrue(field.hasFocus())
+        assertTrue(shadowOf(context.getSystemService(InputMethodManager::class.java)).isSoftInputVisible)
+
+        field.setText("поч")
+        laidOut(activity)
+        @Suppress("DEPRECATION")
+        activity.onBackPressed()
+        assertTrue(!screen.isSearching)
+        assertTrue(contentRoot(activity).find<AllAppsScreen>().isNotEmpty())
+    }
+
+    @Test fun aSearchThatOpenedWithAllAppsAndWasNotUsedIsNoStepBack() {
+        context.inkPrefs().edit().putBoolean(LauncherPrefs.SEARCH_AT_ONCE, true).commit()
+        val activity = open()
+        activity.showAllApps()
+        laidOut(activity)
+        @Suppress("DEPRECATION")
+        activity.onBackPressed()
+        laidOut(activity)
+        assertTrue(contentRoot(activity).find<AllAppsScreen>().isEmpty())
+    }
+
+    @Test fun aSearchThatOpenedWithAllAppsAndWasNotUsedLetsBackPastTheKeyboard() {
+        context.inkPrefs().edit().putBoolean(LauncherPrefs.SEARCH_AT_ONCE, true).commit()
+        val activity = open()
+        activity.showAllApps()
+        laidOut(activity)
+        assertTrue(backBeforeKeyboard(activity))
+        laidOut(activity)
+        assertTrue(contentRoot(activity).find<AllAppsScreen>().isEmpty())
+    }
+
+    @Test fun aSearchInUseLeavesTheFirstBackToTheKeyboard() {
+        context.inkPrefs().edit().putBoolean(LauncherPrefs.SEARCH_AT_ONCE, true).putBoolean(LauncherPrefs.OPEN_ONLY_MATCH, false).commit()
+        val activity = open()
+        activity.showAllApps()
+        laidOut(activity)
+        val screen = contentRoot(activity).find<AllAppsScreen>().single()
+        screen.find<InkEditText>().single().setText("поч")
+        assertFalse(backBeforeKeyboard(activity))
+        assertTrue(screen.isSearching)
+    }
+
+    private fun backBeforeKeyboard(activity: HomeActivity): Boolean {
+        val root = contentRoot(activity).rootView
+        val down = root.dispatchKeyEventPreIme(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK))
+        val up = root.dispatchKeyEventPreIme(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK))
+        return down && up
+    }
+
+    @Test fun closingASearchWithNothingTypedReportsNoQuery() {
+        val activity = open()
+        var reported = 0
+        val header = SearchHeader(activity, "Все приложения", R.string.search_apps, null) { reported++ }
+        header.open()
+        assertTrue(header.close())
+        assertEquals(0, reported)
+    }
+
+    @Test fun aSearchOpenedAgainByHandIsClosedByBackFirst() {
+        context.inkPrefs().edit().putBoolean(LauncherPrefs.SEARCH_AT_ONCE, true).commit()
+        val activity = open()
+        activity.showAllApps()
+        laidOut(activity)
+        val screen = contentRoot(activity).find<AllAppsScreen>().single()
+        screen.find<InkButton>().single { it.contentDescription == "Закрыть поиск" }.performClick()
+        screen.find<InkButton>().single { it.contentDescription == "Поиск по названию" }.performClick()
+        @Suppress("DEPRECATION")
+        activity.onBackPressed()
+        laidOut(activity)
+        assertTrue(!screen.isSearching)
+        assertTrue(contentRoot(activity).find<AllAppsScreen>().isNotEmpty())
+    }
+
+    @Test fun leavingAllAppsHidesTheKeyboardItOpened() {
+        context.inkPrefs().edit().putBoolean(LauncherPrefs.SEARCH_AT_ONCE, true).commit()
+        val activity = open()
+        activity.showAllApps()
+        laidOut(activity)
+        val keyboard = shadowOf(context.getSystemService(InputMethodManager::class.java))
+        assertTrue(keyboard.isSoftInputVisible)
+        activity.showHome()
+        laidOut(activity)
+        assertFalse(keyboard.isSoftInputVisible)
+    }
+
+    @Test fun theCrossGivesWayToTheMagnifierWhenTheKeyboardClosesOverAQuery() {
+        context.inkPrefs().edit().putBoolean(LauncherPrefs.OPEN_ONLY_MATCH, false).commit()
+        val activity = open()
+        activity.showAllApps()
+        val screen = search(activity, "поч")
+        val field = screen.find<InkEditText>().single()
+        assertEquals(listOf("Закрыть поиск"), headerButtons(screen))
+
+        field.onEditorAction(EditorInfo.IME_ACTION_SEARCH)
+        assertFalse(field.hasFocus())
+        assertEquals(listOf("Поиск по названию"), headerButtons(screen))
+        assertTrue(screen.isSearching)
+        assertEquals(listOf("Почта"), listed(screen))
+
+        screen.find<InkButton>().single { it.contentDescription == "Поиск по названию" }.performClick()
+        assertTrue(field.hasFocus())
+        assertEquals("поч", field.text.toString())
+        assertEquals(listOf("Закрыть поиск"), headerButtons(screen))
+    }
+
+    @Test fun theSystemBackThatHidesTheKeyboardTakesTheFocusFromTheSearch() {
+        context.inkPrefs().edit().putBoolean(LauncherPrefs.OPEN_ONLY_MATCH, false).commit()
+        val activity = open()
+        activity.showAllApps()
+        val screen = search(activity, "поч")
+        fun keyboard(shown: Boolean) = contentRoot(activity).dispatchApplyWindowInsets(
+            WindowInsets.Builder().setInsets(WindowInsets.Type.ime(), Insets.of(0, 0, 0, if (shown) 700 else 0))
+                .setVisible(WindowInsets.Type.ime(), shown).build()
+        )
+        keyboard(true)
+        keyboard(false)
+        assertFalse(screen.find<InkEditText>().single().hasFocus())
+        assertEquals(listOf("Поиск по названию"), headerButtons(screen))
+    }
+
+    @Test fun aSearchLeftEmptyWhenTheKeyboardClosesGivesBackTheTitle() {
+        val activity = open()
+        activity.showAllApps()
+        val screen = contentRoot(activity).find<AllAppsScreen>().single()
+        screen.find<InkButton>().single { it.contentDescription == "Поиск по названию" }.performClick()
+        screen.find<InkEditText>().single().onEditorAction(EditorInfo.IME_ACTION_SEARCH)
+        assertFalse(screen.isSearching)
+        assertEquals(listOf("Поиск по названию"), headerButtons(screen))
+    }
+
+    private fun headerButtons(screen: AllAppsScreen) =
+        screen.find<InkButton>().filter { it.isShown && it.contentDescription in setOf("Поиск по названию", "Закрыть поиск") }.map { it.contentDescription }
+
+    @Test fun allAppsOpensWithoutTheSearchByDefault() {
+        val activity = open()
+        activity.showAllApps()
+        laidOut(activity)
+        assertTrue(!contentRoot(activity).find<AllAppsScreen>().single().isSearching)
     }
 
     private fun search(activity: HomeActivity, query: String): AllAppsScreen {

@@ -4,6 +4,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.core.view.doOnAttach
 import io.github.andreygladkov.ink.search.SearchQuery
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.inkPrefs
@@ -42,6 +43,7 @@ class AllAppsScreen(private val activity: HomeActivity, private val target: Spot
             addView(empty, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER))
         }, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
         refresh()
+        if (activity.inkPrefs().getBoolean(LauncherPrefs.SEARCH_AT_ONCE, false)) doOnAttach { search.open(asked = false) }
     }
 
     val isSearching: Boolean get() = search.isSearching
@@ -51,7 +53,7 @@ class AllAppsScreen(private val activity: HomeActivity, private val target: Spot
         show(keepPage = true)
     }
 
-    override fun onBack(): Boolean = search.close()
+    override fun onBack(): Boolean = !search.openedUnasked && search.close()
 
     private fun show(keepPage: Boolean) {
         val anchor = apps.getOrNull(list.firstPosition)?.key
