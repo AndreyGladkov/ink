@@ -1,4 +1,4 @@
-package io.github.andreygladkov.inktasks.task
+package io.github.andreygladkov.ink.ui
 
 import android.app.Activity
 import android.content.Context
@@ -6,15 +6,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.widget.LinearLayout
-import io.github.andreygladkov.ink.ui.InkButton
-import io.github.andreygladkov.ink.ui.InkHeader
-import io.github.andreygladkov.ink.ui.InkWindow
-import io.github.andreygladkov.ink.ui.TimeInput
-import io.github.andreygladkov.inktasks.R
+import io.github.andreygladkov.ink.R
 import java.time.LocalTime
 import kotlin.math.roundToInt
 
-class TimeActivity : Activity() {
+class InkTimeActivity : Activity() {
     private lateinit var input: TimeInput
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,10 +24,10 @@ class TimeActivity : Activity() {
         }
         InkWindow.setContent(this, LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(InkHeader.of(this@TimeActivity, getString(R.string.reminder), ::finish, ready))
+            addView(InkHeader.of(this@InkTimeActivity, intent.getStringExtra(EXTRA_TITLE).orEmpty(), ::finish, ready))
             val padding = dp(PADDING_DP)
             input.setPadding(padding, 0, padding, padding)
-            addView(input,LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            addView(input, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
         })
     }
 
@@ -45,11 +41,14 @@ class TimeActivity : Activity() {
 
     companion object {
         private const val EXTRA_TIME = "time"
+        private const val EXTRA_TITLE = "title"
         private const val PADDING_DP = 16f
         private val DEFAULT_TIME = LocalTime.of(9, 0)
 
-        fun intent(context: Context, time: LocalTime?): Intent =
-            Intent(context, TimeActivity::class.java).apply { time?.let { putExtra(EXTRA_TIME, it.toSecondOfDay()) } }
+        fun intent(context: Context, title: String, time: LocalTime?): Intent =
+            Intent(context, InkTimeActivity::class.java)
+                .putExtra(EXTRA_TITLE, title)
+                .apply { time?.let { putExtra(EXTRA_TIME, it.toSecondOfDay()) } }
 
         fun chosen(data: Intent?): LocalTime? = data?.takeIf { it.hasExtra(EXTRA_TIME) }?.let { LocalTime.ofSecondOfDay(it.getIntExtra(EXTRA_TIME, 0).toLong()) }
     }

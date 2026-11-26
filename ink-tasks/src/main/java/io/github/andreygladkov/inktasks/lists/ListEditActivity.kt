@@ -18,6 +18,7 @@ import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.confirmBeforeAction
+import io.github.andreygladkov.ink.R as InkR
 import io.github.andreygladkov.inktasks.R
 import io.github.andreygladkov.inktasks.store.ListName
 import io.github.andreygladkov.inktasks.store.TaskLists
@@ -33,7 +34,7 @@ class ListEditActivity : Activity() {
         super.onCreate(savedInstanceState)
         original = intent.getStringExtra(EXTRA_NAME)
         val ready = InkButton(this).apply {
-            setText(R.string.ready)
+            setText(InkR.string.ready)
             setOnClickListener { save() }
         }
         val title = original?.let { getString(R.string.list) } ?: getString(R.string.new_list)

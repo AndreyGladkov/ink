@@ -44,8 +44,6 @@
     <string name="move">Move</string>
     <string name="delete">Delete</string>
     <string name="delete_confirm">Delete?</string>
-    <string name="prev_month">Previous month</string>
-    <string name="next_month">Next month</string>
 
     <string name="done">Done</string>
     <string name="no_done">Nothing done yet</string>
@@ -61,7 +59,6 @@
     <string name="list">List</string>
     <string name="edit_list">Edit “%1$s”</string>
     <string name="list_name_hint">List name</string>
-    <string name="ready">Done</string>
     <string name="list_exists">There is already such a list</string>
     <string name="sort">Sort</string>
     <string name="sort_manual">My order</string>

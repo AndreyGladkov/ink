@@ -1,4 +1,4 @@
-package io.github.andreygladkov.inktasks.task
+package io.github.andreygladkov.ink.ui
 
 import android.app.Activity
 import android.app.Application
@@ -9,11 +9,6 @@ import io.github.andreygladkov.ink.assertPureBlackAndWhite
 import io.github.andreygladkov.ink.contentRoot
 import io.github.andreygladkov.ink.find
 import io.github.andreygladkov.ink.render
-import io.github.andreygladkov.ink.ui.InkButton
-import io.github.andreygladkov.ink.ui.InkTextView
-import io.github.andreygladkov.inktasks.Fixtures
-import org.junit.After
-import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -28,22 +23,17 @@ import kotlin.test.assertTrue
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = A9_QUALIFIERS)
-class DateActivityTest {
+class InkDateActivityTest {
     private val context = ApplicationProvider.getApplicationContext<Application>()
+    private val today = LocalDate.of(2026, 11, 24)
 
-    @Before fun fixToday() = Fixtures.fixToday()
-
-    @After fun restore() = Fixtures.restoreClock()
-
-    @Test fun theMonthOfTheDateIsShownFromMondayWithTheDateSelectedAndTodayBold() {
+    @Test fun theMonthOfTheDateIsShownUnderTheTitleWithTheDateSelectedAndTodayFilled() {
         val activity = open(LocalDate.of(2026, 11, 25))
-        assertTrue(texts(activity).contains("Ноябрь 2026"))
-        assertEquals("пн", texts(activity).first { it.length == 2 }.lowercase())
+        assertTrue(texts(activity).containsAll(listOf("Срок", "Ноябрь 2026")))
         val shown = days(activity).filter { it.visibility == View.VISIBLE }
         assertEquals((1..30).map(Int::toString), shown.map { it.text.toString() })
         assertEquals(listOf("25"), shown.filter { it.isSelected }.map { it.text.toString() })
-        assertEquals(listOf("24"), shown.filter { it.isBold }.map { it.text.toString() })
-        assertEquals(View.INVISIBLE, days(activity).first().visibility)
+        assertEquals(listOf("24"), shown.filter { it.isToday }.map { it.text.toString() })
         assertPureBlackAndWhite(render(contentRoot(activity)))
     }
 
@@ -57,15 +47,17 @@ class DateActivityTest {
         val activity = open(LocalDate.of(2026, 11, 25))
         contentRoot(activity).find<InkButton>().single { it.contentDescription == "Следующий месяц" }.performClick()
         assertTrue(texts(activity).contains("Декабрь 2026"))
+        assertTrue(days(activity).none { it.isToday && it.visibility == View.VISIBLE })
         days(activity).single { it.contentDescription == "2026-12-31" }.performClick()
         assertEquals(Activity.RESULT_OK, shadowOf(activity).resultCode)
-        assertEquals(LocalDate.of(2026, 12, 31), DateActivity.chosen(shadowOf(activity).resultIntent))
+        assertEquals(LocalDate.of(2026, 12, 31), InkDateActivity.chosen(shadowOf(activity).resultIntent))
         assertTrue(activity.isFinishing)
     }
 
-    private fun open(date: LocalDate?) = Robolectric.buildActivity(DateActivity::class.java, DateActivity.intent(context, date)).setup().get()
+    private fun open(date: LocalDate?) =
+        Robolectric.buildActivity(InkDateActivity::class.java, InkDateActivity.intent(context, "Срок", date, today)).setup().get()
 
-    private fun days(activity: DateActivity) = contentRoot(activity).find<InkButton>().filter { it.contentDescription?.matches(Regex("""\d{4}-\d{2}-\d{2}""")) == true }
+    private fun days(activity: Activity) = contentRoot(activity).find<DayCell>()
 
-    private fun texts(activity: DateActivity) = contentRoot(activity).find<InkTextView>().filter { it !is InkButton }.map { it.text.toString() }
+    private fun texts(activity: Activity) = contentRoot(activity).find<InkTextView>().filter { it !is InkButton && it !is DayCell }.map { it.text.toString() }
 }

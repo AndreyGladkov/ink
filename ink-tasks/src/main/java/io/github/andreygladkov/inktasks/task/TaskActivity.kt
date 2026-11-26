@@ -17,9 +17,11 @@ import android.widget.ScrollView
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkButtonRow
+import io.github.andreygladkov.ink.ui.InkDateActivity
 import io.github.andreygladkov.ink.ui.InkEditText
 import io.github.andreygladkov.ink.ui.InkHeader
 import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.ink.ui.InkTimeActivity
 import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.PermissionGate
 import io.github.andreygladkov.ink.ui.addSection
@@ -103,8 +105,8 @@ class TaskActivity : Activity() {
         @Suppress("DEPRECATION")
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
-            REQUEST_DATE -> DateActivity.chosen(data)?.let(::setDue)
-            REQUEST_TIME -> TimeActivity.chosen(data)?.let(::setReminderTime)
+            REQUEST_DATE -> InkDateActivity.chosen(data)?.let(::setDue)
+            REQUEST_TIME -> InkTimeActivity.chosen(data)?.let(::setReminderTime)
         }
     }
 
@@ -338,7 +340,7 @@ class TaskActivity : Activity() {
     @Suppress("DEPRECATION")
     private fun pickTime() {
         val reminder = task?.reminder ?: newReminder().takeIf { task == null }
-        startActivityForResult(TimeActivity.intent(this, reminder?.toLocalTime() ?: newTime), REQUEST_TIME)
+        startActivityForResult(InkTimeActivity.intent(this, getString(R.string.reminder), reminder?.toLocalTime() ?: newTime), REQUEST_TIME)
     }
 
     private fun setReminderTime(time: LocalTime) {
@@ -363,7 +365,7 @@ class TaskActivity : Activity() {
 
     @Suppress("DEPRECATION")
     private fun pickDate() {
-        startActivityForResult(DateActivity.intent(this, task?.due ?: newDue.takeIf { task == null }), REQUEST_DATE)
+        startActivityForResult(InkDateActivity.intent(this, getString(R.string.due), task?.due ?: newDue.takeIf { task == null }, TaskLists.today()), REQUEST_DATE)
     }
 
     private fun addSubtask() {

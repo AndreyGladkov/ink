@@ -42,8 +42,6 @@
     <string name="move">Переместить</string>
     <string name="delete">Удалить</string>
     <string name="delete_confirm">Удалить?</string>
-    <string name="prev_month">Предыдущий месяц</string>
-    <string name="next_month">Следующий месяц</string>
 
     <string name="done">Выполнено</string>
     <string name="no_done">Выполненных нет</string>
@@ -59,7 +57,6 @@
     <string name="list">Список</string>
     <string name="edit_list">Изменить «%1$s»</string>
     <string name="list_name_hint">Название списка</string>
-    <string name="ready">Готово</string>
     <string name="list_exists">Такой список уже есть</string>
     <string name="sort">Сортировка</string>
     <string name="sort_manual">По порядку</string>

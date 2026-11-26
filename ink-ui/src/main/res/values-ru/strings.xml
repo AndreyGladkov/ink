@@ -41,4 +41,7 @@
     <string name="am">AM</string>
     <string name="pm">PM</string>
     <string name="erase">Стереть</string>
+    <string name="ready">Готово</string>
+    <string name="prev_month">Предыдущий месяц</string>
+    <string name="next_month">Следующий месяц</string>
 </resources>

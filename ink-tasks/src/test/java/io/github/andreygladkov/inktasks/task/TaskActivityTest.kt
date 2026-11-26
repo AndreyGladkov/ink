@@ -13,9 +13,12 @@ import io.github.andreygladkov.ink.assertPureBlackAndWhite
 import io.github.andreygladkov.ink.contentRoot
 import io.github.andreygladkov.ink.find
 import io.github.andreygladkov.ink.render
+import io.github.andreygladkov.ink.ui.DayCell
 import io.github.andreygladkov.ink.ui.InkButton
+import io.github.andreygladkov.ink.ui.InkDateActivity
 import io.github.andreygladkov.ink.ui.InkEditText
 import io.github.andreygladkov.ink.ui.InkTextView
+import io.github.andreygladkov.ink.ui.InkTimeActivity
 import io.github.andreygladkov.inktasks.Fixtures
 import io.github.andreygladkov.inktasks.MainActivity
 import io.github.andreygladkov.inktasks.remind.ReminderNotifications
@@ -108,7 +111,10 @@ class TaskActivityTest {
         val activity = edit(milk).get()
         button(activity, "Другая дата…").performClick()
         val asked = shadowOf(activity).nextStartedActivityForResult
-        assertEquals(DateActivity::class.java.name, asked.intent.component?.className)
+        assertEquals(InkDateActivity::class.java.name, asked.intent.component?.className)
+        val picker = Robolectric.buildActivity(InkDateActivity::class.java, asked.intent).setup().get()
+        assertTrue(contentRoot(picker).find<InkTextView>().any { it.text.toString() == "Срок" })
+        assertEquals(listOf("24"), contentRoot(picker).find<DayCell>().filter { it.isToday }.map { it.text.toString() })
         shadowOf(activity).receiveResult(asked.intent, Activity.RESULT_OK, Intent().putExtra("date", LocalDate.of(2027, 1, 5).toEpochDay()))
         assertTrue("- [ ] Купить молоко 📅 2027-01-05\n" in Fixtures.read(context, "Дом"))
     }
@@ -241,7 +247,7 @@ class TaskActivityTest {
     private fun pickTime(activity: TaskActivity, label: String, time: LocalTime) {
         button(activity, label).performClick()
         val asked = shadowOf(activity).nextStartedActivityForResult
-        assertEquals(TimeActivity::class.java.name, asked.intent.component?.className)
+        assertEquals(InkTimeActivity::class.java.name, asked.intent.component?.className)
         shadowOf(activity).receiveResult(asked.intent, Activity.RESULT_OK, Intent().putExtra("time", time.toSecondOfDay()))
     }
 
