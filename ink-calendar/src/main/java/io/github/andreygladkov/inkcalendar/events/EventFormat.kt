@@ -14,10 +14,13 @@ class EventFormat(private val context: Context, private val zone: ZoneId = Calen
     private val clock = DateTimeFormatter.ofPattern(if (DateFormat.is24HourFormat(context)) "H:mm" else "h:mm a", locale)
     private val longDay = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEEMMMMd"), locale)
     private val shortDay = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "MMMMd"), locale)
+    private val compactDay = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEMMMd"), locale)
     private val weekday = DateTimeFormatter.ofPattern("EEEE", locale)
     private val month = DateTimeFormatter.ofPattern("LLLL", locale)
 
     fun day(date: LocalDate): String = capitalized(longDay.format(date))
+
+    fun compactDay(date: LocalDate): String = capitalized(compactDay.format(date))
 
     fun weekday(date: LocalDate): String = capitalized(weekday.format(date))
 

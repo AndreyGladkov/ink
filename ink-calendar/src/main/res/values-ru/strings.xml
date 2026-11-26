@@ -41,6 +41,29 @@
         <item quantity="other">За %d дня</item>
     </plurals>
 
+    <string name="new_event">Новое событие</string>
+    <string name="edit_event">Изменить</string>
+    <string name="delete_event">Удалить</string>
+    <string name="delete_confirm">Удалить?</string>
+    <string name="title_hint">Название</string>
+    <string name="event_start">Начало</string>
+    <string name="event_end">Конец</string>
+    <string name="event_reminder">Напоминание</string>
+    <string name="reminder_none">Нет</string>
+    <string name="reminder_short_start">Сразу</string>
+    <string name="reminder_short_minutes">10 мин</string>
+    <string name="reminder_short_hour">1 час</string>
+    <string name="reminder_short_day">1 день</string>
+    <string name="end_before_start">Событие кончается раньше, чем начинается</string>
+    <string name="not_saved">Календарь не принял событие</string>
+    <string name="local_calendar">Телефон</string>
+    <string name="settings_new_events">Календарь для новых событий</string>
+    <string name="settings_reminders">Напоминать о событиях</string>
+    <string name="reminders_hint">Выключите, если о событиях уже напоминает другое приложение, например Google Календарь.</string>
+    <string name="channel_reminders">Напоминания о событиях</string>
+    <string name="snooze">Через 10 минут</string>
+    <string name="dismiss">Закрыть</string>
+
     <string name="settings_calendars">Календари</string>
     <string name="no_calendars">На телефоне пока нет календарей</string>
 

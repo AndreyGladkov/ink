@@ -6,7 +6,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.database.ContentObserver
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,6 +19,8 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
+import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.ui.InkButton
 import io.github.andreygladkov.ink.ui.InkHeader
@@ -26,11 +30,13 @@ import io.github.andreygladkov.ink.ui.InkWindow
 import io.github.andreygladkov.ink.ui.MonthGrid
 import io.github.andreygladkov.ink.ui.PermissionGate
 import io.github.andreygladkov.ink.ui.twoLines
+import io.github.andreygladkov.inkcalendar.event.EditActivity
 import io.github.andreygladkov.inkcalendar.event.EventActivity
 import io.github.andreygladkov.inkcalendar.events.CalendarClock
 import io.github.andreygladkov.inkcalendar.events.EventFormat
 import io.github.andreygladkov.inkcalendar.events.EventStore
 import io.github.andreygladkov.inkcalendar.events.Occurrence
+import io.github.andreygladkov.inkcalendar.remind.Reminders
 import io.github.andreygladkov.inkcalendar.settings.SettingsActivity
 import io.github.andreygladkov.inkcalendar.ui.SwipeFrame
 import java.time.LocalDate
@@ -119,6 +125,9 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER_VERTICAL
             addView(dayLabel, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             addView(toToday)
+            addView(InkHeader.button(this@MainActivity, R.drawable.ic_add, getString(R.string.new_event)) {
+                startActivity(EditActivity.create(this@MainActivity, selected))
+            })
         }, wide())
         addView(InkHeader.line(this@MainActivity))
         addView(FrameLayout(this@MainActivity).apply {
@@ -189,6 +198,7 @@ class MainActivity : Activity() {
         permission.visibility = if (granted) View.GONE else View.VISIBLE
         monthTitle.text = MonthGrid.title(month, locale)
         if (!granted) return gate.bind(grant)
+        askForNotificationsOnce()
         val zone = CalendarClock.zone
         val first = MonthGrid.firstShown(month, MonthGrid.firstDayOfWeek(locale))
         val until = first.plusDays((MonthGrid.WEEKS * MonthGrid.DAYS_IN_WEEK).toLong())
@@ -203,6 +213,16 @@ class MainActivity : Activity() {
             override fun itemId(position: Int) = position.toLong()
             override fun createView(position: Int) = row(day[position])
         })
+    }
+
+    /** Reminders are useless without notifications, but asked for only once: the calendar works without them. */
+    private fun askForNotificationsOnce() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || !Reminders.isOn(this)) return
+        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return
+        val prefs = inkPrefs()
+        if (prefs.getBoolean(PREF_NOTIFICATIONS_ASKED, false)) return
+        prefs.edit { putBoolean(PREF_NOTIFICATIONS_ASKED, true) }
+        requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_NOTIFICATIONS)
     }
 
     private fun row(occurrence: Occurrence) = InkButton(this).apply {
@@ -239,6 +259,8 @@ class MainActivity : Activity() {
     private companion object {
         const val REQUEST_PERMISSION = 1
         const val REQUEST_YEAR = 2
+        const val REQUEST_NOTIFICATIONS = 3
+        const val PREF_NOTIFICATIONS_ASKED = "notifications_asked"
         const val STATE_SELECTED = "selected"
         const val PADDING_DP = 16f
         const val MAX_LINES = 4

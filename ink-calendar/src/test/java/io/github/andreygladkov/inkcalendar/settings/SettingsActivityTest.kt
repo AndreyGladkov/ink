@@ -13,6 +13,8 @@ import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkcalendar.FakeCalendarProvider
 import io.github.andreygladkov.inkcalendar.Fixtures
 import io.github.andreygladkov.inkcalendar.events.EventStore
+import io.github.andreygladkov.inkcalendar.events.EventWriter
+import io.github.andreygladkov.inkcalendar.remind.Reminders
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -20,6 +22,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
@@ -39,6 +42,21 @@ class SettingsActivityTest {
         val work = contentRoot(activity).firstOnPages<InkChoiceRow<*>> { row -> row.findOnPagesTitle() == "Работа" }
         work.findButton("Выкл").performClick()
         assertEquals(setOf(2L), EventStore.hidden(application))
+    }
+
+    @Test fun newEventsGoToTheChosenCalendarAndRemindersCanBeTurnedOff() {
+        Fixtures.allow(application)
+        FakeCalendarProvider.install().apply {
+            calendar(1, "Личный")
+            calendar(2, "Работа", account = "work@example.org")
+        }
+        val activity = open()
+        assertTrue(texts(activity).containsAll(listOf("Календарь для новых событий", "Напоминать о событиях")))
+        contentRoot(activity).firstOnPages<InkButton> { it.text.toString() == "Работа" }.performClick()
+        assertEquals(2L, EventWriter.defaultCalendar(application, EventStore.of(application).writableCalendars())?.id)
+        val reminders = contentRoot(activity).firstOnPages<InkChoiceRow<*>> { row -> row.findOnPagesTitle() == "Напоминать о событиях" }
+        reminders.findButton("Выкл").performClick()
+        assertFalse(Reminders.isOn(application))
     }
 
     @Test fun withoutAccessThereAreNoCalendarsToShow() {

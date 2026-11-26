@@ -18,6 +18,7 @@ class MiniMonthView(context: Context, val month: YearMonth, private val today: L
     private val name = month.month.getDisplayName(TextStyle.FULL_STANDALONE, locale).replaceFirstChar { it.titlecase(locale) }
     private val inset = (INSET_DP * resources.displayMetrics.density).roundToInt()
     private val haptics by lazy { Haptics.of(context) }
+    private val area = Rect()
 
     init {
         isClickable = true
@@ -31,7 +32,8 @@ class MiniMonthView(context: Context, val month: YearMonth, private val today: L
     }
 
     override fun onDraw(canvas: Canvas) {
-        painter.draw(canvas, month, today, Rect(inset, inset, width - inset, height - inset), name)
+        area.set(inset, inset, width - inset, height - inset)
+        painter.draw(canvas, month, today, area, name)
     }
 
     private companion object {

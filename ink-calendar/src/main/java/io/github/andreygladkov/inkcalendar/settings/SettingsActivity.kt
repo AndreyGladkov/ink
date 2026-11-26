@@ -12,6 +12,8 @@ import io.github.andreygladkov.ink.ui.InkSettings
 import io.github.andreygladkov.inkcalendar.R
 import io.github.andreygladkov.inkcalendar.events.CalendarInfo
 import io.github.andreygladkov.inkcalendar.events.EventStore
+import io.github.andreygladkov.inkcalendar.events.EventWriter
+import io.github.andreygladkov.inkcalendar.remind.Reminders
 import io.github.andreygladkov.inkcalendar.widget.WidgetUpdater
 import io.github.andreygladkov.ink.R as InkR
 
@@ -32,6 +34,22 @@ class SettingsActivity : InkPagedActivity() {
                     calendar.id !in hidden) { shown -> show(calendar, shown) }
             }
         }
+        val writable = calendars.filter { it.writable }
+        if (writable.size > 1) {
+            section(getString(R.string.settings_new_events))
+            val current = EventWriter.defaultCalendar(activity, writable)?.id
+            writable.forEach { calendar ->
+                item {
+                    InkSettings.rowButton(activity, calendar.name) {
+                        EventWriter.setDefaultCalendar(activity, calendar.id)
+                        rebuild()
+                    }.apply { isSelected = calendar.id == current }
+                }
+            }
+        }
+        section(getString(R.string.event_reminders))
+        item { InkSettings.onOff(activity, R.string.settings_reminders, Reminders.isOn(activity)) { Reminders.setOn(activity, it) } }
+        item { InkSettings.hint(activity, getString(R.string.reminders_hint)) }
         section(getString(InkR.string.settings_display))
         listOf(InkSettings::textSize, InkSettings::weight, InkSettings::lists, InkSettings::cornerRadius, InkSettings::colors).forEach { item { it(activity) } }
         InkSettings.addHaptics(activity, this, listOf(HapticChannel.BUTTONS to getString(InkR.string.settings_haptic_buttons)))

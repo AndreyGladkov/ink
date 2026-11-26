@@ -4,6 +4,11 @@
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission
+        android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <application
         android:name=".InkCalendarApp"
@@ -32,6 +37,19 @@
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
+            android:name=".event.EditActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" />
+        <activity
+            android:name="io.github.andreygladkov.ink.ui.InkDateActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name="io.github.andreygladkov.ink.ui.InkTimeActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
             android:name=".settings.SettingsActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
@@ -56,6 +74,18 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/calendar_widget" />
         </receiver>
+
+        <receiver
+            android:name=".remind.EventReminderReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.EVENT_REMINDER" />
+                <data android:scheme="content" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".remind.ReminderActions"
+            android:exported="false" />
 
         <service
             android:name=".widget.ChangesJob"

@@ -18,6 +18,7 @@ data class Occurrence(
     val location: String,
     val notes: String,
     val repeats: Boolean,
+    val editable: Boolean = false,
 ) {
     /** The provider keeps all-day events at midnight UTC, whatever the phone's zone. */
     private fun zone(local: ZoneId): ZoneId = if (allDay) ZoneOffset.UTC else local

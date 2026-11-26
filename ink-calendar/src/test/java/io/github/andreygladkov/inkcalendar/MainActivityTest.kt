@@ -18,6 +18,7 @@ import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkcalendar.Fixtures.TODAY
 import io.github.andreygladkov.inkcalendar.Fixtures.at
 import io.github.andreygladkov.inkcalendar.Fixtures.utcDay
+import io.github.andreygladkov.inkcalendar.event.EditActivity
 import io.github.andreygladkov.inkcalendar.event.EventActivity
 import io.github.andreygladkov.inkcalendar.ui.SwipeFrame
 import org.junit.After
@@ -106,6 +107,16 @@ class MainActivityTest {
         assertEquals(EventActivity::class.java.name, started.component?.className)
         assertEquals(1L, started.getLongExtra("event", -1))
         assertEquals(at(TODAY, 19), started.getLongExtra("begin", -1))
+    }
+
+    @Test fun plusCreatesAnEventOnTheChosenDay() {
+        Fixtures.allow(application)
+        val activity = open()
+        day(activity, "2026-11-28").performClick()
+        buttons(activity).single { it.contentDescription == "Новое событие" }.performClick()
+        val started = shadowOf(activity).nextStartedActivity
+        assertEquals(EditActivity::class.java.name, started.component?.className)
+        assertEquals(TODAY.plusDays(2).toEpochDay(), started.getLongExtra("date", -1))
     }
 
     @Test fun theMonthTitleOpensTheYearAndAChosenMonthComesBack() {
