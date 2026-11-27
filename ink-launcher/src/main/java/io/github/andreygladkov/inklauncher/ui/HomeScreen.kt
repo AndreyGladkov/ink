@@ -118,8 +118,9 @@ class HomeScreen(private val activity: HomeActivity) : LinearLayout(activity) {
     }
 
     fun updateBar() {
-        val count = if (page == 0 && movingId == null) NotificationGroups.loudCount(NotificationFeed.notifications) else 0
-        val badge = if (count > 0) NotificationBadge.of(context.inkPrefs()) else NotificationBadge.NONE
+        val count = if (movingId == null) NotificationGroups.loudCount(NotificationFeed.notifications) else 0
+        val chosen = if (count > 0) NotificationBadge.of(context.inkPrefs()) else NotificationBadge.NONE
+        val badge = if (page == 0 || chosen == NotificationBadge.NONE) chosen else NotificationBadge.DOT
         val state = if (badge == NotificationBadge.NONE) null else resources.getQuantityString(R.plurals.notification_count, count, count)
         bar.show(page, layout.pageCount, hasPrev = page > 0 || movingId == null, hasNext = true, prevBadge = badge.label(count), prevState = state)
     }

@@ -218,6 +218,42 @@ class HomeActivityTest {
         assertEquals(dotsWithNumber, pageDots(activity))
     }
 
+    @Test fun pagesAfterTheFirstShowADotForNotificationsUnlessTheBadgeIsOff() {
+        seed(HomeLayout(pageCount = 2).place(AppTile(1, mail), Spot(Sheet.Page(0), 0, 0)).place(AppTile(2, chat), Spot(Sheet.Page(1), 0, 0)))
+        grantNotificationAccess()
+        NotificationFeed.publish(listOf(
+            InkNotification("a", "com.mail", "Письмо", "Привет", 2),
+            InkNotification("b", "com.chat", "Чат", "Как дела", 1),
+        ))
+        val home = Robolectric.buildActivity(HomeActivity::class.java).setup()
+        val activity = home.get()
+        val prev = arrow(activity, "Предыдущая страница")
+        assertEquals("2", prev.text.toString())
+
+        arrow(activity, "Следующая страница").performClick()
+        assertEquals(1, activity.home.page)
+        assertEquals("●", prev.text.toString())
+        assertEquals("2 уведомления", prev.stateDescription?.toString())
+
+        NotificationFeed.publish(emptyList())
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals("", prev.text.toString())
+        NotificationFeed.publish(listOf(InkNotification("c", "com.mail", "Ещё письмо", "", 3)))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals("●", prev.text.toString())
+        prev.performClick()
+        assertEquals(0, activity.home.page)
+        assertEquals("1", prev.text.toString())
+        arrow(activity, "Следующая страница").performClick()
+
+        home.pause()
+        chooseBadge("Нет")
+        home.resume()
+        assertEquals(1, activity.home.page)
+        assertEquals("", prev.text.toString())
+        assertNull(prev.stateDescription)
+    }
+
     @Test fun anUnchangedBadgeDoesNotLayTheBarOutAgain() {
         NotificationFeed.publish(listOf(InkNotification("a", "com.mail", "Письмо", "Привет", 2)))
         val activity = open()
