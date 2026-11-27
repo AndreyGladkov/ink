@@ -1,0 +1,1 @@
+First release: the month with the chosen day's events, the year, adding and changing events, reminders and a widget, from the calendars already on the phone.
