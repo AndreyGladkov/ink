@@ -235,6 +235,17 @@ class HomeActivityTest {
         assertEquals("●", prev.text.toString())
         assertEquals("2 уведомления", prev.stateDescription?.toString())
 
+        NotificationFeed.publish(emptyList())
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals("", prev.text.toString())
+        NotificationFeed.publish(listOf(InkNotification("c", "com.mail", "Ещё письмо", "", 3)))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals("●", prev.text.toString())
+        prev.performClick()
+        assertEquals(0, activity.home.page)
+        assertEquals("1", prev.text.toString())
+        arrow(activity, "Следующая страница").performClick()
+
         home.pause()
         chooseBadge("Нет")
         home.resume()
