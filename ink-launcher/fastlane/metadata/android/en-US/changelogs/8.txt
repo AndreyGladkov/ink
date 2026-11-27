@@ -1,0 +1,1 @@
+While notifications are waiting, a dot now shows by the left arrow on every page, not only on the first one. The first page keeps the number or the dot chosen in the settings. With the badge turned off, nothing shows on any page.
