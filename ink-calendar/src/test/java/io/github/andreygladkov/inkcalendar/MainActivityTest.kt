@@ -3,14 +3,18 @@ package io.github.andreygladkov.inkcalendar
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
+import android.os.Looper
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.content.edit
 import androidx.test.core.app.ApplicationProvider
 import io.github.andreygladkov.ink.A9_QUALIFIERS
 import io.github.andreygladkov.ink.assertPureBlackAndWhite
 import io.github.andreygladkov.ink.contentRoot
+import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.find
+import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.ink.render
 import io.github.andreygladkov.ink.ui.DayCell
 import io.github.andreygladkov.ink.ui.InkButton
@@ -127,6 +131,22 @@ class MainActivityTest {
         assertEquals(YearActivity::class.java.name, asked.intent.component?.className)
         shadowOf(activity).receiveResult(asked.intent, Activity.RESULT_OK, Intent().putExtra("month", "2027-03"))
         assertTrue(shown(activity).containsAll(listOf("Март 2027", "Понедельник, 1 марта")))
+    }
+
+    @Test fun aStyleChangedWhileAwayRebuildsTheScreenWithoutFailingToStopListening() {
+        Fixtures.allow(application)
+        val controller = Robolectric.buildActivity(MainActivity::class.java).setup()
+        controller.pause().stop()
+        application.inkPrefs().edit { putFloat(InkStyle.PREF_TEXT_SIZE_SP, 24f) }
+        controller.restart().start().resume()
+        shadowOf(Looper.getMainLooper()).idle()
+        val rebuilt = controller.get()
+        assertTrue(contentRoot(rebuilt).find<InkTextView>().all { it.style.textSizeSp == 24f })
+        Fixtures.fixNow(TODAY.plusDays(1).atTime(9, 0))
+        application.sendBroadcast(Intent(Intent.ACTION_DATE_CHANGED))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(listOf("27"), days(rebuilt).filter { it.isToday }.map { it.text.toString() })
+        controller.pause()
     }
 
     private fun open(): MainActivity = Robolectric.buildActivity(MainActivity::class.java).setup().get()

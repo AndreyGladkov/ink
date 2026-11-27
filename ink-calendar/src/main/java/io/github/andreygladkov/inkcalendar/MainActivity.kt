@@ -61,6 +61,7 @@ class MainActivity : Activity() {
     private lateinit var calendar: View
     private lateinit var permission: View
     private lateinit var grant: InkButton
+    private var isListening = false
     private val changes = object : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) = show()
     }
@@ -153,12 +154,7 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
         if (InkStyle.of(this) != style) return recreate()
-        if (gate.isGranted) contentResolver.registerContentObserver(CalendarContract.CONTENT_URI, true, changes)
-        ContextCompat.registerReceiver(this, dayChanges, IntentFilter().apply {
-            addAction(Intent.ACTION_DATE_CHANGED)
-            addAction(Intent.ACTION_TIME_CHANGED)
-            addAction(Intent.ACTION_TIMEZONE_CHANGED)
-        }, ContextCompat.RECEIVER_NOT_EXPORTED)
+        listen()
         val newToday = CalendarClock.today()
         if (newToday != today && selected == today) {
             selected = newToday
@@ -170,8 +166,25 @@ class MainActivity : Activity() {
 
     override fun onPause() {
         super.onPause()
+        stopListening()
+    }
+
+    private fun listen() {
+        if (gate.isGranted) contentResolver.registerContentObserver(CalendarContract.CONTENT_URI, true, changes)
+        ContextCompat.registerReceiver(this, dayChanges, IntentFilter().apply {
+            addAction(Intent.ACTION_DATE_CHANGED)
+            addAction(Intent.ACTION_TIME_CHANGED)
+            addAction(Intent.ACTION_TIMEZONE_CHANGED)
+        }, ContextCompat.RECEIVER_NOT_EXPORTED)
+        isListening = true
+    }
+
+    /** Android still pauses an activity that called [recreate] from [onResume], before it started listening. */
+    private fun stopListening() {
+        if (!isListening) return
         contentResolver.unregisterContentObserver(changes)
         unregisterReceiver(dayChanges)
+        isListening = false
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
