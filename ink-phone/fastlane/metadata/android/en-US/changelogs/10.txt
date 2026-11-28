@@ -1,0 +1,1 @@
+The app is now in German, French, Spanish, Italian and Polish. Call log dates are written the way the phone's language writes them, and times follow the phone's 12/24-hour setting. Contacts are sorted by the alphabet of the phone's language. Search and dialing by letters find names with ł, ß or ø.
