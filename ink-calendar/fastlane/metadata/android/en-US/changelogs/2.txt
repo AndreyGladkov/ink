@@ -1,0 +1,1 @@
+Open tasks from Ink Tasks that have a due date now follow the day's events, with an empty box, their list and reminder time, and they are on the widget too. A tap opens the task in Ink Tasks. The calendar asks once for access to them; Settings can turn them off.
