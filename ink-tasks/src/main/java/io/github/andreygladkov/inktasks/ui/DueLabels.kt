@@ -1,24 +1,27 @@
 package io.github.andreygladkov.inktasks.ui
 
 import android.content.Context
-import android.text.format.DateFormat
+import io.github.andreygladkov.ink.ui.DatePatterns
 import io.github.andreygladkov.inktasks.R
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 class DueLabels(private val context: Context, val today: LocalDate) {
     private val locale = context.resources.configuration.locales[0]
-    private val thisYear = DateTimeFormatter.ofPattern("d MMM", locale)
-    private val otherYear = DateTimeFormatter.ofPattern("d MMM yyyy", locale)
-    private val timeOfDay = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, if (DateFormat.is24HourFormat(context)) "Hm" else "hm"), locale)
+    private val thisYear = DatePatterns.formatter(locale, "dMMM")
+    private val otherYear = DatePatterns.formatter(locale, "dMMMyyyy")
+    private val timeOfDay = DatePatterns.time(context, locale)
 
-    fun day(date: LocalDate): String = when (date) {
+    fun day(date: LocalDate): String = relative(date) ?: dated(date)
+
+    fun dayInSentence(date: LocalDate): String = relative(date)?.replaceFirstChar { it.lowercase(locale) } ?: dated(date)
+
+    private fun relative(date: LocalDate): String? = when (date) {
         today -> context.getString(R.string.today)
         today.plusDays(1) -> context.getString(R.string.tomorrow)
         today.minusDays(1) -> context.getString(R.string.yesterday)
-        else -> dated(date)
+        else -> null
     }
 
     fun withDate(date: LocalDate): String {

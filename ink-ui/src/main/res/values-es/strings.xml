@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="grant_access">Permitir acceso</string>
+    <string name="open_settings">Abrir ajustes</string>
+    <string name="back">Atrás</string>
+    <string name="settings">Ajustes</string>
+    <string name="page_prev">Página anterior</string>
+    <string name="page_next">Página siguiente</string>
+    <string name="selected">Seleccionado</string>
+    <string name="settings_display">Pantalla</string>
+    <string name="settings_text_size">Tamaño del texto</string>
+    <string name="settings_weight">Grosor de la fuente</string>
+    <string name="weight_regular">Normal</string>
+    <string name="weight_medium">Media</string>
+    <string name="weight_semibold">Seminegrita</string>
+    <string name="settings_lists">Listas</string>
+    <string name="lists_pages">Páginas</string>
+    <string name="lists_scroll">Desplazamiento</string>
+    <string name="settings_corner_radius">Esquinas de los botones</string>
+    <string name="settings_colors">Colores</string>
+    <string name="colors_black_on_white">Negro sobre blanco</string>
+    <string name="colors_white_on_black">Blanco sobre negro</string>
+    <string name="settings_tab_labels">Nombres de pestañas</string>
+    <string name="on">Sí</string>
+    <string name="off">No</string>
+    <string name="settings_haptics">Vibración</string>
+    <string name="haptics_disabled_by_system">La vibración al tocar está desactivada en los ajustes del sistema</string>
+    <string name="settings_a9">Panel e-ink (A9)</string>
+    <string name="a9_hint">Para que funcione, activa «Allow Control via Broadcasts» en A9 Accessibility Service.</string>
+    <string name="a9_clear_every_pages">Actualización completa cada N páginas</string>
+    <string name="settings_haptic_buttons">Botones</string>
+    <string name="about">Acerca de</string>
+    <string name="about_version">Versión %1$s</string>
+    <string name="about_gpl">GNU General Public License v3</string>
+    <string name="about_source">Código fuente</string>
+    <string name="about_components">Componentes</string>
+    <string name="about_noto">Fuente Noto Emoji — SIL Open Font License 1.1</string>
+    <string name="about_material">Iconos de Material — Apache License 2.0</string>
+    <string name="time_invalid">Esa hora no existe</string>
+    <string name="half_of_day">Periodo del día</string>
+    <string name="am">a. m.</string>
+    <string name="pm">p. m.</string>
+    <string name="erase">Borrar</string>
+    <string name="ready">Listo</string>
+    <string name="prev_month">Mes anterior</string>
+    <string name="next_month">Mes siguiente</string>
+</resources>

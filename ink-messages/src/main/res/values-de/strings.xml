@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Nachrichten</string>
+    <string name="settings">Einstellungen</string>
+
+    <string name="category_favorites">Favoriten</string>
+    <string name="category_contacts">Kontakte</string>
+    <string name="category_other">Andere</string>
+    <string name="category_all">Alle</string>
+
+    <string name="permission_rationale">Ink Messages braucht Zugriff auf Nachrichten und Kontakte, um Unterhaltungen anzuzeigen.</string>
+    <string name="empty_favorites">Keine Unterhaltungen mit Favoriten</string>
+    <string name="empty_contacts">Keine Unterhaltungen mit Kontakten</string>
+    <string name="empty_other">Keine Nachrichten von Nummern außerhalb der Kontakte</string>
+    <string name="empty_all">Keine Nachrichten</string>
+    <string name="empty_thread">Keine Nachrichten in dieser Unterhaltung</string>
+
+    <string name="you_prefix">Ich: %1$s</string>
+    <string name="attachment_image">[Foto]</string>
+    <string name="attachment_other">[Anhang]</string>
+    <string name="attachment_contact">[Kontakt]</string>
+    <string name="attachment_audio">[Audio]</string>
+    <string name="attachment_video">[Video]</string>
+    <string name="attachment_mms">[MMS]</string>
+
+    <string name="date_today">Heute</string>
+    <string name="date_yesterday">Gestern</string>
+    <string name="date_yesterday_short">gestern</string>
+    <string name="date_day_month">%1$d. %2$s</string>
+    <string name="date_day_month_year">%1$d. %2$s %3$d</string>
+    <string-array name="months_short">
+        <item>Jan.</item>
+        <item>Feb.</item>
+        <item>März</item>
+        <item>Apr.</item>
+        <item>Mai</item>
+        <item>Juni</item>
+        <item>Juli</item>
+        <item>Aug.</item>
+        <item>Sept.</item>
+        <item>Okt.</item>
+        <item>Nov.</item>
+        <item>Dez.</item>
+    </string-array>
+    <string-array name="months_full">
+        <item>Januar</item>
+        <item>Februar</item>
+        <item>März</item>
+        <item>April</item>
+        <item>Mai</item>
+        <item>Juni</item>
+        <item>Juli</item>
+        <item>August</item>
+        <item>September</item>
+        <item>Oktober</item>
+        <item>November</item>
+        <item>Dezember</item>
+    </string-array>
+
+    <string name="settings_start_category">Beim Start öffnen</string>
+    <string name="start_last">Zuletzt geöffnet</string>
+    <string name="me">Ich</string>
+    <string name="compose">Neue Nachricht</string>
+    <string name="compose_title">Neue Nachricht</string>
+    <string name="compose_to">An</string>
+    <string name="compose_to_number">An %1$s schreiben</string>
+    <string name="message_field">Nachricht</string>
+    <string name="send">Senden</string>
+    <string name="sending">wird gesendet…</string>
+    <string name="send_failed_retry">Nicht gesendet — wiederholen</string>
+    <string name="draft_prefix">Entwurf: %1$s</string>
+    <string name="sms_counter">%1$d SMS · noch %2$d</string>
+    <string name="sim_choice">SIM %1$d %2$s</string>
+    <string name="time_with_sim">%1$s · SIM %2$d</string>
+    <string name="not_default_banner">Ink Messages ist nicht die Standard-SMS-App, daher können Nachrichten nur gelesen werden.</string>
+    <string name="make_default">Als Standard festlegen</string>
+    <string name="action_reply">Antworten</string>
+    <string name="action_mark_read">Als gelesen markieren</string>
+    <string name="action_copy_code">%1$s kopieren</string>
+    <string name="mms_pending">MMS · %s</string>
+    <string name="mms_download">Herunterladen</string>
+    <string name="mms_download_failed">Nicht geladen — herunterladen</string>
+    <string name="mms_downloading">wird geladen…</string>
+    <string name="open_image">Foto</string>
+    <string name="open_contact">Kontakt</string>
+    <string name="open_audio">Audio</string>
+    <string name="open_video">Video</string>
+    <string name="open_file">Datei</string>
+    <string name="attachment_named">%1$s: %2$s</string>
+    <string name="no_app">Keine App kann das öffnen</string>
+    <string name="viewer_title">Foto</string>
+    <string name="save">Speichern</string>
+    <string name="saved">Gespeichert</string>
+    <string name="save_failed">Nicht gespeichert</string>
+    <string name="share">Teilen</string>
+    <string name="call">Anrufen</string>
+    <string name="more">Mehr</string>
+    <string name="mark_unread">Ungelesen</string>
+    <string name="block">Blockieren</string>
+    <string name="unblock">Blockierung aufheben</string>
+    <string name="delete_thread">Chat löschen</string>
+    <string name="delete_confirm">Wirklich löschen?</string>
+    <string name="copy">Kopieren</string>
+    <string name="forward">Weiterleiten</string>
+    <string name="delete">Löschen</string>
+    <string name="delete_message_confirm">Löschen?</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="search">Suchen</string>
+    <string name="search_conversations">Chats</string>
+    <string name="search_messages">Nachrichten</string>
+    <string name="search_nothing">Nichts gefunden</string>
+    <string name="settings_notifications">Benachrichtigungen</string>
+    <string name="notifications_hint">Ton und Vibration für jede Kategorie werden in den Systemeinstellungen festgelegt.</string>
+    <string name="settings_blocked">Blockierte Nummern</string>
+    <string name="blocked_none">Keine blockierten Nummern.</string>
+    <string name="blocked_unavailable">Die Liste ist verfügbar, sobald Ink Messages die Standard-SMS-App ist.</string>
+    <string name="settings_sms_app">SMS-App</string>
+    <string name="sms_app_yes">Ink Messages ist die Standard-SMS-App.</string>
+    <string name="about_license">Ink Messages ist freie Software unter der GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Messages hat keinen Internetzugriff: Die App fordert die Berechtigung INTERNET nicht an.</string>
+    <string name="about_mmslib">MMS-Parser aus AOSP Messaging — Apache License 2.0</string>
+</resources>

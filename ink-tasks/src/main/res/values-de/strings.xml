@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Aufgaben</string>
+    <string name="default_list">Meine Aufgaben</string>
+
+    <string name="new_task">Neue Aufgabe</string>
+    <string name="no_tasks">Keine Aufgaben</string>
+    <string name="done_count">Erledigt (%1$d)</string>
+    <string name="check">„%1$s“ als erledigt markieren</string>
+    <string name="uncheck">„%1$s“ als offen markieren</string>
+    <string name="move_where">Wohin verschieben?</string>
+    <string name="move_here">Hierher</string>
+
+    <string name="today">Heute</string>
+    <string name="tomorrow">Morgen</string>
+    <string name="yesterday">Gestern</string>
+
+    <string name="task">Aufgabe</string>
+    <string name="new_subtask">Neue Unteraufgabe</string>
+    <string name="title_hint">Titel</string>
+    <string name="notes">Notizen</string>
+    <string name="notes_hint">Details</string>
+    <string name="due">Fällig</string>
+    <string name="no_due">Ohne Datum</string>
+    <string name="in_a_week">In einer Woche</string>
+    <string name="other_date">Anderes Datum…</string>
+    <string name="remove_due">Entfernen</string>
+    <string name="reminder">Erinnerung</string>
+    <string name="no_reminder">Keine Erinnerung</string>
+    <string name="reminder_at">Um %1$s</string>
+    <string name="set_time">Uhrzeit festlegen…</string>
+    <string name="change_time">Uhrzeit ändern…</string>
+    <string name="remove_reminder">Uhrzeit entfernen</string>
+    <string name="notifications_off">Benachrichtigungen sind aus, daher erscheint die Erinnerung nicht.</string>
+    <string name="channel_reminders">Erinnerungen</string>
+    <string name="reminder_done">Erledigt</string>
+    <string name="reminder_later">In einer Stunde</string>
+    <string name="subtasks">Unteraufgaben</string>
+    <string name="add_subtask">Unteraufgabe hinzufügen</string>
+    <string name="mark_done">Als erledigt markieren</string>
+    <string name="mark_open">Als offen markieren</string>
+    <string name="move">Verschieben</string>
+    <string name="delete">Löschen</string>
+    <string name="delete_confirm">Löschen?</string>
+
+    <string name="done">Erledigt</string>
+    <string name="no_done">Noch nichts erledigt</string>
+    <string name="done_on">Erledigt: %1$s</string>
+    <string name="delete_done">Erledigte löschen</string>
+    <string name="delete_done_confirm">Alle löschen?</string>
+
+    <string name="lists">Listen</string>
+    <string name="new_list">Neue Liste</string>
+    <string name="prev_list">Vorherige Liste</string>
+    <string name="next_list">Nächste Liste</string>
+    <string name="list_position">Liste %1$d von %2$d</string>
+    <string name="list">Liste</string>
+    <string name="edit_list">„%1$s“ bearbeiten</string>
+    <string name="list_name_hint">Listenname</string>
+    <string name="list_exists">Diese Liste gibt es schon</string>
+    <string name="sort">Sortieren</string>
+    <string name="sort_manual">Meine Reihenfolge</string>
+    <string name="sort_due">Nach Datum</string>
+    <string name="delete_list">Liste löschen</string>
+    <string name="delete_list_confirm">Liste löschen?</string>
+
+    <string name="settings_storage">Speicherort</string>
+    <string name="storage_phone">Aufgaben werden nur auf diesem Telefon gespeichert.</string>
+    <string name="storage_folder">Ordner: %1$s</string>
+    <string name="storage_unavailable">Kein Zugriff auf den Ordner</string>
+    <string name="storage_failed">In diesen Ordner konnte nicht geschrieben werden</string>
+    <string name="storage_hint">Einen Ordner im Obsidian-Vault wählen, etwa Vault/Tasks, um die Listen mit einem Computer zu synchronisieren.</string>
+    <string name="choose_folder">Ordner wählen…</string>
+    <string name="choose_other_folder">Anderen Ordner wählen…</string>
+    <string name="keep_on_phone">Auf dem Telefon speichern</string>
+    <string name="from_phone">" (Telefon)"</string>
+    <string name="from_folder">" (Ordner)"</string>
+
+    <string name="about_license">Ink Tasks ist freie Software unter der GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Tasks nutzt das Internet nicht. Aufgaben werden in Markdown-Dateien auf dem Telefon oder im gewählten Ordner gespeichert.</string>
+
+    <string name="permission_read_tasks">Aufgaben aus Ink Tasks</string>
+    <string name="permission_read_tasks_description">Aufgaben aus Ink Tasks mit Fälligkeitsdatum lesen</string>
+</resources>

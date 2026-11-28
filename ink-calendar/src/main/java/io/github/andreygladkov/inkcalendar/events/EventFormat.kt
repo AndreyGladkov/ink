@@ -2,6 +2,7 @@ package io.github.andreygladkov.inkcalendar.events
 
 import android.content.Context
 import android.text.format.DateFormat
+import io.github.andreygladkov.ink.ui.DatePatterns
 import io.github.andreygladkov.inkcalendar.R
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -12,9 +13,9 @@ import java.time.format.DateTimeFormatter
 class EventFormat(private val context: Context, private val zone: ZoneId = CalendarClock.zone) {
     private val locale = context.resources.configuration.locales[0]
     private val clock = DateTimeFormatter.ofPattern(if (DateFormat.is24HourFormat(context)) "H:mm" else "h:mm a", locale)
-    private val longDay = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEEMMMMd"), locale)
-    private val shortDay = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "MMMMd"), locale)
-    private val compactDay = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEMMMd"), locale)
+    private val longDay = DatePatterns.formatter(locale, "EEEEMMMMd")
+    private val shortDay = DatePatterns.formatter(locale, "MMMMd")
+    private val compactDay = DatePatterns.formatter(locale, "EEEMMMd")
     private val weekday = DateTimeFormatter.ofPattern("EEEE", locale)
     private val month = DateTimeFormatter.ofPattern("LLLL", locale)
 

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Kalendarz</string>
+
+    <string name="permission_explain">Ink Calendar pokazuje wydarzenia z kalendarzy na tym telefonie: synchronizowanych przez Twoje konta i własnego.</string>
+    <string name="today">Dziś</string>
+    <string name="tomorrow">Jutro</string>
+    <string name="no_events">Brak wydarzeń</string>
+    <string name="no_title">(Bez tytułu)</string>
+    <string name="all_day">Cały dzień</string>
+    <string name="time_until">do %1$s</string>
+    <string name="time_from">od %1$s</string>
+    <string name="prev_year">Poprzedni rok</string>
+    <string name="next_year">Następny rok</string>
+    <string name="choose_year">Wybierz inny miesiąc</string>
+
+    <string name="event">Wydarzenie</string>
+    <string name="event_gone">Tego wydarzenia nie ma już w kalendarzu</string>
+    <string name="event_calendar">Kalendarz</string>
+    <string name="event_location">Miejsce</string>
+    <string name="event_notes">Notatki</string>
+    <string name="event_reminders">Przypomnienia</string>
+    <string name="event_repeats">Powtarzanie</string>
+    <string name="reminder_at_start">W chwili rozpoczęcia</string>
+    <plurals name="minutes_before">
+        <item quantity="one">%d minutę przed</item>
+        <item quantity="few">%d minuty przed</item>
+        <item quantity="many">%d minut przed</item>
+        <item quantity="other">%d minuty przed</item>
+    </plurals>
+    <plurals name="hours_before">
+        <item quantity="one">%d godzinę przed</item>
+        <item quantity="few">%d godziny przed</item>
+        <item quantity="many">%d godzin przed</item>
+        <item quantity="other">%d godziny przed</item>
+    </plurals>
+    <plurals name="days_before">
+        <item quantity="one">%d dzień przed</item>
+        <item quantity="few">%d dni przed</item>
+        <item quantity="many">%d dni przed</item>
+        <item quantity="other">%d dnia przed</item>
+    </plurals>
+
+    <string name="new_event">Nowe wydarzenie</string>
+    <string name="edit_event">Edytuj</string>
+    <string name="delete_event">Usuń</string>
+    <string name="delete_confirm">Usunąć?</string>
+    <string name="title_hint">Tytuł</string>
+    <string name="event_start">Początek</string>
+    <string name="event_end">Koniec</string>
+    <string name="event_reminder">Przypomnienie</string>
+    <string name="reminder_none">Brak</string>
+    <string name="reminder_short_start">Na początku</string>
+    <string name="reminder_short_minutes">10 min</string>
+    <string name="reminder_short_hour">1 godz.</string>
+    <string name="reminder_short_day">1 dzień</string>
+    <string name="end_before_start">Wydarzenie kończy się przed rozpoczęciem</string>
+    <string name="not_saved">Kalendarz nie przyjął wydarzenia</string>
+    <string name="local_calendar">Telefon</string>
+    <string name="settings_new_events">Kalendarz dla nowych wydarzeń</string>
+    <string name="settings_reminders">Przypominaj o wydarzeniach</string>
+    <string name="reminders_hint">Wyłącz, jeśli o wydarzeniach przypomina już inna aplikacja, np. Kalendarz Google.</string>
+    <string name="channel_reminders">Przypomnienia o wydarzeniach</string>
+    <string name="snooze">Za 10 minut</string>
+    <string name="dismiss">Zamknij</string>
+
+    <string name="settings_calendars">Kalendarze</string>
+    <string name="no_calendars">Na telefonie nie ma jeszcze kalendarzy</string>
+
+    <string name="task">Zadanie</string>
+    <string name="settings_show_tasks">Pokazuj zadania z Ink Tasks</string>
+    <string name="tasks_access_hint">Zezwól kalendarzowi na odczyt zadań z terminem, a pokaże je w odpowiednie dni.</string>
+
+    <string name="widget_label">Kalendarz</string>
+    <string name="widget_description">Dzisiejsza data i najbliższe wydarzenia</string>
+    <string name="widget_no_access">Otwórz kalendarz, aby zezwolić na dostęp</string>
+
+    <string name="about_license">Ink Calendar to wolne oprogramowanie na licencji GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Calendar niczego nigdzie nie wysyła: odczytuje i zapisuje kalendarze na telefonie, a synchronizują je tylko Twoje konta.</string>
+</resources>

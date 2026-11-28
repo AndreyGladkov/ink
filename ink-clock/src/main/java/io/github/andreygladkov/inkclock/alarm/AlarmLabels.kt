@@ -3,18 +3,18 @@ package io.github.andreygladkov.inkclock.alarm
 import android.content.Context
 import android.icu.util.Calendar
 import android.text.format.DateFormat
+import io.github.andreygladkov.ink.ui.DatePatterns
 import io.github.andreygladkov.inkclock.R
 import java.time.DayOfWeek
 import java.time.LocalTime
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 class AlarmLabels(private val context: Context, private val locale: Locale = context.resources.configuration.locales[0]) {
     val is24Hour = DateFormat.is24HourFormat(context)
-    private val timeFormat = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, if (is24Hour) "Hm" else "hm"), locale)
+    private val timeFormat = DatePatterns.formatter(locale, if (is24Hour) "Hm" else "hm")
 
     // java.time takes the first day of the week from the locale's region, so a bare "ru" starts on Sunday;
     // ICU fills in the likely region (Russia) and starts on Monday, as people expect.

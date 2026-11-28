@@ -18,8 +18,8 @@ object ContactList {
     private const val LATIN = 1
     private const val OTHER = 2
 
-    fun build(contacts: List<ContactSummary>, options: ContactListOptions): List<ContactEntry> {
-        val collator = Collator.getInstance(Locale.forLanguageTag("ru"))
+    fun build(contacts: List<ContactSummary>, options: ContactListOptions, locale: Locale): List<ContactEntry> {
+        val collator = Collator.getInstance(locale)
         return contacts.asSequence()
             .filter { !options.onlyWithPhone || it.hasPhone }
             .filter { it.accounts.isEmpty() || !options.hiddenAccounts.containsAll(it.accounts) }

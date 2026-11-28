@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Attività</string>
+    <string name="default_list">Le mie attività</string>
+
+    <string name="new_task">Nuova attività</string>
+    <string name="no_tasks">Nessuna attività</string>
+    <string name="done_count">Completate (%1$d)</string>
+    <string name="check">Segna «%1$s» come completata</string>
+    <string name="uncheck">Segna «%1$s» come da completare</string>
+    <string name="move_where">Dove spostare?</string>
+    <string name="move_here">Qui</string>
+
+    <string name="today">Oggi</string>
+    <string name="tomorrow">Domani</string>
+    <string name="yesterday">Ieri</string>
+
+    <string name="task">Attività</string>
+    <string name="new_subtask">Nuova sottoattività</string>
+    <string name="title_hint">Titolo</string>
+    <string name="notes">Note</string>
+    <string name="notes_hint">Dettagli</string>
+    <string name="due">Scadenza</string>
+    <string name="no_due">Nessuna scadenza</string>
+    <string name="in_a_week">Tra una settimana</string>
+    <string name="other_date">Altra data…</string>
+    <string name="remove_due">Rimuovi</string>
+    <string name="reminder">Promemoria</string>
+    <string name="no_reminder">Nessun promemoria</string>
+    <string name="reminder_at">Alle %1$s</string>
+    <string name="set_time">Imposta un orario…</string>
+    <string name="change_time">Cambia orario…</string>
+    <string name="remove_reminder">Rimuovi orario</string>
+    <string name="notifications_off">Le notifiche sono disattivate, quindi il promemoria non apparirà.</string>
+    <string name="channel_reminders">Promemoria</string>
+    <string name="reminder_done">Fatto</string>
+    <string name="reminder_later">Tra un\'ora</string>
+    <string name="subtasks">Sottoattività</string>
+    <string name="add_subtask">Aggiungi sottoattività</string>
+    <string name="mark_done">Segna come completata</string>
+    <string name="mark_open">Segna come da completare</string>
+    <string name="move">Sposta</string>
+    <string name="delete">Elimina</string>
+    <string name="delete_confirm">Eliminare?</string>
+
+    <string name="done">Completate</string>
+    <string name="no_done">Nessuna attività completata</string>
+    <string name="done_on">Completata %1$s</string>
+    <string name="delete_done">Elimina completate</string>
+    <string name="delete_done_confirm">Eliminarle tutte?</string>
+
+    <string name="lists">Elenchi</string>
+    <string name="new_list">Nuovo elenco</string>
+    <string name="prev_list">Elenco precedente</string>
+    <string name="next_list">Elenco successivo</string>
+    <string name="list_position">Elenco %1$d di %2$d</string>
+    <string name="list">Elenco</string>
+    <string name="edit_list">Modifica «%1$s»</string>
+    <string name="list_name_hint">Nome dell\'elenco</string>
+    <string name="list_exists">Esiste già un elenco con questo nome</string>
+    <string name="sort">Ordina</string>
+    <string name="sort_manual">Il mio ordine</string>
+    <string name="sort_due">Per data</string>
+    <string name="delete_list">Elimina elenco</string>
+    <string name="delete_list_confirm">Eliminare l\'elenco?</string>
+
+    <string name="settings_storage">Archiviazione</string>
+    <string name="storage_phone">Le attività sono salvate solo su questo telefono.</string>
+    <string name="storage_folder">Cartella: %1$s</string>
+    <string name="storage_unavailable">Nessun accesso alla cartella</string>
+    <string name="storage_failed">Impossibile scrivere in quella cartella</string>
+    <string name="storage_hint">Scegli una cartella nel tuo vault di Obsidian, come Vault/Tasks, per sincronizzare gli elenchi con un computer.</string>
+    <string name="choose_folder">Scegli una cartella…</string>
+    <string name="choose_other_folder">Scegli un\'altra cartella…</string>
+    <string name="keep_on_phone">Salva sul telefono</string>
+    <string name="from_phone">" (telefono)"</string>
+    <string name="from_folder">" (cartella)"</string>
+
+    <string name="about_license">Ink Tasks è software libero con licenza GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Tasks non usa Internet. Le attività sono salvate in file Markdown sul telefono o nella cartella che scegli.</string>
+
+    <string name="permission_read_tasks">Attività di Ink Tasks</string>
+    <string name="permission_read_tasks_description">leggere le attività di Ink Tasks con una scadenza</string>
+</resources>

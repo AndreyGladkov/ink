@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Agenda</string>
+
+    <string name="permission_explain">Ink Calendar affiche les événements des agendas de ce téléphone : ceux que vos comptes synchronisent et le sien.</string>
+    <string name="today">Aujourd\'hui</string>
+    <string name="tomorrow">Demain</string>
+    <string name="no_events">Aucun événement</string>
+    <string name="no_title">(Sans titre)</string>
+    <string name="all_day">Toute la journée</string>
+    <string name="time_until">jusqu\'à %1$s</string>
+    <string name="time_from">dès %1$s</string>
+    <string name="prev_year">Année précédente</string>
+    <string name="next_year">Année suivante</string>
+    <string name="choose_year">Choisir un autre mois</string>
+
+    <string name="event">Événement</string>
+    <string name="event_gone">Cet événement n\'est plus dans l\'agenda</string>
+    <string name="event_calendar">Agenda</string>
+    <string name="event_location">Lieu</string>
+    <string name="event_notes">Notes</string>
+    <string name="event_reminders">Rappels</string>
+    <string name="event_repeats">Répétition</string>
+    <string name="reminder_at_start">À l\'heure de début</string>
+    <plurals name="minutes_before">
+        <item quantity="one">%d minute avant</item>
+        <item quantity="many">%d minutes avant</item>
+        <item quantity="other">%d minutes avant</item>
+    </plurals>
+    <plurals name="hours_before">
+        <item quantity="one">%d heure avant</item>
+        <item quantity="many">%d heures avant</item>
+        <item quantity="other">%d heures avant</item>
+    </plurals>
+    <plurals name="days_before">
+        <item quantity="one">%d jour avant</item>
+        <item quantity="many">%d jours avant</item>
+        <item quantity="other">%d jours avant</item>
+    </plurals>
+
+    <string name="new_event">Nouvel événement</string>
+    <string name="edit_event">Modifier</string>
+    <string name="delete_event">Supprimer</string>
+    <string name="delete_confirm">Supprimer ?</string>
+    <string name="title_hint">Titre</string>
+    <string name="event_start">Début</string>
+    <string name="event_end">Fin</string>
+    <string name="event_reminder">Rappel</string>
+    <string name="reminder_none">Aucun</string>
+    <string name="reminder_short_start">Au début</string>
+    <string name="reminder_short_minutes">10 min</string>
+    <string name="reminder_short_hour">1 heure</string>
+    <string name="reminder_short_day">1 jour</string>
+    <string name="end_before_start">L\'événement se termine avant de commencer</string>
+    <string name="not_saved">L\'agenda n\'a pas accepté l\'événement</string>
+    <string name="local_calendar">Téléphone</string>
+    <string name="settings_new_events">Agenda des nouveaux événements</string>
+    <string name="settings_reminders">Rappeler les événements</string>
+    <string name="reminders_hint">Désactivez cette option si une autre appli, comme Google Agenda, vous rappelle déjà les événements.</string>
+    <string name="channel_reminders">Rappels d\'événements</string>
+    <string name="snooze">Dans 10 minutes</string>
+    <string name="dismiss">Fermer</string>
+
+    <string name="settings_calendars">Agendas</string>
+    <string name="no_calendars">Aucun agenda sur le téléphone pour l\'instant</string>
+
+    <string name="task">Tâche</string>
+    <string name="settings_show_tasks">Afficher les tâches Ink Tasks</string>
+    <string name="tasks_access_hint">Autorisez l\'agenda à lire les tâches ayant une échéance pour les afficher à leur date.</string>
+
+    <string name="widget_label">Agenda</string>
+    <string name="widget_description">La date du jour et les prochains événements</string>
+    <string name="widget_no_access">Ouvrez l\'agenda pour autoriser l\'accès</string>
+
+    <string name="about_license">Ink Calendar est un logiciel libre sous licence GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Calendar n\'envoie rien nulle part : il lit et écrit les agendas du téléphone, et seuls vos comptes les synchronisent.</string>
+</resources>

@@ -3,12 +3,20 @@ package io.github.andreygladkov.inkphone.calllog
 import android.content.Context
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import io.github.andreygladkov.ink.ui.DatePatterns
 import io.github.andreygladkov.ink.ui.IconSpan
 import io.github.andreygladkov.inkphone.R
 import java.time.ZoneId
 
 class CallLabels(private val context: Context) {
-    private val time = CallTimeFormat(context.getString(R.string.yesterday), ZoneId.systemDefault())
+    private val locale = context.resources.configuration.locales[0]
+    private val time = CallTimeFormat(
+        context.getString(R.string.yesterday),
+        ZoneId.systemDefault(),
+        DatePatterns.timePattern(context, locale),
+        DatePatterns.pattern(locale, "ddMM"),
+        DatePatterns.pattern(locale, "ddMMyy"),
+    )
 
     fun type(type: CallType): String = context.getString(
         when (type) {

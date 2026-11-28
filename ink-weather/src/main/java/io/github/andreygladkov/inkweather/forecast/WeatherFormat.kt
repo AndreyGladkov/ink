@@ -3,6 +3,7 @@ package io.github.andreygladkov.inkweather.forecast
 import android.content.Context
 import android.text.format.DateFormat
 import androidx.core.text.util.LocalePreferences
+import io.github.andreygladkov.ink.ui.DatePatterns
 import io.github.andreygladkov.inkweather.R
 import java.text.NumberFormat
 import java.time.Instant
@@ -22,7 +23,7 @@ class WeatherFormat(
     private val hour = DateTimeFormatter.ofPattern(if (is24Hour) "H" else "h a", locale)
     private val clock = DateTimeFormatter.ofPattern(if (is24Hour) "H:mm" else "h:mm a", locale)
     private val weekday = DateTimeFormatter.ofPattern("EEE", locale)
-    private val dayOfMonth = DateTimeFormatter.ofPattern("d MMM", locale)
+    private val dayOfMonth = DatePatterns.formatter(locale, "dMMM")
     private val decimal = NumberFormat.getNumberInstance(locale).apply { maximumFractionDigits = 1 }
 
     val language: String get() = locale.language

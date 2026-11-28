@@ -2,7 +2,6 @@ package io.github.andreygladkov.inkclock.desk
 
 import android.content.Context
 import android.graphics.Paint
-import android.text.format.DateFormat
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -10,6 +9,7 @@ import android.widget.LinearLayout
 import io.github.andreygladkov.ink.eink.A9Panel
 import io.github.andreygladkov.ink.eink.InkStyle
 import io.github.andreygladkov.ink.eink.StemFit
+import io.github.andreygladkov.ink.ui.DatePatterns
 import io.github.andreygladkov.ink.ui.InkTextView
 import io.github.andreygladkov.inkclock.R
 import io.github.andreygladkov.inkclock.alarm.AlarmLabels
@@ -23,7 +23,6 @@ import io.github.andreygladkov.inkclock.pomodoro.TomatoView
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
 /**
@@ -33,7 +32,7 @@ import kotlin.math.roundToInt
 class DeskView(context: Context) : LinearLayout(context) {
     private val locale = resources.configuration.locales[0]
     private val alarmLabels = AlarmLabels(context)
-    private val dateFormat = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEEdMMMM"), locale)
+    private val dateFormat = DatePatterns.formatter(locale, "EEEEdMMMM")
     private val padding = dp(PADDING_DP)
 
     private val time = text(TIME_SCALE, bold = true)

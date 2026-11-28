@@ -1,6 +1,7 @@
 package io.github.andreygladkov.inkmessages
 
 import android.content.Context
+import io.github.andreygladkov.ink.ui.DatePatterns
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -14,8 +15,13 @@ class MessageDates(
     private val monthsFull: List<String>,
     private val dayMonth: String,
     private val dayMonthYear: String,
+    timePattern: String,
+    shortDatePattern: String,
     private val zone: ZoneId = ZoneId.systemDefault(),
 ) {
+    private val time = DateTimeFormatter.ofPattern(timePattern)
+    private val shortDate = DateTimeFormatter.ofPattern(shortDatePattern)
+
     fun listLabel(date: Long, now: Long): String {
         val day = dayOf(date)
         val current = dayOf(now)
@@ -23,7 +29,7 @@ class MessageDates(
             day == current -> time(date)
             day == current.minusDays(1) -> yesterdayShort
             day.year == current.year -> dayMonth.format(day.dayOfMonth, monthsShort[day.monthValue - 1])
-            else -> day.format(SHORT_DATE)
+            else -> day.format(shortDate)
         }
     }
 
@@ -37,14 +43,11 @@ class MessageDates(
         }
     }
 
-    fun time(date: Long): String = Instant.ofEpochMilli(date).atZone(zone).format(TIME)
+    fun time(date: Long): String = Instant.ofEpochMilli(date).atZone(zone).format(time)
 
     fun dayOf(date: Long): LocalDate = Instant.ofEpochMilli(date).atZone(zone).toLocalDate()
 
     companion object {
-        private val TIME = DateTimeFormatter.ofPattern("HH:mm")
-        private val SHORT_DATE = DateTimeFormatter.ofPattern("dd.MM.yy")
-
         fun of(context: Context) = MessageDates(
             today = context.getString(R.string.date_today),
             yesterday = context.getString(R.string.date_yesterday),
@@ -53,6 +56,8 @@ class MessageDates(
             monthsFull = context.resources.getStringArray(R.array.months_full).toList(),
             dayMonth = context.getString(R.string.date_day_month),
             dayMonthYear = context.getString(R.string.date_day_month_year),
+            timePattern = DatePatterns.timePattern(context),
+            shortDatePattern = DatePatterns.pattern(context.resources.configuration.locales[0], "ddMMyy"),
         )
     }
 }

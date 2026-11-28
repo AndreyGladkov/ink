@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Calcolatrice</string>
+    <string name="settings">Impostazioni</string>
+
+    <string name="erase">Cancella</string>
+    <string name="copied">Copiato</string>
+    <string name="division_by_zero">Impossibile dividere per zero</string>
+    <string name="too_large">Numero troppo grande</string>
+
+    <string name="settings_haptic_keys">Tastierino</string>
+    <string name="about_license">Ink Calculator è software libero con licenza GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Calculator non accede a Internet: non richiede l\'autorizzazione INTERNET.</string>
+</resources>

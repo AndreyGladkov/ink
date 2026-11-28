@@ -4,10 +4,13 @@ import io.github.andreygladkov.inkphone.contacts.AccountRef
 import io.github.andreygladkov.inkphone.contacts.ContactList
 import io.github.andreygladkov.inkphone.contacts.ContactListOptions
 import io.github.andreygladkov.inkphone.contacts.ContactSummary
+import java.util.Locale
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class T9Test {
+    private val russian = Locale.forLanguageTag("ru")
+
     private fun contact(id: Long, name: String, vararg numbers: String) =
         ContactSummary(id, "k$id", name, name, false, true, numbers.toList(), setOf(AccountRef("com.google", "a")))
 
@@ -19,6 +22,7 @@ class T9Test {
             contact(4, "Мама", "+7 777 000 11 22", "+7 700 999 88 77"),
         ),
         ContactListOptions(),
+        russian,
     )
 
     private fun names(query: String) = T9.suggest(query, entries).map { it.entry.displayName }
@@ -33,6 +37,12 @@ class T9Test {
     @Test fun firstWordMatchesRankAboveOtherWords() {
         assertEquals(listOf("Иван Петров", "Пётр Иванов"), names("42"))
         assertEquals(listOf("Пётр Иванов", "Иван Петров"), names("536"))
+    }
+
+    @Test fun lettersWithoutDecompositionUseTheirBaseLetterKey() {
+        val polish = ContactList.build(listOf(contact(5, "Łukasz Nowak", "+48 600 100 200"), contact(6, "Jörg Weiß", "+49 151 0")), ContactListOptions(), russian)
+        assertEquals(listOf("Łukasz Nowak"), T9.suggest("585", polish).map { it.entry.displayName })
+        assertEquals(listOf("Jörg Weiß"), T9.suggest("93477", polish).map { it.entry.displayName })
     }
 
     @Test fun matchesLatinNames() {

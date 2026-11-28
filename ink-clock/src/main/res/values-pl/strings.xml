@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Zegar</string>
+    <string name="settings">Ustawienia</string>
+
+    <string name="tab_alarms">Alarmy</string>
+    <string name="new_alarm">Nowy alarm</string>
+    <string name="alarm">Alarm</string>
+    <string name="no_alarms">Brak alarmów</string>
+    <string name="no_next_alarm">Brak ustawionych alarmów</string>
+    <string name="toggle_alarm">Alarm na %1$s</string>
+    <string name="next_alarm">Następny: %1$s, za %2$s</string>
+    <string name="today">dziś</string>
+    <string name="tomorrow">jutro</string>
+    <string name="in_under_minute">mniej niż minutę</string>
+    <string name="in_minutes">%1$d min</string>
+    <string name="in_hours">%1$d godz.</string>
+    <string name="in_hours_minutes">%1$d godz. %2$d min</string>
+    <string name="days_once">Jednorazowo</string>
+    <string name="days_every">Codziennie</string>
+    <string name="days_weekdays">W dni robocze</string>
+    <string name="days_weekend">W weekendy</string>
+    <string name="notifications_needed">Zezwól na powiadomienia, inaczej dzwoniący alarm nie będzie miał ekranu, z którego można go wyłączyć.</string>
+    <string name="full_screen_needed">Zezwól na powiadomienia pełnoekranowe, inaczej dzwoniący alarm nie otworzy się na ekranie blokady.</string>
+
+    <string name="save">Zapisz</string>
+    <string name="repeat">Powtarzanie</string>
+    <string name="label">Etykieta</string>
+    <string name="label_hint">Pobudka</string>
+    <string name="sound">Dźwięk</string>
+    <string name="vibrate">Wibracje</string>
+    <string name="ringtone_default">Domyślny</string>
+    <string name="ringtone_silent">Bez dźwięku</string>
+    <string name="ringtone_other">Wybrany dźwięk</string>
+    <string name="delete">Usuń</string>
+    <string name="delete_confirm">Na pewno usunąć?</string>
+    <string name="alarm_set_for">Alarm ustawiony na %1$s</string>
+
+    <string name="snooze">Drzemka</string>
+    <string name="dismiss">Wyłącz</string>
+    <string name="dismiss_hold">Przytrzymaj, aby wyłączyć</string>
+    <string name="snoozed_until">Drzemka do %1$s</string>
+    <string name="missed_alarm">Pominięty alarm %1$s</string>
+    <string name="channel_ringing">Dzwoniący alarm</string>
+    <string name="channel_status">Drzemki, minutnik i stoper</string>
+    <string name="channel_missed">Pominięte alarmy</string>
+
+    <string name="tab_timer">Minutnik</string>
+    <string name="tab_stopwatch">Stoper</string>
+    <string name="start">Start</string>
+    <string name="pause">Pauza</string>
+    <string name="resume">Wznów</string>
+    <string name="reset">Resetuj</string>
+    <string name="stop">Stop</string>
+    <string name="add_minute">+1 min</string>
+    <string name="timer_entry">%1$02dh %2$02dm %3$02ds</string>
+    <string name="timer_done">Czas minął</string>
+    <string name="timer_until">do %1$s</string>
+    <string name="timer_on_pause">wstrzymany</string>
+    <string name="timer_running">Minutnik do %1$s</string>
+    <string name="timer_paused">Minutnik wstrzymany, zostało %1$s</string>
+    <string name="timer_set_for">Minutnik na %1$s</string>
+    <string name="duration_seconds">%1$d s</string>
+    <string name="duration_minutes">%1$d min</string>
+    <string name="duration_hours">%1$d godz.</string>
+    <string name="duration_hours_minutes">%1$d godz. %2$d min</string>
+    <string name="lap">Okrążenie</string>
+    <string name="lap_number">Okrążenie %1$d</string>
+    <string name="stopwatch_since">Stoper działa od %1$s</string>
+    <string name="stopwatch_paused">Stoper wstrzymany: %1$s</string>
+
+    <string name="tab_pomodoro">Pomodoro</string>
+    <string name="pomodoro_work">Praca</string>
+    <string name="pomodoro_short_break">Przerwa</string>
+    <string name="pomodoro_long_break">Długa przerwa</string>
+    <string name="pomodoro_left">zostało %1$d min · do %2$s</string>
+    <string name="pomodoro_until">%1$s do %2$s</string>
+    <string name="pomodoro_begin_work">Zacznij pracę</string>
+    <string name="pomodoro_begin_break">Zacznij przerwę</string>
+    <string name="pomodoro_skip_break">Pomiń</string>
+    <string name="pomodoro_today">Dziś %1$d z %2$d</string>
+    <string name="pomodoro_work_done">Praca skończona</string>
+    <string name="pomodoro_break_done">Koniec przerwy</string>
+    <string name="pomodoro_start_work">Zacząć %1$d min pracy?</string>
+    <string name="pomodoro_start_break">Zacząć %1$d min przerwy?</string>
+    <string name="channel_pomodoro_sound">Pomodoro z dźwiękiem</string>
+    <string name="channel_pomodoro_quiet">Pomodoro bez dźwięku</string>
+    <string name="settings_pomodoro">Pomodoro</string>
+    <string name="settings_pomodoro_work">Praca</string>
+    <string name="settings_pomodoro_short">Krótka przerwa</string>
+    <string name="settings_pomodoro_long">Długa przerwa</string>
+    <string name="settings_pomodoro_cycle">Długa przerwa po</string>
+    <string name="settings_pomodoro_goal">Cel dzienny</string>
+    <string name="settings_pomodoro_screen">Nie wygaszaj ekranu w trakcie fazy</string>
+    <string name="settings_pomodoro_sound">Dźwięk na koniec fazy</string>
+
+    <string name="desk_clock">Zegar biurkowy</string>
+    <string name="desk_next_alarm">Alarm %1$s</string>
+    <string name="settings_dream">Wygaszacz ekranu</string>
+    <string name="dream_hint">Podczas ładowania wygaszacz Ink Clock pokazuje godzinę lub trwające pomodoro. Wybierz Ink Clock i uruchamianie podczas ładowania.</string>
+    <string name="dream_selected">Ink Clock jest wygaszaczem ekranu.</string>
+    <string name="dream_not_selected">Ink Clock nie jest wybrany jako wygaszacz ekranu.</string>
+    <string name="dream_choose">Wybierz wygaszacz</string>
+
+    <string name="settings_alarms">Alarmy</string>
+    <string name="settings_snooze">Długość drzemki</string>
+    <string name="settings_ring_for">Wycisz po</string>
+    <string name="minutes_short">%1$d min</string>
+    <string name="settings_haptic_keys">Klawiatura numeryczna</string>
+    <string name="about_license">Ink Clock to wolne oprogramowanie na licencji GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Clock nie ma dostępu do internetu: nie prosi o uprawnienie INTERNET.</string>
+</resources>

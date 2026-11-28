@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Calendario</string>
+
+    <string name="permission_explain">Ink Calendar mostra gli eventi dei calendari sul telefono: quelli sincronizzati dai tuoi account e il suo.</string>
+    <string name="today">Oggi</string>
+    <string name="tomorrow">Domani</string>
+    <string name="no_events">Nessun evento</string>
+    <string name="no_title">(Senza titolo)</string>
+    <string name="all_day">Tutto il giorno</string>
+    <string name="time_until">fino alle %1$s</string>
+    <string name="time_from">dalle %1$s</string>
+    <string name="prev_year">Anno precedente</string>
+    <string name="next_year">Anno successivo</string>
+    <string name="choose_year">Scegli un altro mese</string>
+
+    <string name="event">Evento</string>
+    <string name="event_gone">Questo evento non è più nel calendario</string>
+    <string name="event_calendar">Calendario</string>
+    <string name="event_location">Luogo</string>
+    <string name="event_notes">Note</string>
+    <string name="event_reminders">Promemoria</string>
+    <string name="event_repeats">Ripetizione</string>
+    <string name="reminder_at_start">All\'inizio</string>
+    <plurals name="minutes_before">
+        <item quantity="one">%d minuto prima</item>
+        <item quantity="many">%d minuti prima</item>
+        <item quantity="other">%d minuti prima</item>
+    </plurals>
+    <plurals name="hours_before">
+        <item quantity="one">%d ora prima</item>
+        <item quantity="many">%d ore prima</item>
+        <item quantity="other">%d ore prima</item>
+    </plurals>
+    <plurals name="days_before">
+        <item quantity="one">%d giorno prima</item>
+        <item quantity="many">%d giorni prima</item>
+        <item quantity="other">%d giorni prima</item>
+    </plurals>
+
+    <string name="new_event">Nuovo evento</string>
+    <string name="edit_event">Modifica</string>
+    <string name="delete_event">Elimina</string>
+    <string name="delete_confirm">Eliminare?</string>
+    <string name="title_hint">Titolo</string>
+    <string name="event_start">Inizio</string>
+    <string name="event_end">Termine</string>
+    <string name="event_reminder">Promemoria</string>
+    <string name="reminder_none">Nessuno</string>
+    <string name="reminder_short_start">All\'inizio</string>
+    <string name="reminder_short_minutes">10 min</string>
+    <string name="reminder_short_hour">1 ora</string>
+    <string name="reminder_short_day">1 giorno</string>
+    <string name="end_before_start">L\'evento finisce prima di iniziare</string>
+    <string name="not_saved">Il calendario non ha accettato l\'evento</string>
+    <string name="local_calendar">Telefono</string>
+    <string name="settings_new_events">Calendario per i nuovi eventi</string>
+    <string name="settings_reminders">Promemoria degli eventi</string>
+    <string name="reminders_hint">Disattivalo se un\'altra app, come Google Calendar, ti ricorda già gli eventi.</string>
+    <string name="channel_reminders">Promemoria degli eventi</string>
+    <string name="snooze">Tra 10 minuti</string>
+    <string name="dismiss">Chiudi</string>
+
+    <string name="settings_calendars">Calendari</string>
+    <string name="no_calendars">Sul telefono non ci sono ancora calendari</string>
+
+    <string name="task">Attività</string>
+    <string name="settings_show_tasks">Mostra le attività di Ink Tasks</string>
+    <string name="tasks_access_hint">Consenti al calendario di leggere le attività con una scadenza e le mostrerà nei loro giorni.</string>
+
+    <string name="widget_label">Calendario</string>
+    <string name="widget_description">La data di oggi e i prossimi eventi</string>
+    <string name="widget_no_access">Apri il calendario per consentire l\'accesso</string>
+
+    <string name="about_license">Ink Calendar è software libero con licenza GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Calendar non invia nulla: legge e scrive i calendari sul telefono, e a sincronizzarli sono solo i tuoi account.</string>
+</resources>

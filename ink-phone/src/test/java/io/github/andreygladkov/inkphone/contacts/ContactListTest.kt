@@ -1,9 +1,12 @@
 package io.github.andreygladkov.inkphone.contacts
 
+import java.util.Locale
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ContactListTest {
+    private val russian = Locale.forLanguageTag("ru")
+
     private val google = AccountRef("com.google", "me@gmail.com")
     private val telegram = AccountRef("org.telegram.messenger", "123")
 
@@ -22,12 +25,23 @@ class ContactListTest {
         val list = ContactList.build(
             listOf(contact(1, "Zed"), contact(2, "+7 701 000"), contact(3, "Яна"), contact(4, "Anna"), contact(5, "Борис")),
             ContactListOptions(),
+            russian,
         )
         assertEquals(listOf("Борис", "Яна", "Anna", "Zed", "+7 701 000"), names(list))
     }
 
+    @Test fun latinNamesFollowTheAlphabetOfTheLocale() {
+        val list = ContactList.build(
+            listOf(contact(1, "Śliwa"), contact(2, "Szymański"), contact(3, "Sowa"), contact(4, "Łukasz"), contact(5, "Lena")),
+            ContactListOptions(),
+            Locale.forLanguageTag("pl"),
+        )
+        assertEquals(listOf("Lena", "Łukasz", "Sowa", "Szymański", "Śliwa"), names(list))
+        assertEquals(listOf("L", "S"), ContactList.letters(list))
+    }
+
     @Test fun yoIsSortedAndIndexedWithYe() {
-        val list = ContactList.build(listOf(contact(1, "Ёжиков"), contact(2, "Ежов"), contact(3, "Жанна"), contact(4, "Дина")), ContactListOptions())
+        val list = ContactList.build(listOf(contact(1, "Ёжиков"), contact(2, "Ежов"), contact(3, "Жанна"), contact(4, "Дина")), ContactListOptions(), russian)
         assertEquals(listOf("Дина", "Ёжиков", "Ежов", "Жанна"), names(list))
         assertEquals(listOf("Д", "Е", "Ж"), ContactList.letters(list))
     }
@@ -41,9 +55,9 @@ class ContactListTest {
     }
 
     @Test fun onlyContactsWithPhoneByDefault() {
-        val list = ContactList.build(listOf(contact(1, "Анна"), contact(2, "Борис", hasPhone = false)), ContactListOptions())
+        val list = ContactList.build(listOf(contact(1, "Анна"), contact(2, "Борис", hasPhone = false)), ContactListOptions(), russian)
         assertEquals(listOf("Анна"), names(list))
-        val all = ContactList.build(listOf(contact(1, "Анна"), contact(2, "Борис", hasPhone = false)), ContactListOptions(onlyWithPhone = false))
+        val all = ContactList.build(listOf(contact(1, "Анна"), contact(2, "Борис", hasPhone = false)), ContactListOptions(onlyWithPhone = false), russian)
         assertEquals(listOf("Анна", "Борис"), names(all))
     }
 
@@ -56,19 +70,21 @@ class ContactListTest {
                 contact(3, "Вера", accounts = emptySet()),
             ),
             options,
+            russian,
         )
         assertEquals(listOf("Борис", "Вера"), names(list))
     }
 
     @Test fun familyFirstUsesAlternativeName() {
         val contacts = listOf(contact(1, "Иван Петров", "Петров, Иван"), contact(2, "Анна", ""))
-        assertEquals(listOf("Анна", "Петров, Иван"), names(ContactList.build(contacts, ContactListOptions(nameOrder = NameOrder.FAMILY_FIRST))))
+        assertEquals(listOf("Анна", "Петров, Иван"), names(ContactList.build(contacts, ContactListOptions(nameOrder = NameOrder.FAMILY_FIRST), russian)))
     }
 
     @Test fun searchMatchesWordPrefixesInAnyOrder() {
         val list = ContactList.build(
             listOf(contact(1, "Иван Петров"), contact(2, "Пётр Иванов"), contact(3, "Анна"), contact(4, "Алёна")),
             ContactListOptions(),
+            russian,
         )
         assertEquals(listOf("Иван Петров"), names(ContactList.search(list, "петро ив")))
         assertEquals(listOf("Иван Петров", "Пётр Иванов"), names(ContactList.search(list, "ИВ")))
@@ -80,6 +96,7 @@ class ContactListTest {
         val list = ContactList.build(
             listOf(contact(1, "Анна", digits = listOf("77011234567")), contact(2, "Борис 2", digits = listOf("77079990000"))),
             ContactListOptions(),
+            russian,
         )
         assertEquals(listOf("Анна"), names(ContactList.search(list, "+7 701 123")))
         assertEquals(listOf("Борис 2"), names(ContactList.search(list, "борис 2")))

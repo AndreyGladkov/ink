@@ -93,7 +93,7 @@ class ContactPickActivity : Activity() {
         val repository = ContactsRepository(contentResolver)
         val options = ContactListOptions.from(inkPrefs()).copy(onlyWithPhone = false, hiddenAccounts = emptySet())
         loader.execute {
-            val entries = runCatching { ContactList.build(repository.loadSummaries(), options) }.getOrDefault(emptyList())
+            val entries = runCatching { ContactList.build(repository.loadSummaries(), options, resources.configuration.locales[0]) }.getOrDefault(emptyList())
             main.post {
                 if (isDestroyed) return@post
                 all = entries
