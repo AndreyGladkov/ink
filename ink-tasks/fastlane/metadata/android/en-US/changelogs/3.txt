@@ -1,0 +1,1 @@
+Ink Calendar can now show open tasks that have a due date on their days and on its widget, once you allow it to read them. A tap on a task in the calendar opens it here.
