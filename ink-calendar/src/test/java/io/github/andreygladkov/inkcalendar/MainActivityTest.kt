@@ -1,5 +1,6 @@
 package io.github.andreygladkov.inkcalendar
 
+import android.Manifest
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
@@ -24,6 +25,8 @@ import io.github.andreygladkov.inkcalendar.Fixtures.at
 import io.github.andreygladkov.inkcalendar.Fixtures.utcDay
 import io.github.andreygladkov.inkcalendar.event.EditActivity
 import io.github.andreygladkov.inkcalendar.event.EventActivity
+import io.github.andreygladkov.inkcalendar.tasks.FakeTasksProvider
+import io.github.andreygladkov.inkcalendar.tasks.InkTasks
 import io.github.andreygladkov.inkcalendar.ui.SwipeFrame
 import org.junit.After
 import org.junit.Before
@@ -36,6 +39,7 @@ import org.robolectric.annotation.GraphicsMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
@@ -147,6 +151,77 @@ class MainActivityTest {
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals(listOf("27"), days(rebuilt).filter { it.isToday }.map { it.text.toString() })
         controller.pause()
+    }
+
+    @Test fun inkTasksTasksFollowTheEventsOfTheirDayAndMarkTheirDays() {
+        Fixtures.allow(application)
+        FakeTasksProvider.install(application).apply {
+            task("Купить молоко", "2026-11-28")
+            task("Отчёт", "2026-11-28", list = "Работа", reminder = "2026-11-28T15:00")
+            task("Просрочено", "2026-11-20")
+        }
+        val activity = open()
+        assertEquals(listOf("20", "26", "28"), days(activity).filter { it.isMarked && it.isShown }.map { it.text.toString() })
+        day(activity, "2026-11-28").performClick()
+        assertEquals(listOf("Созвон\n11:00–12:00", "Отчёт\nЗадача · Работа · 15:00", "Купить молоко\nЗадача · Дом"), rows(activity))
+        assertTrue(buttons(activity).filter { it.text.startsWith("Отчёт") || it.text.startsWith("Купить") }.all { it.icon == R.drawable.ic_check_box_outline })
+        assertPureBlackAndWhite(render(contentRoot(activity)))
+        day(activity, "2026-11-20").performClick()
+        assertEquals(listOf("Просрочено\nЗадача · Дом"), rows(activity))
+    }
+
+    @Test fun aTappedTaskOpensInInkTasks() {
+        Fixtures.allow(application)
+        FakeTasksProvider.install(application).task("Купить молоко", "2026-11-27")
+        val activity = open()
+        day(activity, "2026-11-27").performClick()
+        buttons(activity).single { it.text.startsWith("Купить молоко") }.performClick()
+        val started = shadowOf(activity).nextStartedActivity
+        assertEquals("io.github.andreygladkov.inktasks.action.OPEN_TASK", started.action)
+        assertEquals(InkTasks.PACKAGE, started.`package`)
+        assertEquals(listOf("Дом", "- [ ] Купить молоко"), listOf(started.getStringExtra("list"), started.getStringExtra("line")))
+    }
+
+    @Test fun accessToInkTasksIsAskedForOnceAlongWithNotifications() {
+        Fixtures.allow(application)
+        FakeTasksProvider.install(application, granted = false).task("Купить молоко", "2026-11-27")
+        val activity = open()
+        assertEquals(listOf(Manifest.permission.POST_NOTIFICATIONS, InkTasks.PERMISSION),
+            shadowOf(activity).lastRequestedPermission.requestedPermissions.toList())
+        day(activity, "2026-11-27").performClick()
+        assertTrue(shown(activity).contains("Нет событий"))
+        val again = open()
+        assertNull(shadowOf(again).lastRequestedPermission)
+    }
+
+    @Test fun inkTasksIsReadOncePerVisitAndAgainWhenItsTasksChange() {
+        Fixtures.allow(application)
+        val tasks = FakeTasksProvider.install(application).apply { task("Купить молоко", "2026-11-27") }
+        val activity = open()
+        day(activity, "2026-11-27").performClick()
+        day(activity, "2026-11-28").performClick()
+        assertEquals(1, tasks.queries)
+        tasks.task("Отчёт", "2026-11-28")
+        application.contentResolver.notifyChange(InkTasks.URI, null)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(2, tasks.queries)
+        assertTrue(rows(activity).contains("Отчёт\nЗадача · Дом"))
+    }
+
+    @Test fun inkTasksInstalledAgainIsAskedForAccessAgain() {
+        Fixtures.allow(application)
+        FakeTasksProvider.install(application, granted = false)
+        open()
+        shadowOf(application.packageManager).removePackage(InkTasks.PACKAGE)
+        assertNull(shadowOf(open()).lastRequestedPermission)
+        FakeTasksProvider.install(application, granted = false)
+        assertEquals(listOf(InkTasks.PERMISSION), shadowOf(open()).lastRequestedPermission.requestedPermissions.toList())
+    }
+
+    @Test fun withoutInkTasksOnlyNotificationsAreAskedFor() {
+        Fixtures.allow(application)
+        val activity = open()
+        assertEquals(listOf(Manifest.permission.POST_NOTIFICATIONS), shadowOf(activity).lastRequestedPermission.requestedPermissions.toList())
     }
 
     private fun open(): MainActivity = Robolectric.buildActivity(MainActivity::class.java).setup().get()

@@ -4,6 +4,8 @@ plugins {
     id("com.android.application")
 }
 
+val tasksPackage = "io.github.andreygladkov.inktasks"
+
 val localProperties = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
 }
@@ -30,6 +32,8 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
+        buildConfigField("String", "TASKS_PACKAGE", "\"$tasksPackage\"")
+        manifestPlaceholders["tasksPackage"] = tasksPackage
     }
 
     buildTypes {
@@ -40,6 +44,8 @@ android {
         }
         debug {
             applicationIdSuffix = ".debug"
+            buildConfigField("String", "TASKS_PACKAGE", "\"$tasksPackage.debug\"")
+            manifestPlaceholders["tasksPackage"] = "$tasksPackage.debug"
         }
     }
 

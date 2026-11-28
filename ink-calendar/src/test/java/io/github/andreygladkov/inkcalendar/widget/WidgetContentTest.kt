@@ -8,6 +8,7 @@ import io.github.andreygladkov.inkcalendar.Fixtures.ZONE
 import io.github.andreygladkov.inkcalendar.Fixtures.at
 import io.github.andreygladkov.inkcalendar.Fixtures.utcDay
 import io.github.andreygladkov.inkcalendar.events.Occurrence
+import io.github.andreygladkov.inkcalendar.tasks.DueTask
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -35,6 +36,18 @@ class WidgetContentTest {
         assertEquals(listOf(WidgetContent.Entry(null, "День рождения"), WidgetContent.Entry("11:30", "Обед"), WidgetContent.Entry("19:00", "Ужин")),
             content.todayEntries)
         assertEquals(listOf(WidgetContent.Entry("11:00", "Созвон")), content.tomorrowEntries)
+        assertNull(content.note)
+    }
+
+    @Test fun tasksDueTodayAndTomorrowFollowTheEvents() {
+        val tasks = listOf(
+            DueTask("Дом", "- [ ] Купить молоко", 0, "Купить молоко", TODAY, null),
+            DueTask("Работа", "- [ ] Отчёт", 0, "Отчёт", TODAY.plusDays(1), TODAY.plusDays(1).atTime(9, 0)),
+            DueTask("Дом", "- [ ] Потом", 0, "Потом", TODAY.plusDays(2), null),
+        )
+        val content = WidgetContent.of(context, now, ZONE, emptyList(), tasks)
+        assertEquals(listOf(WidgetContent.Entry(null, "Купить молоко", isTask = true)), content.todayEntries)
+        assertEquals(listOf(WidgetContent.Entry("9:00", "Отчёт", isTask = true)), content.tomorrowEntries)
         assertNull(content.note)
     }
 

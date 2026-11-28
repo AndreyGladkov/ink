@@ -21,6 +21,7 @@ import io.github.andreygladkov.inkcalendar.R
 import io.github.andreygladkov.inkcalendar.events.CalendarClock
 import io.github.andreygladkov.inkcalendar.events.EventFormat
 import io.github.andreygladkov.inkcalendar.events.EventStore
+import io.github.andreygladkov.inkcalendar.tasks.InkTasks
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
@@ -29,6 +30,7 @@ import kotlin.math.roundToInt
 object WidgetUpdater {
     private const val TAG = "WidgetUpdater"
     private const val PREF_DRAWN = "widget_drawn_"
+    private const val PREF_READS_TASKS = "widget_reads_tasks"
     private val DEFAULT_SIZE_DP = SizeF(180f, 90f)
     val drawing: Executor = Executors.newSingleThreadExecutor()
 
@@ -52,7 +54,7 @@ object WidgetUpdater {
         } else {
             null
         }
-        val content = WidgetContent.of(context, now, zone, occurrences, EventFormat(context, zone))
+        val content = WidgetContent.of(context, now, zone, occurrences, InkTasks(context).due(), EventFormat(context, zone))
         val style = InkStyle.of(context)
         val painter = WidgetPainter(context, style)
         val prefs = context.inkPrefs()
@@ -70,6 +72,18 @@ object WidgetUpdater {
             }
         }
         scheduleTick(context, WidgetContent.nextChange(now, zone, occurrences).toEpochMilli())
+    }
+
+    /** Showing tasks or not changes what the widget waits for as well as what it shows. */
+    fun tasksChanged(context: Context) {
+        context.inkPrefs().edit { putBoolean(PREF_READS_TASKS, InkTasks(context).canRead) }
+        if (ids(context).isNotEmpty()) ChangesJob.schedule(context)
+        updateAllInBackground(context)
+    }
+
+    /** Access to Ink Tasks can also be given or taken away in the system's app settings, which tell the app nothing. */
+    fun noticeTasksAccess(context: Context) {
+        if (InkTasks(context).canRead != context.inkPrefs().getBoolean(PREF_READS_TASKS, false)) tasksChanged(context)
     }
 
     fun forget(context: Context, ids: IntArray) = context.inkPrefs().edit { ids.forEach { remove(PREF_DRAWN + it) } }

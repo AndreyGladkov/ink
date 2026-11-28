@@ -22,6 +22,9 @@ class TaskFile private constructor(private val bom: String, private val newline:
 
     val tasks: List<Task> by lazy { nodes.map(::task) }
 
+    /** Open tasks and the open subtasks of open tasks; a subtask under a done task is done with it. */
+    val open: List<Task> get() = tasks.filter { !it.isDone }.flatMap { task -> listOf(task) + task.subtasks.filter { !it.isDone } }
+
     fun find(ref: TaskRef): Task? = node(ref)?.let(::task)
 
     fun toText(): String = bom + lines.joinToString("") { it.text + it.end }

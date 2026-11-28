@@ -4,6 +4,7 @@ import android.content.Context
 import io.github.andreygladkov.inkcalendar.R
 import io.github.andreygladkov.inkcalendar.events.EventFormat
 import io.github.andreygladkov.inkcalendar.events.Occurrence
+import io.github.andreygladkov.inkcalendar.tasks.DueTask
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -19,16 +20,19 @@ data class WidgetContent(
     val note: String?,
 ) {
     /** [time] is the start, or how the event runs into the day; an event taking the whole day has none. */
-    data class Entry(val time: String?, val title: String)
+    data class Entry(val time: String?, val title: String, val isTask: Boolean = false)
 
     companion object {
         /** [occurrences] is null without access to the calendar. */
-        fun of(context: Context, now: Instant, zone: ZoneId, occurrences: List<Occurrence>?, format: EventFormat = EventFormat(context, zone)): WidgetContent {
+        fun of(context: Context, now: Instant, zone: ZoneId, occurrences: List<Occurrence>?, tasks: List<DueTask> = emptyList(),
+            format: EventFormat = EventFormat(context, zone)): WidgetContent {
             val today = now.atZone(zone).toLocalDate()
             val tomorrow = today.plusDays(1)
             val left = occurrences.orEmpty().filter { it.end > now.toEpochMilli() || it.allDay }
             fun entries(date: LocalDate) = Occurrence.onDay(left, date, zone).map {
                 Entry(format.startOn(it, date), it.title.ifBlank { context.getString(R.string.no_title) })
+            } + DueTask.onDay(tasks, date).map {
+                Entry(it.time?.let(format::time), it.title.ifBlank { context.getString(R.string.no_title) }, isTask = true)
             }
             val todayEntries = entries(today)
             val tomorrowEntries = entries(tomorrow)

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.core.content.edit
 import io.github.andreygladkov.ink.inkPrefs
 import io.github.andreygladkov.inktasks.R
+import io.github.andreygladkov.inktasks.calendar.DueTask
 import io.github.andreygladkov.inktasks.remind.Reminders
 import io.github.andreygladkov.inktasks.tasks.TaskFile
 import java.io.IOException
@@ -44,7 +45,9 @@ class TaskLists(private val context: Context, private val folder: Folder) {
         val before = TaskFile.parse(text)
         val changed = change(before) ?: return null
         attempt { folder.write(name, changed.file.toText()) } ?: return null
-        if (Reminders.inFile(name, before) != Reminders.inFile(name, changed.file)) Reminders.update(context)
+        if (Reminders.inFile(name, before) != Reminders.inFile(name, changed.file) || DueTask.inFile(name, before) != DueTask.inFile(name, changed.file)) {
+            Reminders.update(context)
+        }
         return changed
     }
 

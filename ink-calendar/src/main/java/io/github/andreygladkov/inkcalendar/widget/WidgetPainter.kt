@@ -3,6 +3,7 @@ package io.github.andreygladkov.inkcalendar.widget
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.Rect
 import android.text.TextPaint
 import android.text.TextUtils
@@ -22,12 +23,18 @@ import kotlin.math.roundToInt
  */
 class WidgetPainter(private val context: Context, private val style: InkStyle = InkStyle.of(context)) {
     private val metrics = context.resources.displayMetrics
+    private val box = Paint().also { it.isAntiAlias = false }
     private val paint = TextPaint().also {
         it.isAntiAlias = false
         it.color = style.foreground
     }
 
     private data class Line(val text: String, val scale: Float, val bold: Boolean = false)
+
+    private sealed interface Row {
+        data class Heading(val line: Line) : Row
+        data class Entry(val time: Line, val title: Line, val isTask: Boolean) : Row
+    }
 
     fun draw(content: WidgetContent, width: Int, height: Int): Bitmap {
         val bitmap = createBitmap(width, height)
@@ -75,27 +82,43 @@ class WidgetPainter(private val context: Context, private val style: InkStyle = 
     }
 
     private fun drawEvents(canvas: Canvas, content: WidgetContent, area: Rect) {
-        val rows = content.note?.let { listOf(Line(it, InkStyle.SECONDARY_SCALE) to null) }
+        val rows = content.note?.let { listOf(Row.Heading(Line(it, InkStyle.SECONDARY_SCALE))) }
             ?: (content.todayEntries.map(::entry) +
-                (if (content.tomorrowEntries.isEmpty()) emptyList() else listOf(Line(content.tomorrowLabel, InkStyle.SECONDARY_SCALE, bold = true) to null)) +
+                (if (content.tomorrowEntries.isEmpty()) emptyList() else listOf(Row.Heading(Line(content.tomorrowLabel, InkStyle.SECONDARY_SCALE, bold = true)))) +
                 content.tomorrowEntries.map(::entry))
         val lineHeight = height(Line("", InkStyle.SECONDARY_SCALE))
         var top = area.top
-        for ((first, title) in rows) {
+        for (row in rows) {
             if (top + lineHeight > area.bottom) break
-            if (title == null) {
-                drawLine(canvas, first, area.left, top, area.width())
-            } else {
-                val lead = if (first.text.isEmpty()) 0 else min(width(first) + dp(GAP_DP), area.width() / 2)
-                drawLine(canvas, first, area.left, top, lead)
-                drawLine(canvas, title, area.left + lead, top, area.width() - lead)
+            when (row) {
+                is Row.Heading -> drawLine(canvas, row.line, area.left, top, area.width())
+                is Row.Entry -> drawEntry(canvas, row, area, top, lineHeight)
             }
             top += lineHeight
         }
     }
 
+    private fun drawEntry(canvas: Canvas, entry: Row.Entry, area: Rect, top: Int, lineHeight: Int) {
+        var titleLeft = if (entry.time.text.isEmpty()) 0 else min(width(entry.time) + dp(GAP_DP), area.width() / 2)
+        drawLine(canvas, entry.time, area.left, top, titleLeft)
+        if (entry.isTask) {
+            val box = (lineHeight * BOX_TO_LINE).roundToInt()
+            drawBox(canvas, area.left + titleLeft, top + (lineHeight - box) / 2, box)
+            titleLeft += box + dp(GAP_DP)
+        }
+        drawLine(canvas, entry.title, area.left + titleLeft, top, area.width() - titleLeft)
+    }
+
     private fun entry(entry: WidgetContent.Entry) =
-        Line(entry.time.orEmpty(), InkStyle.SECONDARY_SCALE, bold = true) to Line(entry.title, InkStyle.SECONDARY_SCALE)
+        Row.Entry(Line(entry.time.orEmpty(), InkStyle.SECONDARY_SCALE, bold = true), Line(entry.title, InkStyle.SECONDARY_SCALE), entry.isTask)
+
+    private fun drawBox(canvas: Canvas, left: Int, top: Int, size: Int) {
+        val stroke = dp(InkStyle.LINE_DP).coerceAtLeast(1)
+        box.color = style.foreground
+        canvas.drawRect(Rect(left, top, left + size, top + size), box)
+        box.color = style.background
+        canvas.drawRect(Rect(left + stroke, top + stroke, left + size - stroke, top + size - stroke), box)
+    }
 
     private fun drawLine(canvas: Canvas, line: Line, left: Int, top: Int, width: Int) {
         if (width <= 0) return
@@ -133,5 +156,6 @@ class WidgetPainter(private val context: Context, private val style: InkStyle = 
         const val MIN_DAY_SCALE = 1.2f
         const val DATE_SHARE_PERCENT = 40
         const val MONTH_HEIGHT_PERCENT = 70
+        const val BOX_TO_LINE = 0.6f
     }
 }

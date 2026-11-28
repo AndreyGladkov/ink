@@ -47,5 +47,15 @@ class WidgetPainterTest {
         assertTrue(lowerHalf(tall) > lowerHalf(short) * 3)
     }
 
+    @Test fun aTaskIsDrawnWithABoxBeforeItsTitle() {
+        val entry = WidgetContent.Entry(null, "Купить молоко")
+        val asEvent = content.copy(todayEntries = listOf(entry), tomorrowEntries = emptyList())
+        val asTask = asEvent.copy(todayEntries = listOf(entry.copy(isTask = true)))
+        val black = { shown: WidgetContent ->
+            WidgetPainter(context).draw(shown, px(300f), px(110f)).also(::assertPureBlackAndWhite).pixels().count { it == Color.BLACK }
+        }
+        assertTrue(black(asTask) > black(asEvent))
+    }
+
     private fun px(dp: Float) = (dp * density).roundToInt()
 }

@@ -78,4 +78,7 @@
 
     <string name="about_license">Ink Tasks — свободная программа под лицензией GNU General Public License v3.</string>
     <string name="about_privacy">Ink Tasks не ходит в интернет. Задачи хранятся в md-файлах на телефоне или в выбранной вами папке.</string>
+
+    <string name="permission_read_tasks">Задачи Ink Tasks</string>
+    <string name="permission_read_tasks_description">читать задачи Ink Tasks со сроком</string>
 </resources>
