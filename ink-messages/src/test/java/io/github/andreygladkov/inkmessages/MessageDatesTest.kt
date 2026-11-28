@@ -15,6 +15,8 @@ class MessageDatesTest {
         monthsFull = listOf("января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"),
         dayMonth = "%1\$d %2\$s",
         dayMonthYear = "%1\$d %2\$s %3\$d",
+        timePattern = "HH:mm",
+        shortDatePattern = "dd.MM.yy",
         zone = ZoneOffset.UTC,
     )
     private val now = at(2026, 11, 4, 12, 0)

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Tâches</string>
+    <string name="default_list">Mes tâches</string>
+
+    <string name="new_task">Nouvelle tâche</string>
+    <string name="no_tasks">Aucune tâche</string>
+    <string name="done_count">Terminées (%1$d)</string>
+    <string name="check">Marquer « %1$s » comme terminée</string>
+    <string name="uncheck">Marquer « %1$s » comme non terminée</string>
+    <string name="move_where">Déplacer où ?</string>
+    <string name="move_here">Ici</string>
+
+    <string name="today">Aujourd\'hui</string>
+    <string name="tomorrow">Demain</string>
+    <string name="yesterday">Hier</string>
+
+    <string name="task">Tâche</string>
+    <string name="new_subtask">Nouvelle sous-tâche</string>
+    <string name="title_hint">Titre</string>
+    <string name="notes">Notes</string>
+    <string name="notes_hint">Détails</string>
+    <string name="due">Échéance</string>
+    <string name="no_due">Sans échéance</string>
+    <string name="in_a_week">Dans une semaine</string>
+    <string name="other_date">Autre date…</string>
+    <string name="remove_due">Retirer</string>
+    <string name="reminder">Rappel</string>
+    <string name="no_reminder">Aucun rappel</string>
+    <string name="reminder_at">À %1$s</string>
+    <string name="set_time">Définir une heure…</string>
+    <string name="change_time">Modifier l\'heure…</string>
+    <string name="remove_reminder">Retirer l\'heure</string>
+    <string name="notifications_off">Les notifications sont désactivées : le rappel ne s\'affichera pas.</string>
+    <string name="channel_reminders">Rappels</string>
+    <string name="reminder_done">Terminée</string>
+    <string name="reminder_later">Dans une heure</string>
+    <string name="subtasks">Sous-tâches</string>
+    <string name="add_subtask">Ajouter une sous-tâche</string>
+    <string name="mark_done">Marquer comme terminée</string>
+    <string name="mark_open">Marquer comme non terminée</string>
+    <string name="move">Déplacer</string>
+    <string name="delete">Supprimer</string>
+    <string name="delete_confirm">Supprimer ?</string>
+
+    <string name="done">Terminées</string>
+    <string name="no_done">Aucune tâche terminée</string>
+    <string name="done_on">Terminée : %1$s</string>
+    <string name="delete_done">Supprimer les tâches terminées</string>
+    <string name="delete_done_confirm">Tout supprimer ?</string>
+
+    <string name="lists">Listes</string>
+    <string name="new_list">Nouvelle liste</string>
+    <string name="prev_list">Liste précédente</string>
+    <string name="next_list">Liste suivante</string>
+    <string name="list_position">Liste %1$d sur %2$d</string>
+    <string name="list">Liste</string>
+    <string name="edit_list">Modifier « %1$s »</string>
+    <string name="list_name_hint">Nom de la liste</string>
+    <string name="list_exists">Cette liste existe déjà</string>
+    <string name="sort">Trier</string>
+    <string name="sort_manual">Mon ordre</string>
+    <string name="sort_due">Par date</string>
+    <string name="delete_list">Supprimer la liste</string>
+    <string name="delete_list_confirm">Supprimer la liste ?</string>
+
+    <string name="settings_storage">Stockage</string>
+    <string name="storage_phone">Les tâches sont stockées uniquement sur ce téléphone.</string>
+    <string name="storage_folder">Dossier : %1$s</string>
+    <string name="storage_unavailable">Pas d\'accès au dossier</string>
+    <string name="storage_failed">Impossible d\'écrire dans ce dossier</string>
+    <string name="storage_hint">Choisissez un dossier de votre coffre Obsidian, par exemple Vault/Tasks, pour synchroniser les listes avec un ordinateur.</string>
+    <string name="choose_folder">Choisir un dossier…</string>
+    <string name="choose_other_folder">Choisir un autre dossier…</string>
+    <string name="keep_on_phone">Garder sur le téléphone</string>
+    <string name="from_phone">" (téléphone)"</string>
+    <string name="from_folder">" (dossier)"</string>
+
+    <string name="about_license">Ink Tasks est un logiciel libre sous licence GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Tasks n\'utilise pas Internet. Les tâches sont stockées dans des fichiers Markdown sur le téléphone ou dans le dossier de votre choix.</string>
+
+    <string name="permission_read_tasks">Tâches Ink Tasks</string>
+    <string name="permission_read_tasks_description">lire vos tâches Ink Tasks ayant une échéance</string>
+</resources>

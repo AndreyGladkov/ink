@@ -39,7 +39,7 @@ class CallLogModelTest {
     }
 
     @Test fun formatsTimeRelativeToNow() {
-        val format = CallTimeFormat("вчера", zone)
+        val format = CallTimeFormat("вчера", zone, "HH:mm", "dd.MM", "dd.MM.yy")
         val now = at(31, 20)
         assertEquals("14:32", format.format(at(31, 14, 32), now))
         assertEquals("вчера 23:05", format.format(at(30, 23, 5), now))

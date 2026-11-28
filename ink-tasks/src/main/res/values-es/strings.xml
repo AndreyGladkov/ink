@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Tareas</string>
+    <string name="default_list">Mis tareas</string>
+
+    <string name="new_task">Nueva tarea</string>
+    <string name="no_tasks">No hay tareas</string>
+    <string name="done_count">Completadas (%1$d)</string>
+    <string name="check">Marcar «%1$s» como completada</string>
+    <string name="uncheck">Marcar «%1$s» como pendiente</string>
+    <string name="move_where">¿Adónde mover?</string>
+    <string name="move_here">Aquí</string>
+
+    <string name="today">Hoy</string>
+    <string name="tomorrow">Mañana</string>
+    <string name="yesterday">Ayer</string>
+
+    <string name="task">Tarea</string>
+    <string name="new_subtask">Nueva subtarea</string>
+    <string name="title_hint">Título</string>
+    <string name="notes">Notas</string>
+    <string name="notes_hint">Detalles</string>
+    <string name="due">Fecha límite</string>
+    <string name="no_due">Sin fecha límite</string>
+    <string name="in_a_week">En una semana</string>
+    <string name="other_date">Otra fecha…</string>
+    <string name="remove_due">Quitar</string>
+    <string name="reminder">Recordatorio</string>
+    <string name="no_reminder">Sin recordatorio</string>
+    <string name="reminder_at">A las %1$s</string>
+    <string name="set_time">Fijar hora…</string>
+    <string name="change_time">Cambiar hora…</string>
+    <string name="remove_reminder">Quitar hora</string>
+    <string name="notifications_off">Las notificaciones están desactivadas, así que el recordatorio no aparecerá.</string>
+    <string name="channel_reminders">Recordatorios</string>
+    <string name="reminder_done">Completada</string>
+    <string name="reminder_later">En una hora</string>
+    <string name="subtasks">Subtareas</string>
+    <string name="add_subtask">Añadir subtarea</string>
+    <string name="mark_done">Marcar como completada</string>
+    <string name="mark_open">Marcar como pendiente</string>
+    <string name="move">Mover</string>
+    <string name="delete">Eliminar</string>
+    <string name="delete_confirm">¿Eliminar?</string>
+
+    <string name="done">Completadas</string>
+    <string name="no_done">Aún no hay tareas completadas</string>
+    <string name="done_on">Completada %1$s</string>
+    <string name="delete_done">Eliminar completadas</string>
+    <string name="delete_done_confirm">¿Eliminar todas?</string>
+
+    <string name="lists">Listas</string>
+    <string name="new_list">Nueva lista</string>
+    <string name="prev_list">Lista anterior</string>
+    <string name="next_list">Lista siguiente</string>
+    <string name="list_position">Lista %1$d de %2$d</string>
+    <string name="list">Lista</string>
+    <string name="edit_list">Editar «%1$s»</string>
+    <string name="list_name_hint">Nombre de la lista</string>
+    <string name="list_exists">Ya existe una lista con ese nombre</string>
+    <string name="sort">Ordenar</string>
+    <string name="sort_manual">Mi orden</string>
+    <string name="sort_due">Por fecha</string>
+    <string name="delete_list">Eliminar lista</string>
+    <string name="delete_list_confirm">¿Eliminar la lista?</string>
+
+    <string name="settings_storage">Almacenamiento</string>
+    <string name="storage_phone">Las tareas se guardan solo en este teléfono.</string>
+    <string name="storage_folder">Carpeta: %1$s</string>
+    <string name="storage_unavailable">Sin acceso a la carpeta</string>
+    <string name="storage_failed">No se pudo escribir en esa carpeta</string>
+    <string name="storage_hint">Elige una carpeta de tu bóveda de Obsidian, como Vault/Tasks, para sincronizar las listas con un ordenador.</string>
+    <string name="choose_folder">Elegir carpeta…</string>
+    <string name="choose_other_folder">Elegir otra carpeta…</string>
+    <string name="keep_on_phone">Guardar en el teléfono</string>
+    <string name="from_phone">" (teléfono)"</string>
+    <string name="from_folder">" (carpeta)"</string>
+
+    <string name="about_license">Ink Tasks es software libre bajo la GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Tasks no usa internet. Las tareas se guardan en archivos Markdown en el teléfono o en la carpeta que elijas.</string>
+
+    <string name="permission_read_tasks">Tareas de Ink Tasks</string>
+    <string name="permission_read_tasks_description">leer tus tareas de Ink Tasks con fecha límite</string>
+</resources>

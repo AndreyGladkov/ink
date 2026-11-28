@@ -16,6 +16,9 @@ class SearchQueryTest {
     @Test fun yoAndDiacriticsAreIgnored() {
         assertTrue(SearchQuery("АЛЕНА").matches(name))
         assertTrue(SearchQuery("jose").matches(SearchQuery.tokens("José")))
+        assertTrue(SearchQuery("lukasz").matches(SearchQuery.tokens("Łukasz")))
+        assertTrue(SearchQuery("weiss").matches(SearchQuery.tokens("Jörg Weiß")))
+        assertTrue(SearchQuery("bjorn").matches(SearchQuery.tokens("Bjørn")))
     }
 
     @Test fun digitsMatchInsideNumbersOnlyWithoutLetters() {

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Mensajes</string>
+    <string name="settings">Ajustes</string>
+
+    <string name="category_favorites">Favoritos</string>
+    <string name="category_contacts">Contactos</string>
+    <string name="category_other">Otros</string>
+    <string name="category_all">Todos</string>
+
+    <string name="permission_rationale">Ink Messages necesita acceso a tus mensajes y contactos para mostrar las conversaciones.</string>
+    <string name="empty_favorites">No hay conversaciones con contactos favoritos</string>
+    <string name="empty_contacts">No hay conversaciones con contactos</string>
+    <string name="empty_other">No hay mensajes de números que no estén en tus contactos</string>
+    <string name="empty_all">No hay mensajes</string>
+    <string name="empty_thread">No hay mensajes en esta conversación</string>
+
+    <string name="you_prefix">Yo: %1$s</string>
+    <string name="attachment_image">[Foto]</string>
+    <string name="attachment_other">[Adjunto]</string>
+    <string name="attachment_contact">[Contacto]</string>
+    <string name="attachment_audio">[Audio]</string>
+    <string name="attachment_video">[Vídeo]</string>
+    <string name="attachment_mms">[MMS]</string>
+
+    <string name="date_today">Hoy</string>
+    <string name="date_yesterday">Ayer</string>
+    <string name="date_yesterday_short">ayer</string>
+    <string name="date_day_month">%1$d %2$s</string>
+    <string name="date_day_month_year">%1$d %2$s de %3$d</string>
+    <string-array name="months_short">
+        <item>ene</item>
+        <item>feb</item>
+        <item>mar</item>
+        <item>abr</item>
+        <item>may</item>
+        <item>jun</item>
+        <item>jul</item>
+        <item>ago</item>
+        <item>sept</item>
+        <item>oct</item>
+        <item>nov</item>
+        <item>dic</item>
+    </string-array>
+    <string-array name="months_full">
+        <item>de enero</item>
+        <item>de febrero</item>
+        <item>de marzo</item>
+        <item>de abril</item>
+        <item>de mayo</item>
+        <item>de junio</item>
+        <item>de julio</item>
+        <item>de agosto</item>
+        <item>de septiembre</item>
+        <item>de octubre</item>
+        <item>de noviembre</item>
+        <item>de diciembre</item>
+    </string-array>
+
+    <string name="settings_start_category">Abrir al iniciar</string>
+    <string name="start_last">La última abierta</string>
+    <string name="me">Yo</string>
+    <string name="compose">Nuevo mensaje</string>
+    <string name="compose_title">Nuevo mensaje</string>
+    <string name="compose_to">Para</string>
+    <string name="compose_to_number">Escribir a %1$s</string>
+    <string name="message_field">Mensaje</string>
+    <string name="send">Enviar</string>
+    <string name="sending">enviando…</string>
+    <string name="send_failed_retry">No enviado — reintentar</string>
+    <string name="draft_prefix">Borrador: %1$s</string>
+    <string name="sms_counter">%1$d SMS · quedan %2$d</string>
+    <string name="sim_choice">SIM %1$d %2$s</string>
+    <string name="time_with_sim">%1$s · SIM %2$d</string>
+    <string name="not_default_banner">Ink Messages no es tu aplicación de SMS, así que solo puedes leer los mensajes.</string>
+    <string name="make_default">Hacer predeterminada</string>
+    <string name="action_reply">Responder</string>
+    <string name="action_mark_read">Marcar como leído</string>
+    <string name="action_copy_code">Copiar %1$s</string>
+    <string name="mms_pending">MMS · %s</string>
+    <string name="mms_download">Descargar</string>
+    <string name="mms_download_failed">No descargado — descargar</string>
+    <string name="mms_downloading">descargando…</string>
+    <string name="open_image">Foto</string>
+    <string name="open_contact">Contacto</string>
+    <string name="open_audio">Audio</string>
+    <string name="open_video">Vídeo</string>
+    <string name="open_file">Archivo</string>
+    <string name="attachment_named">%1$s: %2$s</string>
+    <string name="no_app">Ninguna aplicación puede abrir esto</string>
+    <string name="viewer_title">Foto</string>
+    <string name="save">Guardar</string>
+    <string name="saved">Guardado</string>
+    <string name="save_failed">No guardado</string>
+    <string name="share">Compartir</string>
+    <string name="call">Llamar</string>
+    <string name="more">Más</string>
+    <string name="mark_unread">No leído</string>
+    <string name="block">Bloquear</string>
+    <string name="unblock">Desbloquear</string>
+    <string name="delete_thread">Eliminar chat</string>
+    <string name="delete_confirm">¿Eliminar definitivamente?</string>
+    <string name="copy">Copiar</string>
+    <string name="forward">Reenviar</string>
+    <string name="delete">Eliminar</string>
+    <string name="delete_message_confirm">¿Eliminar?</string>
+    <string name="cancel">Cancelar</string>
+    <string name="search">Buscar</string>
+    <string name="search_conversations">Chats</string>
+    <string name="search_messages">Mensajes</string>
+    <string name="search_nothing">Sin resultados</string>
+    <string name="settings_notifications">Notificaciones</string>
+    <string name="notifications_hint">El sonido y la vibración de cada categoría se configuran en los ajustes del sistema.</string>
+    <string name="settings_blocked">Números bloqueados</string>
+    <string name="blocked_none">No hay números bloqueados.</string>
+    <string name="blocked_unavailable">La lista está disponible cuando Ink Messages es tu aplicación de SMS.</string>
+    <string name="settings_sms_app">Aplicación de SMS</string>
+    <string name="sms_app_yes">Ink Messages es tu aplicación de SMS.</string>
+    <string name="about_license">Ink Messages es software libre bajo la GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Messages no tiene acceso a internet: no solicita el permiso INTERNET.</string>
+    <string name="about_mmslib">Analizador de MMS de AOSP Messaging — Apache License 2.0</string>
+</resources>

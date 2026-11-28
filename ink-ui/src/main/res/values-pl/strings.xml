@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="grant_access">Zezwól na dostęp</string>
+    <string name="open_settings">Otwórz ustawienia</string>
+    <string name="back">Wstecz</string>
+    <string name="settings">Ustawienia</string>
+    <string name="page_prev">Poprzednia strona</string>
+    <string name="page_next">Następna strona</string>
+    <string name="selected">Wybrano</string>
+    <string name="settings_display">Wyświetlanie</string>
+    <string name="settings_text_size">Rozmiar tekstu</string>
+    <string name="settings_weight">Grubość czcionki</string>
+    <string name="weight_regular">Normalna</string>
+    <string name="weight_medium">Średnia</string>
+    <string name="weight_semibold">Półgruba</string>
+    <string name="settings_lists">Listy</string>
+    <string name="lists_pages">Strony</string>
+    <string name="lists_scroll">Przewijanie</string>
+    <string name="settings_corner_radius">Zaokrąglenie przycisków</string>
+    <string name="settings_colors">Kolory</string>
+    <string name="colors_black_on_white">Czarne na białym</string>
+    <string name="colors_white_on_black">Białe na czarnym</string>
+    <string name="settings_tab_labels">Podpisy kart</string>
+    <string name="on">Wł.</string>
+    <string name="off">Wył.</string>
+    <string name="settings_haptics">Wibracje</string>
+    <string name="haptics_disabled_by_system">Wibracje przy dotyku są wyłączone w ustawieniach systemu</string>
+    <string name="settings_a9">Panel e-ink (A9)</string>
+    <string name="a9_hint">Aby to działało, włącz „Allow Control via Broadcasts” w A9 Accessibility Service.</string>
+    <string name="a9_clear_every_pages">Pełne odświeżanie co N stron</string>
+    <string name="settings_haptic_buttons">Przyciski</string>
+    <string name="about">O aplikacji</string>
+    <string name="about_version">Wersja %1$s</string>
+    <string name="about_gpl">GNU General Public License v3</string>
+    <string name="about_source">Kod źródłowy</string>
+    <string name="about_components">Komponenty</string>
+    <string name="about_noto">Czcionka Noto Emoji — SIL Open Font License 1.1</string>
+    <string name="about_material">Ikony Material — Apache License 2.0</string>
+    <string name="time_invalid">Nie ma takiej godziny</string>
+    <string name="half_of_day">Pora dnia</string>
+    <string name="am">AM</string>
+    <string name="pm">PM</string>
+    <string name="erase">Usuń</string>
+    <string name="ready">Gotowe</string>
+    <string name="prev_month">Poprzedni miesiąc</string>
+    <string name="next_month">Następny miesiąc</string>
+</resources>

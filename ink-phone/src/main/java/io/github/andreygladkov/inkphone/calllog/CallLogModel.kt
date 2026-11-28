@@ -53,10 +53,16 @@ object CallLogGrouping {
     private fun day(millis: Long, zone: ZoneId): LocalDate = Instant.ofEpochMilli(millis).atZone(zone).toLocalDate()
 }
 
-class CallTimeFormat(private val yesterday: String, private val zone: ZoneId) {
-    private val time = DateTimeFormatter.ofPattern("HH:mm")
-    private val date = DateTimeFormatter.ofPattern("dd.MM")
-    private val fullDate = DateTimeFormatter.ofPattern("dd.MM.yy")
+class CallTimeFormat(
+    private val yesterday: String,
+    private val zone: ZoneId,
+    timePattern: String,
+    dayMonthPattern: String,
+    dayMonthYearPattern: String,
+) {
+    private val time = DateTimeFormatter.ofPattern(timePattern)
+    private val date = DateTimeFormatter.ofPattern(dayMonthPattern)
+    private val fullDate = DateTimeFormatter.ofPattern(dayMonthYearPattern)
 
     fun format(millis: Long, nowMillis: Long): String {
         val moment = Instant.ofEpochMilli(millis).atZone(zone)

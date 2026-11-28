@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Wiadomości</string>
+    <string name="settings">Ustawienia</string>
+
+    <string name="category_favorites">Ulubione</string>
+    <string name="category_contacts">Kontakty</string>
+    <string name="category_other">Inne</string>
+    <string name="category_all">Wszystkie</string>
+
+    <string name="permission_rationale">Ink Messages potrzebuje dostępu do wiadomości i kontaktów, aby pokazać rozmowy.</string>
+    <string name="empty_favorites">Brak rozmów z ulubionymi kontaktami</string>
+    <string name="empty_contacts">Brak rozmów z kontaktami</string>
+    <string name="empty_other">Brak wiadomości z numerów spoza kontaktów</string>
+    <string name="empty_all">Brak wiadomości</string>
+    <string name="empty_thread">Brak wiadomości w tej rozmowie</string>
+
+    <string name="you_prefix">Ja: %1$s</string>
+    <string name="attachment_image">[Zdjęcie]</string>
+    <string name="attachment_other">[Załącznik]</string>
+    <string name="attachment_contact">[Kontakt]</string>
+    <string name="attachment_audio">[Audio]</string>
+    <string name="attachment_video">[Wideo]</string>
+    <string name="attachment_mms">[MMS]</string>
+
+    <string name="date_today">Dziś</string>
+    <string name="date_yesterday">Wczoraj</string>
+    <string name="date_yesterday_short">wczoraj</string>
+    <string name="date_day_month">%1$d %2$s</string>
+    <string name="date_day_month_year">%1$d %2$s %3$d</string>
+    <string-array name="months_short">
+        <item>sty</item>
+        <item>lut</item>
+        <item>mar</item>
+        <item>kwi</item>
+        <item>maj</item>
+        <item>cze</item>
+        <item>lip</item>
+        <item>sie</item>
+        <item>wrz</item>
+        <item>paź</item>
+        <item>lis</item>
+        <item>gru</item>
+    </string-array>
+    <string-array name="months_full">
+        <item>stycznia</item>
+        <item>lutego</item>
+        <item>marca</item>
+        <item>kwietnia</item>
+        <item>maja</item>
+        <item>czerwca</item>
+        <item>lipca</item>
+        <item>sierpnia</item>
+        <item>września</item>
+        <item>października</item>
+        <item>listopada</item>
+        <item>grudnia</item>
+    </string-array>
+
+    <string name="settings_start_category">Otwieraj na starcie</string>
+    <string name="start_last">Ostatnio otwarta</string>
+    <string name="me">Ja</string>
+    <string name="compose">Napisz</string>
+    <string name="compose_title">Nowa wiadomość</string>
+    <string name="compose_to">Do</string>
+    <string name="compose_to_number">Napisz do %1$s</string>
+    <string name="message_field">Wiadomość</string>
+    <string name="send">Wyślij</string>
+    <string name="sending">wysyłanie…</string>
+    <string name="send_failed_retry">Nie wysłano — ponów</string>
+    <string name="draft_prefix">Szkic: %1$s</string>
+    <string name="sms_counter">%1$d SMS · zostało %2$d</string>
+    <string name="sim_choice">SIM %1$d %2$s</string>
+    <string name="time_with_sim">%1$s · SIM %2$d</string>
+    <string name="not_default_banner">Ink Messages nie jest Twoją aplikacją do SMS, więc wiadomości można tylko czytać.</string>
+    <string name="make_default">Ustaw jako domyślną</string>
+    <string name="action_reply">Odpowiedz</string>
+    <string name="action_mark_read">Przeczytane</string>
+    <string name="action_copy_code">Kopiuj %1$s</string>
+    <string name="mms_pending">MMS · %s</string>
+    <string name="mms_download">Pobierz</string>
+    <string name="mms_download_failed">Nie pobrano — pobierz</string>
+    <string name="mms_downloading">pobieranie…</string>
+    <string name="open_image">Zdjęcie</string>
+    <string name="open_contact">Kontakt</string>
+    <string name="open_audio">Audio</string>
+    <string name="open_video">Wideo</string>
+    <string name="open_file">Plik</string>
+    <string name="attachment_named">%1$s: %2$s</string>
+    <string name="no_app">Żadna aplikacja tego nie otworzy</string>
+    <string name="viewer_title">Zdjęcie</string>
+    <string name="save">Zapisz</string>
+    <string name="saved">Zapisano</string>
+    <string name="save_failed">Nie zapisano</string>
+    <string name="share">Udostępnij</string>
+    <string name="call">Zadzwoń</string>
+    <string name="more">Więcej</string>
+    <string name="mark_unread">Nieprzeczytane</string>
+    <string name="block">Zablokuj</string>
+    <string name="unblock">Odblokuj</string>
+    <string name="delete_thread">Usuń rozmowę</string>
+    <string name="delete_confirm">Na pewno usunąć?</string>
+    <string name="copy">Kopiuj</string>
+    <string name="forward">Przekaż dalej</string>
+    <string name="delete">Usuń</string>
+    <string name="delete_message_confirm">Usunąć?</string>
+    <string name="cancel">Anuluj</string>
+    <string name="search">Szukaj</string>
+    <string name="search_conversations">Rozmowy</string>
+    <string name="search_messages">Wiadomości</string>
+    <string name="search_nothing">Nic nie znaleziono</string>
+    <string name="settings_notifications">Powiadomienia</string>
+    <string name="notifications_hint">Dźwięk i wibracje dla każdej kategorii ustawia się w ustawieniach systemu.</string>
+    <string name="settings_blocked">Zablokowane numery</string>
+    <string name="blocked_none">Brak zablokowanych numerów.</string>
+    <string name="blocked_unavailable">Lista jest dostępna, gdy Ink Messages jest Twoją aplikacją do SMS.</string>
+    <string name="settings_sms_app">Aplikacja do SMS</string>
+    <string name="sms_app_yes">Ink Messages jest Twoją aplikacją do SMS.</string>
+    <string name="about_license">Ink Messages to wolne oprogramowanie na licencji GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Messages nie ma dostępu do internetu: nie prosi o uprawnienie INTERNET.</string>
+    <string name="about_mmslib">Parser MMS z AOSP Messaging — Apache License 2.0</string>
+</resources>

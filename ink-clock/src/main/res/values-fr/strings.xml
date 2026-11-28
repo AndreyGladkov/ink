@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Horloge</string>
+    <string name="settings">Paramètres</string>
+
+    <string name="tab_alarms">Alarmes</string>
+    <string name="new_alarm">Nouvelle alarme</string>
+    <string name="alarm">Alarme</string>
+    <string name="no_alarms">Aucune alarme</string>
+    <string name="no_next_alarm">Aucune alarme programmée</string>
+    <string name="toggle_alarm">Alarme de %1$s</string>
+    <string name="next_alarm">Prochaine : %1$s, dans %2$s</string>
+    <string name="today">aujourd\'hui</string>
+    <string name="tomorrow">demain</string>
+    <string name="in_under_minute">moins d\'une minute</string>
+    <string name="in_minutes">%1$d min</string>
+    <string name="in_hours">%1$d h</string>
+    <string name="in_hours_minutes">%1$d h %2$d min</string>
+    <string name="days_once">Une fois</string>
+    <string name="days_every">Tous les jours</string>
+    <string name="days_weekdays">En semaine</string>
+    <string name="days_weekend">Le week-end</string>
+    <string name="notifications_needed">Autorisez les notifications, sinon une alarme qui sonne n\'aura aucun écran d\'où l\'arrêter.</string>
+    <string name="full_screen_needed">Autorisez les notifications en plein écran, sinon une alarme qui sonne ne s\'affichera pas sur l\'écran de verrouillage.</string>
+
+    <string name="save">Enregistrer</string>
+    <string name="repeat">Répétition</string>
+    <string name="label">Libellé</string>
+    <string name="label_hint">Réveil</string>
+    <string name="sound">Sonnerie</string>
+    <string name="vibrate">Vibration</string>
+    <string name="ringtone_default">Par défaut</string>
+    <string name="ringtone_silent">Silencieux</string>
+    <string name="ringtone_other">Son choisi</string>
+    <string name="delete">Supprimer</string>
+    <string name="delete_confirm">Vraiment supprimer ?</string>
+    <string name="alarm_set_for">Alarme réglée à %1$s</string>
+
+    <string name="snooze">Reporter</string>
+    <string name="dismiss">Arrêter</string>
+    <string name="dismiss_hold">Maintenez pour arrêter</string>
+    <string name="snoozed_until">Reportée à %1$s</string>
+    <string name="missed_alarm">Alarme manquée : %1$s</string>
+    <string name="channel_ringing">Alarme qui sonne</string>
+    <string name="channel_status">Alarmes reportées, minuteur et chronomètre</string>
+    <string name="channel_missed">Alarmes manquées</string>
+
+    <string name="tab_timer">Minuteur</string>
+    <string name="tab_stopwatch">Chronomètre</string>
+    <string name="start">Démarrer</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Reprendre</string>
+    <string name="reset">Réinitialiser</string>
+    <string name="stop">Arrêter</string>
+    <string name="add_minute">+1 min</string>
+    <string name="timer_entry">%1$02dh %2$02dm %3$02ds</string>
+    <string name="timer_done">Temps écoulé</string>
+    <string name="timer_until">jusqu\'à %1$s</string>
+    <string name="timer_on_pause">en pause</string>
+    <string name="timer_running">Minuteur jusqu\'à %1$s</string>
+    <string name="timer_paused">Minuteur en pause, reste %1$s</string>
+    <string name="timer_set_for">Minuteur réglé sur %1$s</string>
+    <string name="duration_seconds">%1$d s</string>
+    <string name="duration_minutes">%1$d min</string>
+    <string name="duration_hours">%1$d h</string>
+    <string name="duration_hours_minutes">%1$d h %2$d min</string>
+    <string name="lap">Tour</string>
+    <string name="lap_number">Tour %1$d</string>
+    <string name="stopwatch_since">Chronomètre lancé à %1$s</string>
+    <string name="stopwatch_paused">Chronomètre en pause à %1$s</string>
+
+    <string name="tab_pomodoro">Pomodoro</string>
+    <string name="pomodoro_work">Travail</string>
+    <string name="pomodoro_short_break">Pause</string>
+    <string name="pomodoro_long_break">Longue pause</string>
+    <string name="pomodoro_left">encore %1$d min · jusqu\'à %2$s</string>
+    <string name="pomodoro_until">%1$s jusqu\'à %2$s</string>
+    <string name="pomodoro_begin_work">Démarrer le travail</string>
+    <string name="pomodoro_begin_break">Démarrer la pause</string>
+    <string name="pomodoro_skip_break">Passer</string>
+    <string name="pomodoro_today">Aujourd\'hui : %1$d sur %2$d</string>
+    <string name="pomodoro_work_done">Travail terminé</string>
+    <string name="pomodoro_break_done">Pause terminée</string>
+    <string name="pomodoro_start_work">Démarrer %1$d min de travail ?</string>
+    <string name="pomodoro_start_break">Démarrer une pause de %1$d min ?</string>
+    <string name="channel_pomodoro_sound">Pomodoro avec son</string>
+    <string name="channel_pomodoro_quiet">Pomodoro sans son</string>
+    <string name="settings_pomodoro">Pomodoro</string>
+    <string name="settings_pomodoro_work">Travail</string>
+    <string name="settings_pomodoro_short">Pause courte</string>
+    <string name="settings_pomodoro_long">Longue pause</string>
+    <string name="settings_pomodoro_cycle">Longue pause après</string>
+    <string name="settings_pomodoro_goal">Objectif quotidien</string>
+    <string name="settings_pomodoro_screen">Garder l\'écran allumé pendant une phase</string>
+    <string name="settings_pomodoro_sound">Son à la fin d\'une phase</string>
+
+    <string name="desk_clock">Horloge de bureau</string>
+    <string name="desk_next_alarm">Alarme %1$s</string>
+    <string name="settings_dream">Économiseur d\'écran</string>
+    <string name="dream_hint">Pendant la charge, l\'économiseur d\'écran Ink Clock affiche l\'heure ou le pomodoro en cours. Choisissez Ink Clock et le démarrage « Pendant la charge ».</string>
+    <string name="dream_selected">Ink Clock est l\'économiseur d\'écran.</string>
+    <string name="dream_not_selected">Ink Clock n\'est pas choisi comme économiseur d\'écran.</string>
+    <string name="dream_choose">Choisir l\'économiseur</string>
+
+    <string name="settings_alarms">Alarmes</string>
+    <string name="settings_snooze">Reporter de</string>
+    <string name="settings_ring_for">Arrêter de sonner après</string>
+    <string name="minutes_short">%1$d min</string>
+    <string name="settings_haptic_keys">Pavé numérique</string>
+    <string name="about_license">Ink Clock est un logiciel libre sous licence GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Clock n\'a pas accès à Internet : il ne demande pas l\'autorisation INTERNET.</string>
+</resources>

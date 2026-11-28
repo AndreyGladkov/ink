@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Calendario</string>
+
+    <string name="permission_explain">Ink Calendar muestra los eventos de los calendarios del teléfono: los que sincronizan tus cuentas y el suyo propio.</string>
+    <string name="today">Hoy</string>
+    <string name="tomorrow">Mañana</string>
+    <string name="no_events">No hay eventos</string>
+    <string name="no_title">(Sin título)</string>
+    <string name="all_day">Todo el día</string>
+    <string name="time_until">hasta %1$s</string>
+    <string name="time_from">desde %1$s</string>
+    <string name="prev_year">Año anterior</string>
+    <string name="next_year">Año siguiente</string>
+    <string name="choose_year">Elegir otro mes</string>
+
+    <string name="event">Evento</string>
+    <string name="event_gone">Este evento ya no está en el calendario</string>
+    <string name="event_calendar">Calendario</string>
+    <string name="event_location">Lugar</string>
+    <string name="event_notes">Notas</string>
+    <string name="event_reminders">Recordatorios</string>
+    <string name="event_repeats">Se repite</string>
+    <string name="reminder_at_start">Al empezar</string>
+    <plurals name="minutes_before">
+        <item quantity="one">%d minuto antes</item>
+        <item quantity="many">%d minutos antes</item>
+        <item quantity="other">%d minutos antes</item>
+    </plurals>
+    <plurals name="hours_before">
+        <item quantity="one">%d hora antes</item>
+        <item quantity="many">%d horas antes</item>
+        <item quantity="other">%d horas antes</item>
+    </plurals>
+    <plurals name="days_before">
+        <item quantity="one">%d día antes</item>
+        <item quantity="many">%d días antes</item>
+        <item quantity="other">%d días antes</item>
+    </plurals>
+
+    <string name="new_event">Nuevo evento</string>
+    <string name="edit_event">Editar</string>
+    <string name="delete_event">Eliminar</string>
+    <string name="delete_confirm">¿Eliminar?</string>
+    <string name="title_hint">Título</string>
+    <string name="event_start">Empieza</string>
+    <string name="event_end">Termina</string>
+    <string name="event_reminder">Recordatorio</string>
+    <string name="reminder_none">Ninguno</string>
+    <string name="reminder_short_start">Al inicio</string>
+    <string name="reminder_short_minutes">10 min</string>
+    <string name="reminder_short_hour">1 hora</string>
+    <string name="reminder_short_day">1 día</string>
+    <string name="end_before_start">El evento termina antes de empezar</string>
+    <string name="not_saved">El calendario no aceptó el evento</string>
+    <string name="local_calendar">Teléfono</string>
+    <string name="settings_new_events">Calendario para eventos nuevos</string>
+    <string name="settings_reminders">Recordar eventos</string>
+    <string name="reminders_hint">Desactívalo si otra aplicación, como Google Calendar, ya te recuerda los eventos.</string>
+    <string name="channel_reminders">Recordatorios de eventos</string>
+    <string name="snooze">En 10 minutos</string>
+    <string name="dismiss">Cerrar</string>
+
+    <string name="settings_calendars">Calendarios</string>
+    <string name="no_calendars">Aún no hay calendarios en el teléfono</string>
+
+    <string name="task">Tarea</string>
+    <string name="settings_show_tasks">Mostrar tareas de Ink Tasks</string>
+    <string name="tasks_access_hint">Permite que el calendario lea las tareas con fecha límite y las mostrará en sus días.</string>
+
+    <string name="widget_label">Calendario</string>
+    <string name="widget_description">La fecha de hoy y lo próximo</string>
+    <string name="widget_no_access">Abre el calendario para permitir el acceso</string>
+
+    <string name="about_license">Ink Calendar es software libre bajo la GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Calendar no envía nada a ningún sitio: lee y escribe los calendarios del teléfono, y solo tus cuentas los sincronizan.</string>
+</resources>

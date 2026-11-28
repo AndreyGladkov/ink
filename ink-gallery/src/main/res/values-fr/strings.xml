@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Galerie</string>
+
+    <string name="tab_photos">Photos</string>
+    <string name="tab_albums">Albums</string>
+    <string name="no_photos">Aucune photo ni vidéo pour l\'instant</string>
+    <string name="album_unnamed">Sans nom</string>
+    <plurals name="photo_count">
+        <item quantity="one">%d photo</item>
+        <item quantity="many">%d photos</item>
+        <item quantity="other">%d photos</item>
+    </plurals>
+    <string name="access_needed">Ink Gallery a besoin d\'accéder à vos photos et vidéos pour les afficher</string>
+    <string name="access_partial">Seules les photos et vidéos que vous avez choisies sont affichées</string>
+
+    <string name="unreadable">Impossible d\'ouvrir cette image</string>
+    <string name="share">Partager</string>
+    <string name="info">Détails</string>
+    <string name="delete">Supprimer</string>
+    <string name="delete_confirm">Supprimer ?</string>
+    <string name="selected_count">Sélectionnés : %1$d</string>
+    <string name="cancel">Annuler</string>
+    <string name="delete_photo_question">Supprimer cette photo ?</string>
+    <string name="delete_video_question">Supprimer cette vidéo ?</string>
+    <string name="delete_picked_question">Supprimer la sélection (%1$d) ?</string>
+    <string name="info_taken">Date de prise</string>
+    <string name="info_resolution">Résolution</string>
+    <string name="info_duration">Durée</string>
+    <string name="info_size">Taille</string>
+    <string name="info_name">Fichier</string>
+    <string name="info_folder">Dossier</string>
+
+    <string name="video_described">%1$s, vidéo %2$s</string>
+    <string name="unplayable">Impossible de lire cette vidéo</string>
+    <string name="play">Lire</string>
+    <string name="pause">Pause</string>
+    <string name="back_10">−10 s</string>
+    <string name="forward_10">+10 s</string>
+    <string name="seek">Position dans la vidéo</string>
+
+    <string name="settings_viewer">Visionnage</string>
+    <string name="settings_rotate_landscape">Faire pivoter les photos larges pour remplir l\'écran</string>
+    <string name="settings_deletion">Suppression</string>
+    <string name="manage_media_hint">Chaque suppression est confirmée une seconde fois dans une boîte de dialogue système. Autorisez Ink Gallery à gérer les médias pour supprimer d\'un seul bouton.</string>
+    <string name="manage_media_granted">Ink Gallery peut gérer les médias : les photos sont supprimées sans boîte de dialogue système.</string>
+    <string name="manage_media_open">Accès à la gestion des médias</string>
+    <string name="settings_clear_for_photos">Mode CLEAR pendant l\'affichage des photos</string>
+    <string name="settings_photo_dither">Tramage des photos en 16 gris</string>
+    <string name="dither_auto">Auto</string>
+
+    <string name="about_license">Ink Gallery est un logiciel libre sous licence GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Gallery n\'utilise pas Internet. Vos photos et vidéos restent sur l\'appareil et ne sont partagées que lorsque vous appuyez sur « Partager ».</string>
+</resources>

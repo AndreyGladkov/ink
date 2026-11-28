@@ -86,4 +86,10 @@ class WeatherFormatTest {
         assertEquals("Обновлено 9 нояб., 14:20", format.updated(Fixtures.NOW, Fixtures.NOW.plus(Duration.ofDays(1))))
         assertEquals("9 нояб.", format.updatedShort(Fixtures.NOW, Fixtures.NOW.plus(Duration.ofDays(1))))
     }
+
+    @Config(qualifiers = "de")
+    @Test fun germanDatesFollowTheDayWithAPeriod() {
+        val german = WeatherFormat(context, fahrenheit = false, zone = moscow)
+        assertEquals("9. Nov.", german.updatedShort(Fixtures.NOW, Fixtures.NOW.plus(Duration.ofDays(1))))
+    }
 }

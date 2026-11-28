@@ -120,7 +120,7 @@ class FavoritesScreen(private val activity: Activity) : LinearLayout(activity), 
     }
 
     private fun favoriteRows(repository: ContactsRepository, options: ContactListOptions): List<Row> =
-        ContactList.build(repository.loadSummaries().filter { it.starred }, options.copy(onlyWithPhone = false)).map { entry ->
+        ContactList.build(repository.loadSummaries().filter { it.starred }, options.copy(onlyWithPhone = false), activity.resources.configuration.locales[0]).map { entry ->
             val number = entry.contact.numbers.firstOrNull()
             Row(entry.contact.id, entry.displayName, number.orEmpty(), number, entry.contact.id)
         }

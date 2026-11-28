@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="grant_access">Autoriser l\'accès</string>
+    <string name="open_settings">Ouvrir les paramètres</string>
+    <string name="back">Retour</string>
+    <string name="settings">Paramètres</string>
+    <string name="page_prev">Page précédente</string>
+    <string name="page_next">Page suivante</string>
+    <string name="selected">Sélectionné</string>
+    <string name="settings_display">Affichage</string>
+    <string name="settings_text_size">Taille du texte</string>
+    <string name="settings_weight">Graisse de la police</string>
+    <string name="weight_regular">Normale</string>
+    <string name="weight_medium">Moyenne</string>
+    <string name="weight_semibold">Semi-grasse</string>
+    <string name="settings_lists">Listes</string>
+    <string name="lists_pages">Pages</string>
+    <string name="lists_scroll">Défilement</string>
+    <string name="settings_corner_radius">Coins des boutons</string>
+    <string name="settings_colors">Couleurs</string>
+    <string name="colors_black_on_white">Noir sur blanc</string>
+    <string name="colors_white_on_black">Blanc sur noir</string>
+    <string name="settings_tab_labels">Libellés des onglets</string>
+    <string name="on">Activé</string>
+    <string name="off">Désactivé</string>
+    <string name="settings_haptics">Vibration</string>
+    <string name="haptics_disabled_by_system">La vibration au toucher est désactivée dans les paramètres système</string>
+    <string name="settings_a9">Écran e-ink (A9)</string>
+    <string name="a9_hint">Pour que cela fonctionne, activez « Allow Control via Broadcasts » dans A9 Accessibility Service.</string>
+    <string name="a9_clear_every_pages">Rafraîchissement complet toutes les N pages</string>
+    <string name="settings_haptic_buttons">Boutons</string>
+    <string name="about">À propos</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_gpl">GNU General Public License v3</string>
+    <string name="about_source">Code source</string>
+    <string name="about_components">Composants</string>
+    <string name="about_noto">Police Noto Emoji — SIL Open Font License 1.1</string>
+    <string name="about_material">Icônes Material — Apache License 2.0</string>
+    <string name="time_invalid">Cette heure n\'existe pas</string>
+    <string name="half_of_day">Demi-journée</string>
+    <string name="am">AM</string>
+    <string name="pm">PM</string>
+    <string name="erase">Effacer</string>
+    <string name="ready">Terminé</string>
+    <string name="prev_month">Mois précédent</string>
+    <string name="next_month">Mois suivant</string>
+</resources>

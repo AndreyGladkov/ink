@@ -125,7 +125,7 @@ class ContactsScreen(private val activity: Activity) : LinearLayout(activity), T
     private fun load() {
         val options = ContactListOptions.from(activity.inkPrefs())
         loader.execute {
-            val built = ContactList.build(repository.loadSummaries(), options)
+            val built = ContactList.build(repository.loadSummaries(), options, activity.resources.configuration.locales[0])
             val signature = built.map { it.contact to it.displayName }
             mainHandler.post {
                 if (loaded && signature == shownSignature) return@post

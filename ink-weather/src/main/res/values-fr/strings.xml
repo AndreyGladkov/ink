@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_label">Météo</string>
+
+    <string name="widget_label">Météo</string>
+    <string name="widget_description">La météo dans la ville de votre choix</string>
+    <string name="widget_place">Ville du widget</string>
+
+    <string name="places">Villes</string>
+    <string name="add_place">Ajouter une ville</string>
+    <string name="search_hint">Nom de la ville</string>
+    <string name="searching">Recherche…</string>
+    <string name="search_nothing">Aucun résultat</string>
+    <string name="move_up">Monter</string>
+    <string name="delete_place">Supprimer</string>
+    <string name="delete_place_confirm">Supprimer ?</string>
+    <string name="prev_place">Ville précédente</string>
+    <string name="next_place">Ville suivante</string>
+
+    <string name="loading">Chargement des prévisions…</string>
+    <string name="error_network">Pas de connexion</string>
+    <string name="error_service">Le service météo n\'a pas répondu</string>
+    <string name="error_storage">Impossible d\'enregistrer les prévisions</string>
+    <string name="retry">Réessayer</string>
+    <string name="no_data">Aucune donnée</string>
+    <string name="updated_at">Mis à jour à %1$s</string>
+    <string name="updated_on">Mis à jour le %1$s</string>
+    <string name="millimetres">%1$s mm</string>
+    <string name="source_failed">%1$s n\'a pas répondu ; prévisions de %2$s</string>
+    <string name="source_not_saved">Impossible d\'enregistrer les prévisions de %1$s ; voici celles de %2$s</string>
+    <string name="attribution_met_no">Données : MET Norway, Open-Meteo</string>
+    <string name="attribution_open_meteo">Données : Open-Meteo</string>
+
+    <string name="today">Aujourd\'hui</string>
+    <string name="feels_like">Ressenti %1$s</string>
+    <string name="wind">Vent %1$s</string>
+    <string name="wind_speed">%1$s m/s</string>
+    <string name="wind_speed_from">%1$s m/s, %2$s</string>
+    <string name="precipitation">Précipitations %1$s mm</string>
+    <string name="pressure_hpa">Pression %1$d hPa</string>
+    <string name="pressure_mmhg">Pression %1$d mm Hg</string>
+    <string-array name="directions">
+        <item>N</item>
+        <item>NE</item>
+        <item>E</item>
+        <item>SE</item>
+        <item>S</item>
+        <item>SO</item>
+        <item>O</item>
+        <item>NO</item>
+    </string-array>
+
+    <string name="weather_clear">Dégagé</string>
+    <string name="weather_fair">Peu nuageux</string>
+    <string name="weather_partly_cloudy">Partiellement nuageux</string>
+    <string name="weather_cloudy">Couvert</string>
+    <string name="weather_fog">Brouillard</string>
+    <string name="rain_light">Pluie faible</string>
+    <string name="rain">Pluie</string>
+    <string name="rain_heavy">Forte pluie</string>
+    <string name="rain_showers_light">Faibles averses</string>
+    <string name="rain_showers">Averses</string>
+    <string name="rain_showers_heavy">Fortes averses</string>
+    <string name="sleet_light">Faible neige fondue</string>
+    <string name="sleet">Neige fondue</string>
+    <string name="sleet_heavy">Forte neige fondue</string>
+    <string name="sleet_showers_light">Faibles averses de neige fondue</string>
+    <string name="sleet_showers">Averses de neige fondue</string>
+    <string name="sleet_showers_heavy">Fortes averses de neige fondue</string>
+    <string name="snow_light">Neige faible</string>
+    <string name="snow">Neige</string>
+    <string name="snow_heavy">Forte neige</string>
+    <string name="snow_showers_light">Faibles averses de neige</string>
+    <string name="snow_showers">Averses de neige</string>
+    <string name="snow_showers_heavy">Fortes averses de neige</string>
+    <string name="drizzle">Bruine</string>
+    <string name="freezing_drizzle">Bruine verglaçante</string>
+    <string name="freezing_rain">Pluie verglaçante</string>
+    <string name="thunderstorm">Orage</string>
+    <string name="thunderstorm_hail">Orage avec grêle</string>
+    <string name="with_thunder">%1$s et orage</string>
+    <string name="weather_unknown">Météo inconnue</string>
+
+    <string name="settings_forecast">Prévisions</string>
+    <string name="settings_source">Source des prévisions</string>
+    <string name="about_license">Ink Weather est un logiciel libre sous licence GNU General Public License v3.</string>
+    <string name="about_privacy">Ink Weather ne communique qu\'avec MET Norway et Open-Meteo : il envoie les coordonnées de vos villes pour les prévisions et le nom de la ville que vous recherchez.</string>
+    <string name="about_met_no">Prévisions — MET Norway (api.met.no), CC BY 4.0</string>
+    <string name="about_open_meteo">Prévisions et recherche de villes — Open-Meteo.com, CC BY 4.0</string>
+</resources>

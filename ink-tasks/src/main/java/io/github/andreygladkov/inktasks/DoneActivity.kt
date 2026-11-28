@@ -29,7 +29,7 @@ class DoneActivity : InkPagedActivity() {
             lists.change(list) { it.setDone(task.ref, false, labels.today) }
             rebuild()
         }, onOpen = { task -> startActivity(TaskActivity.edit(activity, list, task.ref)) })
-        done.forEach { task -> item { rows.row(task, detail = task.doneOn?.let { getString(R.string.done_on, labels.day(it).replaceFirstChar(Char::lowercaseChar)) }) } }
+        done.forEach { task -> item { rows.row(task, detail = task.doneOn?.let { getString(R.string.done_on, labels.dayInSentence(it)) }) } }
         item {
             InkSettings.rowButton(activity, getString(R.string.delete_done)) {}.apply {
                 confirmBeforeAction(R.string.delete_done_confirm) {

@@ -20,9 +20,17 @@ class SearchQuery(text: String) {
         private val TOKEN_SEPARATOR = Regex("[^\\p{L}\\p{N}]+")
         private val COMBINING_MARKS = Regex("\\p{Mn}+")
 
+        // Unicode gives these letters no decomposition, so NFD leaves a stroked ł or a ß whole and they would never match l or ss.
+        private val UNDECOMPOSABLE = mapOf(
+            'ł' to "l", 'Ł' to "L", 'ø' to "o", 'Ø' to "O", 'đ' to "d", 'Đ' to "D",
+            'ß' to "ss", 'æ' to "ae", 'Æ' to "Ae", 'œ' to "oe", 'Œ' to "Oe",
+        )
+
         fun tokens(text: String): List<String> = normalize(text).split(TOKEN_SEPARATOR).filter { it.isNotEmpty() }
 
-        fun stripMarks(text: String): String = Normalizer.normalize(text, Normalizer.Form.NFD).replace(COMBINING_MARKS, "")
+        fun stripMarks(text: String): String = buildString {
+            Normalizer.normalize(text, Normalizer.Form.NFD).replace(COMBINING_MARKS, "").forEach { append(UNDECOMPOSABLE[it] ?: it.toString()) }
+        }
 
         private fun normalize(text: String): String = stripMarks(text.lowercase(Locale.ROOT).replace('ё', 'е'))
     }

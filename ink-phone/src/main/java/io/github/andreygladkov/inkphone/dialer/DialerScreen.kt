@@ -135,7 +135,7 @@ class DialerScreen(private val activity: Activity) : LinearLayout(activity), Tab
         val options = ContactListOptions.from(activity.inkPrefs()).copy(onlyWithPhone = true)
         val repository = ContactsRepository(activity.contentResolver)
         loader.execute {
-            val loaded = ContactList.build(repository.loadSummaries(), options)
+            val loaded = ContactList.build(repository.loadSummaries(), options, activity.resources.configuration.locales[0])
             main.post {
                 contacts = loaded
                 updateKeypadLetters()
