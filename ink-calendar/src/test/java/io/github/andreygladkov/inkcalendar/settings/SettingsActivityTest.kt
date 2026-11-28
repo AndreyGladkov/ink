@@ -15,9 +15,12 @@ import io.github.andreygladkov.inkcalendar.Fixtures
 import io.github.andreygladkov.inkcalendar.events.EventStore
 import io.github.andreygladkov.inkcalendar.events.EventWriter
 import io.github.andreygladkov.inkcalendar.remind.Reminders
+import io.github.andreygladkov.inkcalendar.tasks.FakeTasksProvider
+import io.github.andreygladkov.inkcalendar.tasks.InkTasks
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.test.Test
@@ -57,6 +60,28 @@ class SettingsActivityTest {
         val reminders = contentRoot(activity).firstOnPages<InkChoiceRow<*>> { row -> row.findOnPagesTitle() == "Напоминать о событиях" }
         reminders.findButton("Выкл").performClick()
         assertFalse(Reminders.isOn(application))
+    }
+
+    @Test fun inkTasksTasksCanBeHiddenAndTheSectionIsThereOnlyWithInkTasks() {
+        assertFalse(texts(open()).contains("Показывать задачи Ink Tasks"))
+        FakeTasksProvider.install(application)
+        val activity = open()
+        assertTrue(texts(activity).containsAll(listOf("Ink Tasks", "Показывать задачи Ink Tasks")))
+        assertFalse(texts(activity).contains("Разрешить доступ"))
+        val shown = contentRoot(activity).firstOnPages<InkChoiceRow<*>> { row -> row.findOnPagesTitle() == "Показывать задачи Ink Tasks" }
+        shown.findButton("Выкл").performClick()
+        assertFalse(InkTasks(application).isOn)
+    }
+
+    @Test fun withoutAccessToInkTasksTheSettingsOfferToAllowIt() {
+        FakeTasksProvider.install(application, granted = false)
+        val activity = open()
+        assertTrue(texts(activity).contains("Разрешите календарю читать задачи со сроком, и он покажет их в их дни."))
+        contentRoot(activity).firstOnPages<InkButton> { it.text.toString() == "Разрешить доступ" }.performClick()
+        assertEquals(listOf(InkTasks.PERMISSION), shadowOf(activity).lastRequestedPermission.requestedPermissions.toList())
+        shadowOf(application).grantPermissions(InkTasks.PERMISSION)
+        activity.onRequestPermissionsResult(shadowOf(activity).lastRequestedPermission.requestCode, arrayOf(InkTasks.PERMISSION), intArrayOf(0))
+        assertFalse(texts(activity).contains("Разрешить доступ"))
     }
 
     @Test fun withoutAccessThereAreNoCalendarsToShow() {

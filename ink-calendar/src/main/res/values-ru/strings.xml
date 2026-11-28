@@ -67,6 +67,10 @@
     <string name="settings_calendars">Календари</string>
     <string name="no_calendars">На телефоне пока нет календарей</string>
 
+    <string name="task">Задача</string>
+    <string name="settings_show_tasks">Показывать задачи Ink Tasks</string>
+    <string name="tasks_access_hint">Разрешите календарю читать задачи со сроком, и он покажет их в их дни.</string>
+
     <string name="widget_label">Календарь</string>
     <string name="widget_description">Сегодняшняя дата и ближайшие события</string>
     <string name="widget_no_access">Откройте календарь и разрешите доступ</string>

@@ -14,6 +14,7 @@ Every pixel is pure black or white, with no antialiasing and no animations.
 - A task with a due date can get a time, typed on a keypad; at that time a notification comes with Done and In an hour. The time is written in the format of the [Reminder](https://uphy.github.io/obsidian-reminder/) plugin, so reminders set in Obsidian ring on the phone too; with the lists in a chosen folder the app reads them again about every half hour to catch those.
 - A list is shown in its own order or by due date. A task is moved by tapping one of the "Here" marks between the others, with no dragging.
 - Deleting asks for a second tap of the same button instead of a dialog.
+- [Ink Calendar](../ink-calendar/README.md), once allowed, shows the open tasks that have a due date on their days and opens them here.
 - Without setup the lists are kept only on the phone. In Settings → Storage a folder can be chosen in the system picker, for example Vault/Tasks in an Obsidian vault; the lists on the phone move there, and from then on the files are synced by whatever syncs the vault (Obsidian Sync, Syncthing and so on).
 - The app reads a file anew whenever it is opened and before each change, and rewrites only the lines it changes: headings, paragraphs, frontmatter, code and other plugins' tags stay as they are, byte for byte.
 - Settings for text size, font weight, button corners, colors, lists and vibration, shared with the other Ink apps.
@@ -66,6 +67,7 @@ Bundled components: Noto Emoji font (SIL Open Font License 1.1) and Material ico
 - Задаче со сроком можно задать время, набрав его цифрами; в это время приходит уведомление с кнопками «Выполнено» и «Через час». Время записывается в формате плагина [Reminder](https://uphy.github.io/obsidian-reminder/), поэтому напоминания, поставленные в Obsidian, звонят и на телефоне; когда списки лежат в выбранной папке, приложение перечитывает их примерно раз в полчаса, чтобы такие не пропустить.
 - Список показывается в своём порядке или по сроку. Задача перемещается нажатием на одну из отметок «Сюда» между другими, без перетаскивания.
 - Удаление подтверждается повторным нажатием той же кнопки, без диалогов.
+- [Ink Calendar](../ink-calendar/README.md#ink-calendar-1), если ему разрешить, показывает невыполненные задачи со сроком в их дни и открывает их здесь.
 - Без настройки списки хранятся только на телефоне. В «Настройках» → «Хранение» можно выбрать папку через системный выбор, например Vault/Tasks в хранилище Obsidian; списки с телефона переносятся туда, и дальше файлы синхронизирует то же, что синхронизирует хранилище (Obsidian Sync, Syncthing и т. п.).
 - Файл перечитывается при каждом открытии приложения и перед каждым изменением, а переписываются только изменённые строки: заголовки, абзацы, свойства в начале файла, код и метки других плагинов остаются как были, байт в байт.
 - Настройки размера текста, толщины шрифта, скругления кнопок, цветов, списков и вибрации — общие с другими приложениями Ink.

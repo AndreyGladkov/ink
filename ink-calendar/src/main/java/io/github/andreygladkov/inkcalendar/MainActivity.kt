@@ -2,6 +2,7 @@ package io.github.andreygladkov.inkcalendar
 
 import android.Manifest
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -38,7 +39,10 @@ import io.github.andreygladkov.inkcalendar.events.EventStore
 import io.github.andreygladkov.inkcalendar.events.Occurrence
 import io.github.andreygladkov.inkcalendar.remind.Reminders
 import io.github.andreygladkov.inkcalendar.settings.SettingsActivity
+import io.github.andreygladkov.inkcalendar.tasks.DueTask
+import io.github.andreygladkov.inkcalendar.tasks.InkTasks
 import io.github.andreygladkov.inkcalendar.ui.SwipeFrame
+import io.github.andreygladkov.inkcalendar.widget.WidgetUpdater
 import java.time.LocalDate
 import java.time.YearMonth
 import kotlin.math.roundToInt
@@ -62,8 +66,15 @@ class MainActivity : Activity() {
     private lateinit var permission: View
     private lateinit var grant: InkButton
     private var isListening = false
+    private var tasks = emptyList<DueTask>()
     private val changes = object : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) = show()
+    }
+    private val taskChanges = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) {
+            loadTasks()
+            show()
+        }
     }
     private val dayChanges = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) = show()
@@ -161,6 +172,8 @@ class MainActivity : Activity() {
             month = YearMonth.from(newToday)
         }
         today = newToday
+        WidgetUpdater.noticeTasksAccess(this)
+        loadTasks()
         show()
     }
 
@@ -171,6 +184,7 @@ class MainActivity : Activity() {
 
     private fun listen() {
         if (gate.isGranted) contentResolver.registerContentObserver(CalendarContract.CONTENT_URI, true, changes)
+        if (InkTasks(this).canRead) listenToTasks()
         ContextCompat.registerReceiver(this, dayChanges, IntentFilter().apply {
             addAction(Intent.ACTION_DATE_CHANGED)
             addAction(Intent.ACTION_TIME_CHANGED)
@@ -179,10 +193,19 @@ class MainActivity : Activity() {
         isListening = true
     }
 
+    /** Ink Tasks may be gone by now, and an observer of a provider that does not exist is refused. */
+    private fun listenToTasks() {
+        try {
+            contentResolver.registerContentObserver(InkTasks.URI, false, taskChanges)
+        } catch (_: SecurityException) {
+        }
+    }
+
     /** Android still pauses an activity that called [recreate] from [onResume], before it started listening. */
     private fun stopListening() {
         if (!isListening) return
         contentResolver.unregisterContentObserver(changes)
+        contentResolver.unregisterContentObserver(taskChanges)
         unregisterReceiver(dayChanges)
         isListening = false
     }
@@ -211,40 +234,85 @@ class MainActivity : Activity() {
         permission.visibility = if (granted) View.GONE else View.VISIBLE
         monthTitle.text = MonthGrid.title(month, locale)
         if (!granted) return gate.bind(grant)
-        askForNotificationsOnce()
+        askOnce()
         val zone = CalendarClock.zone
         val first = MonthGrid.firstShown(month, MonthGrid.firstDayOfWeek(locale))
         val until = first.plusDays((MonthGrid.WEEKS * MonthGrid.DAYS_IN_WEEK).toLong())
         val occurrences = EventStore.of(this).occurrences(first, until, zone)
-        grid.show(month, today, selected, occurrences.flatMap { it.days(zone) }.toSet())
+        grid.show(month, today, selected, occurrences.flatMap { it.days(zone) }.toSet() + tasks.map { it.due })
         dayLabel.text = format.day(selected)
         toToday.visibility = if (selected == today) View.INVISIBLE else View.VISIBLE
-        val day = Occurrence.onDay(occurrences, selected, zone)
-        empty.visibility = if (day.isEmpty()) View.VISIBLE else View.GONE
+        val rows = Occurrence.onDay(occurrences, selected, zone).map(::row) + DueTask.onDay(tasks, selected).map(::row)
+        empty.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
         list.setAdapter(object : InkPagedList.Adapter {
-            override val count = day.size
+            override val count = rows.size
             override fun itemId(position: Int) = position.toLong()
-            override fun createView(position: Int) = row(day[position])
+            override fun createView(position: Int) = rows[position]()
         })
     }
 
-    /** Reminders are useless without notifications, but asked for only once: the calendar works without them. */
-    private fun askForNotificationsOnce() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || !Reminders.isOn(this)) return
-        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return
-        val prefs = inkPrefs()
-        if (prefs.getBoolean(PREF_NOTIFICATIONS_ASKED, false)) return
-        prefs.edit { putBoolean(PREF_NOTIFICATIONS_ASKED, true) }
-        requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_NOTIFICATIONS)
+    /** Ink Tasks is read once per visit and on its changes rather than on every tap, since it reads all its lists to answer. */
+    private fun loadTasks() {
+        tasks = InkTasks(this).due()
     }
 
-    private fun row(occurrence: Occurrence) = InkButton(this).apply {
-        text = twoLines(occurrence.title.ifBlank { getString(R.string.no_title) }, format.timeOn(occurrence, selected))
+    /**
+     * Notifications for reminders and access to Ink Tasks are asked for once, together, since a second request made while
+     * the first dialog is up is dropped. The calendar works without either.
+     */
+    private fun askOnce() {
+        val prefs = inkPrefs()
+        val inkTasks = InkTasks(this)
+        if (!inkTasks.isInstalled) prefs.edit { remove(PREF_TASKS_ASKED) }
+        val asking = listOfNotNull(
+            Manifest.permission.POST_NOTIFICATIONS.takeIf {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && Reminders.isOn(this) && !prefs.getBoolean(PREF_NOTIFICATIONS_ASKED, false)
+            },
+            InkTasks.PERMISSION.takeIf { inkTasks.isOn && inkTasks.isInstalled && !prefs.getBoolean(PREF_TASKS_ASKED, false) },
+        ).filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
+        if (asking.isEmpty()) return
+        prefs.edit {
+            if (Manifest.permission.POST_NOTIFICATIONS in asking) putBoolean(PREF_NOTIFICATIONS_ASKED, true)
+            if (InkTasks.PERMISSION in asking) putBoolean(PREF_TASKS_ASKED, true)
+        }
+        requestPermissions(asking.toTypedArray(), REQUEST_ONCE)
+    }
+
+    private fun row(occurrence: Occurrence): () -> View = {
+        row(twoLines(occurrence.title.ifBlank { getString(R.string.no_title) }, format.timeOn(occurrence, selected))) {
+            startActivity(EventActivity.intent(this, occurrence.eventId, occurrence.begin))
+        }
+    }
+
+    private fun row(task: DueTask): () -> View = {
+        val detail = listOfNotNull(getString(R.string.task), task.list, task.time?.let(format::time)).joinToString(TASK_DETAIL_SEPARATOR)
+        row(twoLines(task.title.ifBlank { getString(R.string.no_title) }, detail)) { openTask(task) }.apply {
+            icon = R.drawable.ic_check_box_outline
+            iconPosition = InkButton.IconPosition.START
+            iconSizeDp = TASK_BOX_DP
+        }
+    }
+
+    private fun row(label: CharSequence, onClick: () -> Unit) = InkButton(this).apply {
+        text = label
         isBordered = false
         gravity = Gravity.START or Gravity.CENTER_VERTICAL
         maxLines = MAX_LINES
         ellipsize = TextUtils.TruncateAt.END
-        setOnClickListener { startActivity(EventActivity.intent(this@MainActivity, occurrence.eventId, occurrence.begin)) }
+        setOnClickListener { onClick() }
+    }
+
+    /** Ink Tasks may have been removed since the list was drawn. */
+    private fun openTask(task: DueTask) {
+        try {
+            startActivity(InkTasks.open(task))
+        } catch (_: ActivityNotFoundException) {
+            loadTasks()
+            show()
+        } catch (_: SecurityException) {
+            loadTasks()
+            show()
+        }
     }
 
     private fun select(date: LocalDate) {
@@ -272,8 +340,11 @@ class MainActivity : Activity() {
     private companion object {
         const val REQUEST_PERMISSION = 1
         const val REQUEST_YEAR = 2
-        const val REQUEST_NOTIFICATIONS = 3
+        const val REQUEST_ONCE = 3
         const val PREF_NOTIFICATIONS_ASKED = "notifications_asked"
+        const val PREF_TASKS_ASKED = "ink_tasks_asked"
+        const val TASK_DETAIL_SEPARATOR = " · "
+        const val TASK_BOX_DP = 24f
         const val STATE_SELECTED = "selected"
         const val PADDING_DP = 16f
         const val MAX_LINES = 4

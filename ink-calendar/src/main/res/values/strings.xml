@@ -64,6 +64,11 @@
     <string name="settings_calendars">Calendars</string>
     <string name="no_calendars">There are no calendars on the phone yet</string>
 
+    <string name="task">Task</string>
+    <string name="settings_tasks" translatable="false">Ink Tasks</string>
+    <string name="settings_show_tasks">Show Ink Tasks tasks</string>
+    <string name="tasks_access_hint">Allow the calendar to read the tasks that have a due date, and it will show them on their days.</string>
+
     <string name="widget_label">Calendar</string>
     <string name="widget_description">Today\'s date and what is next</string>
     <string name="widget_no_access">Open the calendar to allow access</string>

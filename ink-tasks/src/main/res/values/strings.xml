@@ -80,4 +80,7 @@
 
     <string name="about_license">Ink Tasks is free software under the GNU General Public License v3.</string>
     <string name="about_privacy">Ink Tasks does not use the internet. Tasks are kept in Markdown files on the phone or in the folder you choose.</string>
+
+    <string name="permission_read_tasks">Ink Tasks tasks</string>
+    <string name="permission_read_tasks_description">read your Ink Tasks tasks that have a due date</string>
 </resources>

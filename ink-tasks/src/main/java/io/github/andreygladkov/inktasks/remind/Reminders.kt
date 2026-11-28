@@ -8,6 +8,8 @@ import android.os.Build
 import android.os.SystemClock
 import androidx.core.content.edit
 import io.github.andreygladkov.ink.inkPrefs
+import io.github.andreygladkov.inktasks.calendar.DueTask
+import io.github.andreygladkov.inktasks.calendar.TasksProvider
 import io.github.andreygladkov.inktasks.store.Storage
 import io.github.andreygladkov.inktasks.store.TaskLists
 import io.github.andreygladkov.inktasks.tasks.TaskFile
@@ -29,7 +31,8 @@ data class Reminder(val list: String, val ref: TaskRef, val title: String, val a
 /**
  * Only the next reminder is handed to the system. Each check notifies the reminders that are due now and were not due at
  * the check before, so one set in the past, edited, or brought by a sync still comes once. Reminders live in files
- * that a sync can change at any time, so every check reads them all instead of keeping a copy.
+ * that a sync can change at any time, so every check reads them all instead of keeping a copy, and tells Ink Calendar
+ * when the due tasks it shows have changed.
  */
 object Reminders {
     internal const val ACTION_CHECK = "io.github.andreygladkov.inktasks.action.CHECK_REMINDERS"
@@ -38,20 +41,19 @@ object Reminders {
     private const val REQUEST_SCAN = 1
     private const val SCAN_INTERVAL_MS = AlarmManager.INTERVAL_HALF_HOUR
 
-    fun inFile(list: String, file: TaskFile): List<Reminder> = file.tasks.filter { !it.isDone }.flatMap { task ->
-        (listOf(task) + task.subtasks.filter { !it.isDone }).mapNotNull { open ->
-            open.reminder?.let { Reminder(list, open.ref, open.title, it) }
-        }
-    }
+    fun inFile(list: String, file: TaskFile): List<Reminder> =
+        file.open.mapNotNull { task -> task.reminder?.let { Reminder(list, task.ref, task.title, it) } }
 
     fun update(context: Context) {
         val lists = TaskLists.of(context)
         val inFolder = Storage(context).chosen != null
         scanInBackground(context, inFolder)
+        val files = if (lists.isAvailable) lists.names().associateWith(lists::read) else emptyMap()
+        TasksProvider.notifyIfChanged(context, files.flatMap { (list, file) -> DueTask.inFile(list, file) })
         if (!lists.isAvailable) return
         val clock = TaskLists.clock
         val now = clock.instant()
-        val reminders = lists.names().flatMap { inFile(it, lists.read(it)) }
+        val reminders = files.flatMap { (list, file) -> inFile(list, file) }
         val (due, coming) = reminders.partition { !it.instant(clock.zone).isAfter(now) }
         val dueKeys = due.map { it.key }.toSet()
         val prefs = context.inkPrefs()

@@ -15,9 +15,10 @@ Every pixel is pure black or white, with no antialiasing and no animations.
 - With no account calendar to write to, events go to a calendar on the phone alone.
 - Reminders come as notifications with In 10 minutes and Close. They can be turned off in Settings when another app, such as Google Calendar, already reminds you.
 - A home screen widget drawn as one black-and-white picture: the date, then what is left of today and tomorrow; a tall widget adds the month. It is redrawn only when what it shows changes.
+- With [Ink Tasks](../ink-tasks/README.md) installed, its open tasks with a due date follow the day's events, marked with an empty box and showing their list and reminder time, and they are on the widget too. An overdue task stays on its day. A tap opens the task in Ink Tasks. The calendar asks once for access to them; Settings can turn them off.
 - Each calendar can be hidden in Settings. Settings for text size, font weight, button corners, colors, lists and vibration are shared with the other Ink apps.
 
-Ink Calendar does not use the internet. It asks for access to the calendars on the phone and to show notifications, for reminders. See [PRIVACY.md](PRIVACY.md).
+Ink Calendar does not use the internet. It asks for access to the calendars on the phone, to show notifications, for reminders, and, with Ink Tasks installed, to read its tasks. See [PRIVACY.md](PRIVACY.md).
 
 ## Installation
 
@@ -57,9 +58,10 @@ Bundled components: Noto Emoji font (SIL Open Font License 1.1) and Material ico
 - Если писать некуда, события сохраняются в календарь только на телефоне.
 - Напоминания приходят уведомлением с кнопками «Через 10 минут» и «Закрыть». Их можно выключить в настройках, если о событиях уже напоминает другое приложение, например Google Календарь.
 - Виджет на домашний экран, нарисованный одной чёрно-белой картинкой: дата и то, что осталось сегодня и завтра; высокий виджет показывает ещё и месяц. Он перерисовывается, только когда меняется то, что на нём.
+- Если установлен [Ink Tasks](../ink-tasks/README.md#ink-tasks-1), его невыполненные задачи со сроком идут после событий дня — с пустым квадратом, списком и временем напоминания — и попадают на виджет. Просроченная задача остаётся в свой день. Нажатие открывает задачу в Ink Tasks. Доступ к задачам календарь спрашивает один раз; в настройках их можно выключить.
 - Любой календарь можно скрыть в настройках. Настройки размера текста, толщины шрифта, скругления кнопок, цветов, списков и вибрации — общие с другими приложениями Ink.
 
-Ink Calendar не ходит в интернет. Приложение просит доступ к календарям на телефоне и показ уведомлений — для напоминаний. Подробнее — в [PRIVACY.md](PRIVACY.md).
+Ink Calendar не ходит в интернет. Приложение просит доступ к календарям на телефоне, показ уведомлений — для напоминаний — и, если установлен Ink Tasks, чтение его задач. Подробнее — в [PRIVACY.md](PRIVACY.md).
 
 ### Установка
 

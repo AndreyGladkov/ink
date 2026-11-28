@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <permission
+        android:name="${applicationId}.permission.READ_TASKS"
+        tools:ignore="SystemPermissionTypo"
+        android:description="@string/permission_read_tasks_description"
+        android:label="@string/permission_read_tasks"
+        android:protectionLevel="dangerous" />
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission
@@ -59,6 +67,22 @@
             android:name="io.github.andreygladkov.ink.ui.InkTimeActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
+        <activity
+            android:name=".calendar.OpenTaskActivity"
+            android:permission="${applicationId}.permission.READ_TASKS"
+            android:theme="@android:style/Theme.NoDisplay"
+            tools:ignore="SystemPermissionTypo"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="io.github.andreygladkov.inktasks.action.OPEN_TASK" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <provider
+            android:name=".calendar.TasksProvider"
+            android:authorities="${applicationId}.tasks"
+            android:readPermission="${applicationId}.permission.READ_TASKS"
+            android:exported="true" />
         <receiver
             android:name=".remind.ReminderReceiver"
             android:exported="false">
